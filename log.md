@@ -6,4 +6,4 @@
 - KAN-27: Starting User domain class implementation.
 - Branch: saif-auth
 - Status: In Progress
-- Estimated time: 1.5 hours
+
