@@ -8,8 +8,8 @@
 - Status: In Progress
 
 Created UserRepository + StubUserRepository with sample users.
-
-mplemented AuthService login logic.
+##Feb 20
+implemented AuthService login logic.
 
 Added JUnit tests for login scenarios.
  All tests passing. 7:34am
