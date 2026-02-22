@@ -8,7 +8,10 @@
 - Status: In Progress
 
 Created UserRepository + StubUserRepository with sample users.
-##Feb 20
+
+
+##Feb 20, 2026
+### User story sign in
 implemented AuthService login logic.
 
 Added JUnit tests for login scenarios.
@@ -17,3 +20,8 @@ Added JUnit tests for login scenarios.
  Built Swing LoginFrame and connected to AuthService.
 
  didnt stage userRespirotery and stubuser respirotery on feb 16
+ 
+ -branch: saif-auth
+ time spent 4 days
+ 
+ 
