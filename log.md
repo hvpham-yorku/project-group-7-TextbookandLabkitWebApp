@@ -30,7 +30,7 @@ Added JUnit tests for login scenarios.
 - Status: In Progress
 - Tasks Planned for Today:
   - KAN-34: Add session handling (currentUser variable) - *Estimated time: 1 hour* (done)
-  *Actual: 15 minutes*
+  *Actual: 30 minutes*
   - KAN-33: Implement logout functionality in AuthService - *Estimated time: 1 hour*(done)
   *Actual: 15 minutes*
   - KAN-36: Add Logout button to GUI - *Estimated time: 2 hours*
