@@ -29,8 +29,10 @@ Added JUnit tests for login scenarios.
 - Branch: saif-log-in-out
 - Status: In Progress
 - Tasks Planned for Today:
-  - KAN-34: Add session handling (currentUser variable) - *Estimated time: 1 hour*
-  - KAN-33: Implement logout functionality in AuthService - *Estimated time: 1 hour*
+  - KAN-34: Add session handling (currentUser variable) - *Estimated time: 1 hour* (done)
+  *Actual: 15 minutes*
+  - KAN-33: Implement logout functionality in AuthService - *Estimated time: 1 hour*(done)
+  *Actual: 15 minutes*
   - KAN-36: Add Logout button to GUI - *Estimated time: 2 hours*
   - KAN-37: Write unit tests for logout - *Estimated time: 1.5 hours*
 

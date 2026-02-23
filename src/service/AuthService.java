@@ -6,6 +6,8 @@ import repository.UserRepository;
 public class AuthService {
 
     private final UserRepository userRepository;
+    //for memory
+    private User currentUser;
 
     public AuthService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -29,8 +31,21 @@ public class AuthService {
         if (!user.getPassword().equals(password)) {
             return null;
         }
+        
+        //to save the user
+        this.currentUser = user;
 
         // 4. Success
         return user;
     }
+    
+    public User getCurrentUser() {
+    	return this.currentUser;
+    	
+    }
+    
+    public void logout() {
+    	this.currentUser = null;
+    }
+    
 }
