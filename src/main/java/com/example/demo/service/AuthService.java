@@ -1,11 +1,15 @@
-package service;
+package com.example.demo.service;
 
-import domain.User;
-import repository.UserRepository;
+import com.example.demo.domain.User;
+import com.example.demo.repository.UserRepository;
+import org.springframework.stereotype.Service;
 
+@Service
 public class AuthService {
 
     private final UserRepository userRepository;
+    //for memory this would save what u did in the run and keep it save as long program is running
+    private User currentUser;
 
     public AuthService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -29,8 +33,21 @@ public class AuthService {
         if (!user.getPassword().equals(password)) {
             return null;
         }
+        
+        //to save the user - for login/out when session starts
+        this.currentUser = user;
 
         // 4. Success
         return user;
     }
+    // save the user to know who logged in
+    public User getCurrentUser() {
+    	return this.currentUser;
+    	
+    }
+    
+    public void logout() {
+    	this.currentUser = null;
+    }
+    
 }

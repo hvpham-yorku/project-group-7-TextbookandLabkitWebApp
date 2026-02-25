@@ -1,13 +1,13 @@
-package service;
+package com.example.demo.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import domain.User;
-import repository.StubUserRepository;
-import repository.UserRepository;
+import com.example.demo.domain.User;
+import com.example.demo.repository.StubUserRepository;
+import com.example.demo.repository.UserRepository;
 
 public class AuthServiceTest {
 

@@ -2,6 +2,7 @@
 
 ## Feb 16, 2026
 ### User Story: User Sign-In
+**Attendees:** Saif  **
 
  Starting User domain class implementation.
 - Branch: saif-auth
@@ -12,6 +13,9 @@ Created UserRepository + StubUserRepository with sample users.
 
 ##Feb 20, 2026
 ### User story sign in
+**Attendees:** Saif  
+
+
 implemented AuthService login logic.
 
 Added JUnit tests for login scenarios.
@@ -24,4 +28,29 @@ Added JUnit tests for login scenarios.
  -branch: saif-auth
  time spent 4 days
  
+## Feb 22, 2026
+### User Story: User Sign-Out & Session Management
+**Attendees:** Saif  
+
+
+- Branch: saif-log-in-out
+- Status: In Progress
+- Tasks Planned for Today:
+  - KAN-34: Add session handling (currentUser variable) - *Estimated time: 1 hour* (done)
+  *Actual: 30 minutes*
+  - KAN-33: Implement logout functionality in AuthService - *Estimated time: 1 hour*(done)
+  *Actual: 15 minutes*
+  - KAN-36: Add Logout button to GUI - *Estimated time: 2 hours*
+  - KAN-37: Write unit tests for logout - *Estimated time: 1.5 hours*
+  
+
+## Feb 24, 2026
+
+**Branch:** saif-login-logot
+**Attendees:** Saif  
+
+- Continued work on Login/Logout feature.
+- Migrating project from Swing to Spring Boot web architecture.
+- Restructuring project to Maven format for ITR1 compliance.
  
+  

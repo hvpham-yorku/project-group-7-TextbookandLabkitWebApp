@@ -1,10 +1,14 @@
-package repository;
+package com.example.demo.repository;
 
 import java.util.ArrayList;
+
 import java.util.List;
 
-import domain.User;
+import org.springframework.stereotype.Repository;
 
+import com.example.demo.domain.User;
+
+@Repository
 public class StubUserRepository implements UserRepository {
 
     private final List<User> users = new ArrayList<>();
