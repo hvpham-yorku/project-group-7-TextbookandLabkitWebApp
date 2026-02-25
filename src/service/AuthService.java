@@ -6,7 +6,7 @@ import repository.UserRepository;
 public class AuthService {
 
     private final UserRepository userRepository;
-    //for memory
+    //for memory this would save what u did in the run and keep it save as long program is running
     private User currentUser;
 
     public AuthService(UserRepository userRepository) {
@@ -32,13 +32,13 @@ public class AuthService {
             return null;
         }
         
-        //to save the user
+        //to save the user - for login/out when session starts
         this.currentUser = user;
 
         // 4. Success
         return user;
     }
-    
+    // save the user to know who logged in
     public User getCurrentUser() {
     	return this.currentUser;
     	
