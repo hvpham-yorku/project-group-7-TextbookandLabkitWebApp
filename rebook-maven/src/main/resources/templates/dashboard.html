@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+</head>
+<body>
+  <h2>Dashboard</h2>
+
+  <p>Welcome: <span th:text="${user.name}"></span></p>
+  <p>Email: <span th:text="${user.email}"></span></p>
+
+  <form method="post" action="/logout">
+    <button type="submit">Logout</button>
+  </form>
+</body>
+</html>
