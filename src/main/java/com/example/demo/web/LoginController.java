@@ -35,7 +35,7 @@ public class LoginController {
         User user = authService.login(email, password);
 
         if (user == null) {
-            model.addAttribute("error", "Invalid email/password (must be @yorku.ca).");
+            model.addAttribute("error", "Invalid email/password (must be @my.yorku.ca).");
             return "login";
         }
 
@@ -50,6 +50,15 @@ public class LoginController {
 
         model.addAttribute("user", u);
         return "dashboard";
+    }
+
+    @GetMapping("/profile")
+    public String profile(HttpSession session, Model model) {
+        Object u = session.getAttribute("user");
+        if (u == null) return "redirect:/login";
+
+        model.addAttribute("user", u);
+        return "profile";
     }
 
     @PostMapping("/logout")

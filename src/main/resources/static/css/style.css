@@ -1,0 +1,31 @@
+body.login-page {
+    background: #f4f6f9;
+    font-family: Arial, sans-serif;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 15px;
+}
+
+h2 {
+    color: #8c1d40;
+}
+
+.btn-primary {
+    background-color: #8c1d40;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #6f1633;
+}
+
+.form-control {
+    border-radius: 10px;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}

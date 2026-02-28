@@ -18,7 +18,7 @@ public class AuthService {
     public User login(String email, String password) {
 
         // 1. Validate York email
-        if (email == null || !email.endsWith("@yorku.ca")) {
+        if (email == null || !email.endsWith("@my.yorku.ca")) {
             return null;
         }
 

@@ -21,26 +21,65 @@ public class AuthServiceTest {
 
     @Test
     void validLoginShouldReturnUser() {
-        User user = auth.login("saif0@yorku.ca", "1234");
+        User user = auth.login("saif0@my.yorku.ca", "1234");
+
         assertNotNull(user);
         assertEquals("Saif", user.getName());
     }
 
     @Test
     void wrongPasswordShouldReturnNull() {
-        User user = auth.login("saif0@yorku.ca", "wrong");
+        User user = auth.login("saif0@my.yorku.ca", "wrong");
+
         assertNull(user);
     }
 
     @Test
     void nonYorkEmailShouldReturnNull() {
         User user = auth.login("gmail@gmail.com", "1234");
+
+        assertNull(user);
+    }
+
+    @Test
+    void wrongYorkDomainShouldReturnNull() {
+        User user = auth.login("saif0@yorku.ca", "1234");
+
         assertNull(user);
     }
 
     @Test
     void unknownUserShouldReturnNull() {
-        User user = auth.login("unknown@yorku.ca", "1234");
+        User user = auth.login("unknown@my.yorku.ca", "1234");
+
         assertNull(user);
     }
+    
+    @Test
+    void successfulLoginShouldSetCurrentUser() {
+        User user = auth.login("saif0@my.yorku.ca", "1234");
+
+        assertNotNull(user);
+        assertEquals(user, auth.getCurrentUser());
+    }
+    
+    @Test
+    void logoutShouldClearCurrentUser() {
+        auth.login("saif0@my.yorku.ca", "1234");
+
+        assertNotNull(auth.getCurrentUser());
+
+        auth.logout();
+
+        assertNull(auth.getCurrentUser());
+    }
+
+    @Test
+    void logoutWithoutLoginShouldStillLeaveCurrentUserNull() {
+        auth.logout();
+
+        assertNull(auth.getCurrentUser());
+    }
+    
+    
 }

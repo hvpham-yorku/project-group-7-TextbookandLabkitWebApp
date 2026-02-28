@@ -77,5 +77,39 @@ Added JUnit tests for login scenarios.
 
 - next waiting for omar to respond and start participating and waiting for ayesha to finish her part while working on the next part which is created a user profile page
 
+
+## Feb 25, 2026
+### User Story: Listing Domain Model
+**Attendees:** Ayesha  
+
+- Implemented `Listing` domain class.
+- Added fields: id, title, courseCode, price, sellerEmail, sold.
+- Included getters and setters for editable fields.
+- Added `markSold()` method to update listing status.
+- Structured model to support future listing management features.
+
+
+
+
+## Feb 27, 2026
+### User Story: Authentication Domain Update + Profile Page
+**Attendees:** Saif, ayesha  
+**Branch:** main  
+
+Saif:
+- Updated authentication domain from `@yorku.ca` to `@my.yorku.ca`.
+- Modified AuthService validation logic and updated StubUserRepository test users.
+- Updated LoginController error messaging.
+- Added `/profile` endpoint with session-based access control.
+- Upgraded login and dashboard UI using Bootstrap.
+- Expanded AuthServiceTest with additional login/logout and domain validation tests.
+- Verified updated login flow and session handling.
+
+
+	
+
+
+
+
  
   

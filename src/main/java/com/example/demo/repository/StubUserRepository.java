@@ -15,9 +15,9 @@ public class StubUserRepository implements UserRepository {
 
     public StubUserRepository() {
         // Sample York users (stub)
-        users.add(new User("abc123@yorku.ca", "pass123", "Alex York"));
-        users.add(new User("saif0@yorku.ca", "1234", "Saif"));
-        users.add(new User("student1@yorku.ca", "welcome", "Student One"));
+        users.add(new User("abc123@my.yorku.ca", "pass123", "Alex York"));
+        users.add(new User("saif0@my.yorku.ca", "1234", "Saif"));
+        users.add(new User("student1@my.yorku.ca", "welcome", "Student One"));
     }
 
     @Override
