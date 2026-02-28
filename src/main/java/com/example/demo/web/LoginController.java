@@ -61,6 +61,15 @@ public class LoginController {
         return "profile";
     }
 
+    @GetMapping("/profile/edit")
+    public String editProfilePage(HttpSession session, Model model) {
+        Object u = session.getAttribute("user");
+        if (u == null) return "redirect:/login";
+
+        model.addAttribute("user", u);
+        return "profile-edit";
+    }
+
     @PostMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
