@@ -29,4 +29,14 @@ public class StubUserRepository implements UserRepository {
         }
         return null;
     }
+
+    @Override
+    public void updateUser(User updatedUser) {
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i).getEmail().equalsIgnoreCase(updatedUser.getEmail())) {
+                users.set(i, updatedUser);
+                return;
+            }
+        }
+    }
 }
