@@ -49,5 +49,12 @@ public class AuthService {
     public void logout() {
     	this.currentUser = null;
     }
-    
+
+    public User updateProfile(User currentUser, String newName, String newEmail) {
+        if (currentUser == null) return null;
+        User updated = new User(newEmail, currentUser.getPassword(), newName);
+        userRepository.updateUser(updated);
+        return updated;
+    }
+
 }

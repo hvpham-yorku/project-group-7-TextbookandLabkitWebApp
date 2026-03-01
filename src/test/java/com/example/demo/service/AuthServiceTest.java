@@ -11,11 +11,12 @@ import com.example.demo.repository.UserRepository;
 
 public class AuthServiceTest {
 
+    private StubUserRepository repo;
     private AuthService auth;
 
     @BeforeEach
     void setUp() {
-        UserRepository repo = new StubUserRepository();
+        repo = new StubUserRepository();
         auth = new AuthService(repo);
     }
 
@@ -80,6 +81,32 @@ public class AuthServiceTest {
 
         assertNull(auth.getCurrentUser());
     }
-    
-    
+
+    @Test
+    void updateProfile_withValidUser_updatesRepositoryAndReturnsUpdatedUser() {
+        User current = new User("saif0@my.yorku.ca", "1234", "Saif");
+
+        User result = auth.updateProfile(current, "New Name", "saif0@my.yorku.ca");
+
+        assertNotNull(result);
+        assertEquals("New Name", result.getName());
+        assertEquals("saif0@my.yorku.ca", result.getEmail());
+        assertEquals("1234", result.getPassword());
+
+        User fromRepo = repo.findByEmail("saif0@my.yorku.ca");
+        assertNotNull(fromRepo);
+        assertEquals("New Name", fromRepo.getName());
+    }
+
+    @Test
+    void updateProfile_withNullUser_returnsNullAndDoesNotUpdateRepository() {
+        User result = auth.updateProfile(null, "New Name", "saif0@my.yorku.ca");
+
+        assertNull(result);
+        // Original stub entry must still be intact
+        User fromRepo = repo.findByEmail("saif0@my.yorku.ca");
+        assertNotNull(fromRepo);
+        assertEquals("Saif", fromRepo.getName());
+    }
+
 }

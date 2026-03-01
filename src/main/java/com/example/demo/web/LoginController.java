@@ -2,7 +2,6 @@ package com.example.demo.web;
 
 import com.example.demo.service.AuthService;
 import com.example.demo.domain.User;
-import com.example.demo.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,11 +11,9 @@ import org.springframework.web.bind.annotation.*;
 public class LoginController {
 
     private final AuthService authService;
-    private final UserRepository userRepository;
 
-    public LoginController(AuthService authService, UserRepository userRepository) {
+    public LoginController(AuthService authService) {
         this.authService = authService;
-        this.userRepository = userRepository;
     }
 
     @GetMapping("/")
@@ -80,8 +77,8 @@ public class LoginController {
         User current = (User) session.getAttribute("user");
         if (current == null) return "redirect:/login";
 
-        User updated = new User(email, current.getPassword(), name);
-        userRepository.updateUser(updated);
+        User updated = authService.updateProfile(current, name, email);
+        if (updated == null) return "redirect:/login";
         session.setAttribute("user", updated);
         return "redirect:/profile";
     }
