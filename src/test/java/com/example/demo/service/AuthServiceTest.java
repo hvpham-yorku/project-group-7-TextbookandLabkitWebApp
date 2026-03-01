@@ -83,30 +83,68 @@ public class AuthServiceTest {
     }
 
     @Test
-    void updateProfile_withValidUser_updatesRepositoryAndReturnsUpdatedUser() {
+    void updateProfile_nameOnly_updatesNameKeepsEmail() {
         User current = new User("saif0@my.yorku.ca", "1234", "Saif");
 
-        User result = auth.updateProfile(current, "New Name", "saif0@my.yorku.ca");
+        User result = auth.updateProfile(current, "Saif Updated", "saif0@my.yorku.ca");
 
         assertNotNull(result);
-        assertEquals("New Name", result.getName());
+        assertEquals("Saif Updated", result.getName());
         assertEquals("saif0@my.yorku.ca", result.getEmail());
         assertEquals("1234", result.getPassword());
 
         User fromRepo = repo.findByEmail("saif0@my.yorku.ca");
         assertNotNull(fromRepo);
-        assertEquals("New Name", fromRepo.getName());
+        assertEquals("Saif Updated", fromRepo.getName());
     }
 
     @Test
-    void updateProfile_withNullUser_returnsNullAndDoesNotUpdateRepository() {
-        User result = auth.updateProfile(null, "New Name", "saif0@my.yorku.ca");
+    void updateProfile_emailOnly_oldEmailGoneNewEmailFound() {
+        User current = new User("saif0@my.yorku.ca", "1234", "Saif");
+
+        User result = auth.updateProfile(current, "Saif", "saif.new@my.yorku.ca");
+
+        assertNotNull(result);
+        assertEquals("saif.new@my.yorku.ca", result.getEmail());
+        assertEquals("Saif", result.getName());
+
+        assertNull(repo.findByEmail("saif0@my.yorku.ca"));         // old gone
+        assertNotNull(repo.findByEmail("saif.new@my.yorku.ca"));   // new present
+    }
+
+    @Test
+    void updateProfile_bothNameAndEmail_persistsCorrectly() {
+        User current = new User("saif0@my.yorku.ca", "1234", "Saif");
+
+        User result = auth.updateProfile(current, "Ali", "ali@my.yorku.ca");
+
+        assertNotNull(result);
+        assertEquals("Ali", result.getName());
+        assertEquals("ali@my.yorku.ca", result.getEmail());
+
+        assertNull(repo.findByEmail("saif0@my.yorku.ca"));
+        User fromRepo = repo.findByEmail("ali@my.yorku.ca");
+        assertNotNull(fromRepo);
+        assertEquals("Ali", fromRepo.getName());
+    }
+
+    @Test
+    void updateProfile_invalidEmail_returnsNullRepositoryUnchanged() {
+        User current = new User("saif0@my.yorku.ca", "1234", "Saif");
+
+        User result = auth.updateProfile(current, "Saif", "saif@gmail.com");
 
         assertNull(result);
-        // Original stub entry must still be intact
+        // original record still intact
         User fromRepo = repo.findByEmail("saif0@my.yorku.ca");
         assertNotNull(fromRepo);
         assertEquals("Saif", fromRepo.getName());
+    }
+
+    @Test
+    void updateProfile_nullCurrentUser_returnsNull() {
+        User result = auth.updateProfile(null, "Name", "name@my.yorku.ca");
+        assertNull(result);
     }
 
 }

@@ -52,8 +52,10 @@ public class AuthService {
 
     public User updateProfile(User currentUser, String newName, String newEmail) {
         if (currentUser == null) return null;
+        if (newEmail == null || !newEmail.endsWith("@my.yorku.ca")) return null;
+
         User updated = new User(newEmail, currentUser.getPassword(), newName);
-        userRepository.updateUser(updated);
+        userRepository.updateUser(currentUser.getEmail(), updated);
         return updated;
     }
 

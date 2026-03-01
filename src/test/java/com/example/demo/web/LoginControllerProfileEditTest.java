@@ -4,9 +4,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,5 +56,25 @@ public class LoginControllerProfileEditTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/profile"))
                 .andExpect(request().sessionAttribute("user", updatedUser));
+    }
+
+    @Test
+    void postProfileEdit_withInvalidEmail_returnsEditPageWithError() throws Exception {
+        User sessionUser = new User("saif0@my.yorku.ca", "1234", "Saif");
+
+        // authService returns null for bad email
+        when(authService.updateProfile(any(User.class), eq("Saif"), eq("bad@gmail.com")))
+                .thenReturn(null);
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("user", sessionUser);
+
+        mockMvc.perform(post("/profile/edit")
+                        .session(session)
+                        .param("name", "Saif")
+                        .param("email", "bad@gmail.com"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("profile-edit"))
+                .andExpect(model().attributeExists("error"));
     }
 }

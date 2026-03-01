@@ -73,12 +73,17 @@ public class LoginController {
     @PostMapping("/profile/edit")
     public String editProfileSubmit(@RequestParam String name,
                                     @RequestParam String email,
-                                    HttpSession session) {
+                                    HttpSession session,
+                                    Model model) {
         User current = (User) session.getAttribute("user");
         if (current == null) return "redirect:/login";
 
         User updated = authService.updateProfile(current, name, email);
-        if (updated == null) return "redirect:/login";
+        if (updated == null) {
+            model.addAttribute("user", current);
+            model.addAttribute("error", "Email must end with @my.yorku.ca.");
+            return "profile-edit";
+        }
         session.setAttribute("user", updated);
         return "redirect:/profile";
     }

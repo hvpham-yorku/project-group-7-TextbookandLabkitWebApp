@@ -31,12 +31,13 @@ public class StubUserRepository implements UserRepository {
     }
 
     @Override
-    public void updateUser(User updatedUser) {
+    public void updateUser(String oldEmail, User updatedUser) {
         for (int i = 0; i < users.size(); i++) {
-            if (users.get(i).getEmail().equalsIgnoreCase(updatedUser.getEmail())) {
+            if (users.get(i).getEmail().equalsIgnoreCase(oldEmail)) {
                 users.set(i, updatedUser);
                 return;
             }
         }
+        // oldEmail not found → silent no-op (user never existed)
     }
 }
