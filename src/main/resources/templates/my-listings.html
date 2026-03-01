@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Listings - YorkU Circle</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+  <a class="navbar-brand" href="/dashboard">YorkU Circle</a>
+
+  <div class="ms-auto">
+    <a href="/profile" class="btn btn-outline-light me-2">Profile</a>
+    <form action="/logout" method="post" style="display:inline;">
+      <button type="submit" class="btn btn-light">Logout</button>
+    </form>
+  </div>
+</nav>
+
+<div class="container mt-5">
+
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h2 class="mb-1">My Listings</h2>
+      <div class="text-muted">Signed in as <span th:text="${user.email}"></span></div>
+    </div>
+    <a class="btn btn-secondary" href="/dashboard">Back to Dashboard</a>
+  </div>
+
+  <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div th:if="${#lists.isEmpty(listings)}" class="text-muted">
+        You don't have any listings yet.
+      </div>
+
+      <div th:unless="${#lists.isEmpty(listings)}" class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th style="width: 280px;">Update</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="l : ${listings}">
+            <td th:text="${l.id}"></td>
+            <td th:text="${l.title}"></td>
+            <td th:text="${l.description}"></td>
+            <td>
+  <span class="badge bg-success"
+        th:if="${l.status == T(com.example.demo.domain.ListingStatus).AVAILABLE}">
+    AVAILABLE
+  </span>
+
+  <span class="badge bg-warning text-dark"
+        th:if="${l.status == T(com.example.demo.domain.ListingStatus).UNAVAILABLE}">
+    UNAVAILABLE
+  </span>
+
+  <span class="badge bg-secondary"
+        th:if="${l.status == T(com.example.demo.domain.ListingStatus).SOLD}">
+    SOLD
+  </span>
+</td>
+            <td>
+              <form th:action="@{/listings/{id}/status(id=${l.id})}" method="post" class="d-flex gap-2">
+                <select class="form-select" name="status">
+                  <option th:each="s : ${statuses}"
+                          th:value="${s}"
+                          th:selected="${s} == l.status"
+                          th:text="${s}">
+                  </option>
+                </select>
+                <button type="submit" class="btn btn-primary">Save</button>
+              </form>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="small text-muted mt-2">
+        Tip: Set to <b>SOLD</b> once purchased/exchanged, or <b>UNAVAILABLE</b> if you temporarily hide it.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
