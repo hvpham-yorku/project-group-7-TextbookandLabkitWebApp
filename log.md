@@ -100,10 +100,25 @@ Saif:
 - Updated authentication domain from `@yorku.ca` to `@my.yorku.ca`.
 - Modified AuthService validation logic and updated StubUserRepository test users.
 - Updated LoginController error messaging.
-- Added `/profile` endpoint with session-based access control.
+- Added profile endpoint with session-based access control.
 - Upgraded login and dashboard UI using Bootstrap.
 - Expanded AuthServiceTest with additional login/logout and domain validation tests.
 - Verified updated login flow and session handling.
+
+
+## Feb 28, 2026
+### User Story: Edit Student Profile
+**Attendees:** Saif  
+**Branch:** saif-edit-profile  
+
+Saif:
+- Added Edit Profile navigation and created profile-edit.html.
+- Implemented GET and POST mappings for profile/edit.
+- Preserved immutable Userby creating updated instance.
+- Added updateUser() in repository with Stub implementation.
+- Moved update logic to AuthService and updated session handling.
+- Added JUnit tests for profile update flow.
+
 
 
 	
