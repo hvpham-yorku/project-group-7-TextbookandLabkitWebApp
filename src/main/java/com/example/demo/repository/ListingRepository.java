@@ -16,4 +16,6 @@ public interface ListingRepository {
     Listing create(String sellerEmail, String title, String description, BigDecimal price);
 
     boolean deleteById(long id);
+
+    void updateSellerEmail(String oldEmail, String newEmail);
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,15 +22,33 @@
 </nav>
 
 <div class="container mt-5">
-    <div class="card shadow p-4">
+    <div class="card shadow p-4" style="max-width: 600px; margin: auto;">
         <h2 class="mb-4">My Profile</h2>
 
-        <p><strong>Name:</strong> <span th:text="${user.name}"></span></p>
-        <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
-        <p><strong>Student ID:</strong> 123456789</p>
-        <p><strong>Program:</strong> Software Engineering</p>
+        <dl class="row mb-0">
+            <dt class="col-sm-4">Name</dt>
+            <dd class="col-sm-8" th:text="${user.name}">—</dd>
 
-        <a th:href="@{/profile/edit}" class="btn btn-primary mt-3">Edit Profile</a>
+            <dt class="col-sm-4">Email</dt>
+            <dd class="col-sm-8" th:text="${user.email}">—</dd>
+
+            <dt class="col-sm-4">Student ID</dt>
+            <dd class="col-sm-8" th:text="${user.studentId != null} ? ${user.studentId} : '—'">—</dd>
+
+            <dt class="col-sm-4">Phone</dt>
+            <dd class="col-sm-8" th:text="${user.phoneNumber != null and !#strings.isEmpty(user.phoneNumber)} ? ${user.phoneNumber} : '—'">—</dd>
+
+            <dt class="col-sm-4">Program</dt>
+            <dd class="col-sm-8" th:text="${user.program != null and !#strings.isEmpty(user.program)} ? ${user.program} : '—'">—</dd>
+
+            <dt class="col-sm-4">Campus</dt>
+            <dd class="col-sm-8" th:text="${user.campus != null and !#strings.isEmpty(user.campus)} ? ${user.campus} : '—'">—</dd>
+
+            <dt class="col-sm-4">About Me</dt>
+            <dd class="col-sm-8" th:text="${user.aboutMe != null and !#strings.isEmpty(user.aboutMe)} ? ${user.aboutMe} : '—'">—</dd>
+        </dl>
+
+        <a th:href="@{/profile/edit}" class="btn btn-primary mt-4">Edit Profile</a>
     </div>
 </div>
 

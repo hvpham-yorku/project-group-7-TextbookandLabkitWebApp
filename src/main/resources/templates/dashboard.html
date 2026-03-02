@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,19 +15,74 @@
 
     <div class="ms-auto">
         <a href="/profile" class="btn btn-outline-light me-2">Profile</a>
-		<form action="/logout" method="post" style="display:inline;">
-		    <button type="submit" class="btn btn-light">Logout</button>
-		</form>
+        <form action="/logout" method="post" style="display:inline;">
+            <button type="submit" class="btn btn-light">Logout</button>
+        </form>
     </div>
 </nav>
 
 <div class="container mt-5">
-    <div class="p-5 bg-light rounded shadow-sm">
-        <h1 class="mb-3">Welcome!</h1>
-        <p class="lead">You have successfully logged in.</p>
-        <p>This is your dashboard. Later you can add listings, messages, and profile features here.</p>
-        <a href="/my-listings" class="btn btn-primary mt-2">My Listings</a>
+
+    <div class="p-4 bg-light rounded shadow-sm mb-4">
+        <h1 class="mb-1">Welcome back!</h1>
+        <p class="text-muted mb-0">Signed in as <span th:text="${user.email}"></span></p>
     </div>
+
+    <!-- Listings Summary -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="card-title mb-0">My Listings</h5>
+                <a href="/my-listings" class="btn btn-primary btn-sm">View All / Manage</a>
+            </div>
+
+            <div th:if="${#lists.isEmpty(listings)}" class="text-muted">
+                You have no listings yet. <a href="/my-listings">Create your first listing.</a>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(listings)}">
+                <p class="text-muted mb-2">
+                    You have <strong th:text="${#lists.size(listings)}"></strong> listing(s).
+                </p>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="l : ${listings}">
+                            <td th:text="${l.title}"></td>
+                            <td th:text="'$' + ${l.price}"></td>
+                            <td>
+                                <span class="badge bg-success"
+                                      th:if="${l.status == T(com.example.demo.domain.ListingStatus).AVAILABLE}">
+                                    AVAILABLE
+                                </span>
+                                <span class="badge bg-warning text-dark"
+                                      th:if="${l.status == T(com.example.demo.domain.ListingStatus).UNAVAILABLE}">
+                                    UNAVAILABLE
+                                </span>
+                                <span class="badge bg-secondary"
+                                      th:if="${l.status == T(com.example.demo.domain.ListingStatus).SOLD}">
+                                    SOLD
+                                </span>
+                            </td>
+                            <td>
+                                <a th:href="@{/listings/{id}/edit(id=${l.id})}" class="btn btn-outline-primary btn-sm">Edit</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 </body>

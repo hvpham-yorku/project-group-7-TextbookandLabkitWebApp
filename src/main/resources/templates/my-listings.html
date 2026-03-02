@@ -33,6 +33,29 @@
 
   <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
+  <!-- Add Listing Form -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title mb-3">Add a New Listing</h5>
+      <form action="/listings" method="post">
+        <div class="mb-3">
+          <label for="title" class="form-label">Title</label>
+          <input type="text" class="form-control" id="title" name="title" placeholder="e.g. EECS 2311 Textbook" required>
+        </div>
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <input type="text" class="form-control" id="description" name="description" placeholder="e.g. Good condition, some highlights." required>
+        </div>
+        <div class="mb-3">
+          <label for="price" class="form-label">Price ($)</label>
+          <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" placeholder="e.g. 40.00" required>
+        </div>
+        <button type="submit" class="btn btn-success">Add Listing</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Listings Table -->
   <div class="card shadow-sm">
     <div class="card-body">
       <div th:if="${#lists.isEmpty(listings)}" class="text-muted">
@@ -46,8 +69,9 @@
             <th>ID</th>
             <th>Title</th>
             <th>Description</th>
+            <th>Price</th>
             <th>Status</th>
-            <th style="width: 280px;">Update</th>
+            <th>Edit</th>
           </tr>
           </thead>
           <tbody>
@@ -55,41 +79,27 @@
             <td th:text="${l.id}"></td>
             <td th:text="${l.title}"></td>
             <td th:text="${l.description}"></td>
+            <td th:text="'$' + ${l.price}"></td>
             <td>
-  <span class="badge bg-success"
-        th:if="${l.status == T(com.example.demo.domain.ListingStatus).AVAILABLE}">
-    AVAILABLE
-  </span>
-
-  <span class="badge bg-warning text-dark"
-        th:if="${l.status == T(com.example.demo.domain.ListingStatus).UNAVAILABLE}">
-    UNAVAILABLE
-  </span>
-
-  <span class="badge bg-secondary"
-        th:if="${l.status == T(com.example.demo.domain.ListingStatus).SOLD}">
-    SOLD
-  </span>
-</td>
+              <span class="badge bg-success"
+                    th:if="${l.status == T(com.example.demo.domain.ListingStatus).AVAILABLE}">
+                AVAILABLE
+              </span>
+              <span class="badge bg-warning text-dark"
+                    th:if="${l.status == T(com.example.demo.domain.ListingStatus).UNAVAILABLE}">
+                UNAVAILABLE
+              </span>
+              <span class="badge bg-secondary"
+                    th:if="${l.status == T(com.example.demo.domain.ListingStatus).SOLD}">
+                SOLD
+              </span>
+            </td>
             <td>
-              <form th:action="@{/listings/{id}/status(id=${l.id})}" method="post" class="d-flex gap-2">
-                <select class="form-select" name="status">
-                  <option th:each="s : ${statuses}"
-                          th:value="${s}"
-                          th:selected="${s} == l.status"
-                          th:text="${s}">
-                  </option>
-                </select>
-                <button type="submit" class="btn btn-primary">Save</button>
-              </form>
+              <a th:href="@{/listings/{id}/edit(id=${l.id})}" class="btn btn-outline-primary btn-sm">Edit</a>
             </td>
           </tr>
           </tbody>
         </table>
-      </div>
-
-      <div class="small text-muted mt-2">
-        Tip: Set to <b>SOLD</b> once purchased/exchanged, or <b>UNAVAILABLE</b> if you temporarily hide it.
       </div>
     </div>
   </div>

@@ -1,6 +1,7 @@
 package com.example.demo.web;
 
 import com.example.demo.service.AuthService;
+import com.example.demo.service.ListingService;
 import com.example.demo.domain.User;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -11,9 +12,11 @@ import org.springframework.web.bind.annotation.*;
 public class LoginController {
 
     private final AuthService authService;
+    private final ListingService listingService;
 
-    public LoginController(AuthService authService) {
+    public LoginController(AuthService authService, ListingService listingService) {
         this.authService = authService;
+        this.listingService = listingService;
     }
 
     @GetMapping("/")
@@ -48,7 +51,9 @@ public class LoginController {
         Object u = session.getAttribute("user");
         if (u == null) return "redirect:/login";
 
-        model.addAttribute("user", u);
+        User user = (User) u;
+        model.addAttribute("user", user);
+        model.addAttribute("listings", listingService.getListingsForSeller(user.getEmail()));
         return "dashboard";
     }
 
@@ -71,19 +76,27 @@ public class LoginController {
     }
 
     @PostMapping("/profile/edit")
-    public String editProfileSubmit(@RequestParam String name,
-                                    @RequestParam String email,
-                                    HttpSession session,
-                                    Model model) {
+    public String editProfileSubmit(
+            @RequestParam String name,
+            @RequestParam(value = "phoneNumber", required = false, defaultValue = "") String phoneNumber,
+            @RequestParam(value = "aboutMe",     required = false, defaultValue = "") String aboutMe,
+            @RequestParam(value = "program",     required = false, defaultValue = "") String program,
+            @RequestParam(value = "campus",      required = false, defaultValue = "") String campus,
+            HttpSession session,
+            Model model) {
+
         User current = (User) session.getAttribute("user");
         if (current == null) return "redirect:/login";
 
-        User updated = authService.updateProfile(current, name, email);
+        // Email is read-only — always keep the existing email
+        User updated = authService.updateProfile(current, name, current.getEmail());
         if (updated == null) {
             model.addAttribute("user", current);
-            model.addAttribute("error", "Email must end with @my.yorku.ca.");
+            model.addAttribute("error", "Could not update profile.");
             return "profile-edit";
         }
+
+        authService.updateProfileDetails(updated, phoneNumber, aboutMe, program, campus);
         session.setAttribute("user", updated);
         return "redirect:/profile";
     }

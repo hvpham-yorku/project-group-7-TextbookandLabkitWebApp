@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,24 +22,77 @@
 </nav>
 
 <div class="container mt-5">
-    <div class="card shadow p-4" style="max-width: 500px; margin: auto;">
+    <div class="card shadow p-4" style="max-width: 600px; margin: auto;">
         <h2 class="mb-4">Edit Profile</h2>
 
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
         <form method="post" th:action="@{/profile/edit}">
+
+            <!-- Name (editable) -->
             <div class="mb-3">
                 <label for="name" class="form-label">Name</label>
                 <input type="text" class="form-control" id="name" name="name"
                        th:value="${user.name}" required>
             </div>
+
+            <!-- Email (read-only — displayed but not submitted) -->
             <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email"
-                       th:value="${user.email}" required>
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" th:value="${user.email}" disabled>
+                <div class="form-text">Email cannot be changed.</div>
             </div>
+
+            <!-- Student ID (read-only) -->
+            <div class="mb-3">
+                <label class="form-label">Student ID</label>
+                <input type="text" class="form-control"
+                       th:value="${user.studentId != null} ? ${user.studentId} : ''"
+                       disabled>
+                <div class="form-text">Student ID cannot be changed.</div>
+            </div>
+
+            <!-- Phone Number (editable) -->
+            <div class="mb-3">
+                <label for="phoneNumber" class="form-label">Phone Number</label>
+                <input type="text" class="form-control" id="phoneNumber" name="phoneNumber"
+                       th:value="${user.phoneNumber != null} ? ${user.phoneNumber} : ''"
+                       placeholder="e.g. 647-555-0123">
+            </div>
+
+            <!-- About Me (editable, multiline) -->
+            <div class="mb-3">
+                <label for="aboutMe" class="form-label">About Me</label>
+                <textarea class="form-control" id="aboutMe" name="aboutMe"
+                          rows="3" placeholder="Tell us a little about yourself..."
+                          th:text="${user.aboutMe != null} ? ${user.aboutMe} : ''"></textarea>
+            </div>
+
+            <!-- Program / Major (editable) -->
+            <div class="mb-3">
+                <label for="program" class="form-label">Program / Major</label>
+                <input type="text" class="form-control" id="program" name="program"
+                       th:value="${user.program != null} ? ${user.program} : ''"
+                       placeholder="e.g. Software Engineering">
+            </div>
+
+            <!-- Campus (dropdown) -->
+            <div class="mb-3">
+                <label for="campus" class="form-label">Campus</label>
+                <select class="form-select" id="campus" name="campus">
+                    <option value="" th:selected="${user.campus == null or #strings.isEmpty(user.campus)}">-- Select Campus --</option>
+                    <option value="Keele"    th:selected="${user.campus == 'Keele'}">Keele</option>
+                    <option value="Glendon"  th:selected="${user.campus == 'Glendon'}">Glendon</option>
+                    <option value="Markham"  th:selected="${user.campus == 'Markham'}">Markham</option>
+                    <option value="Other"    th:selected="${user.campus == 'Other'}">Other</option>
+                </select>
+            </div>
+
             <div class="d-flex gap-2 mt-3">
                 <button type="submit" class="btn btn-primary">Save Changes</button>
                 <a th:href="@{/profile}" class="btn btn-secondary">Cancel</a>
             </div>
+
         </form>
     </div>
 </div>
