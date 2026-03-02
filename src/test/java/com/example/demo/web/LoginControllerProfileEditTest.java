@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.example.demo.domain.User;
 import com.example.demo.service.AuthService;
+import com.example.demo.service.ListingService;
 
 @WebMvcTest(LoginController.class)
 public class LoginControllerProfileEditTest {
@@ -28,6 +29,9 @@ public class LoginControllerProfileEditTest {
 
     @MockBean
     private AuthService authService;
+
+    @MockBean
+    private ListingService listingService;
 
     @Test
     void postProfileEdit_withoutSessionUser_redirectsToLogin() throws Exception {

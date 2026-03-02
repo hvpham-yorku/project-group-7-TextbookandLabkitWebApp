@@ -33,30 +33,49 @@ public class AuthService {
         if (!user.getPassword().equals(password)) {
             return null;
         }
-        
+
         //to save the user - for login/out when session starts
         this.currentUser = user;
 
         // 4. Success
         return user;
     }
+
     // save the user to know who logged in
     public User getCurrentUser() {
-    	return this.currentUser;
-    	
-    }
-    
-    public void logout() {
-    	this.currentUser = null;
+        return this.currentUser;
     }
 
+    public void logout() {
+        this.currentUser = null;
+    }
+
+    // Updates name and email. Preserves all other profile fields from currentUser.
     public User updateProfile(User currentUser, String newName, String newEmail) {
         if (currentUser == null) return null;
         if (newEmail == null || !newEmail.endsWith("@my.yorku.ca")) return null;
 
         User updated = new User(newEmail, currentUser.getPassword(), newName);
+
+        // Preserve existing profile fields so they are not lost on name/email change
+        updated.setStudentId(currentUser.getStudentId());
+        updated.setPhoneNumber(currentUser.getPhoneNumber());
+        updated.setAboutMe(currentUser.getAboutMe());
+        updated.setProgram(currentUser.getProgram());
+        updated.setCampus(currentUser.getCampus());
+
         userRepository.updateUser(currentUser.getEmail(), updated);
         return updated;
     }
 
+    // Updates the extended profile fields (phone, about me, program, campus).
+    public void updateProfileDetails(User user, String phoneNumber, String aboutMe,
+                                     String program, String campus) {
+        if (user == null) return;
+        user.setPhoneNumber(phoneNumber);
+        user.setAboutMe(aboutMe);
+        user.setProgram(program);
+        user.setCampus(campus);
+        userRepository.updateUser(user.getEmail(), user);
+    }
 }
