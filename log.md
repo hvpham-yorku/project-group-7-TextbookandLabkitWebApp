@@ -120,6 +120,39 @@ Saif:
 - Added JUnit tests for profile update flow.
 
 
+## Mar 1, 2026  
+### User Story: Listing Management + UI Updates  
+**Attendees:** Saif, Ayesha, Omar  
+**Branch:** saif-listing  
+
+Meeting:
+
+- Reviewed Delivery 1 checklist.
+- Assigned presentation roles.
+- Planned demo flow.
+- Confirmed GitHub tags and final repository state.
+
+Time spent: 1 hours
+
+Saif:
+
+- Added create listing backend logic (repository + service).
+- Added delete listing with ownership validation.
+- Added controller endpoints for create and delete.
+- Updated `my-listings.html`:
+  - Add listing form.
+  - Delete button with confirmation.
+  - Improved layout and Bootstrap styling.
+- Refactored listing flow:
+  - Separate edit page.
+  - Read-only listing table.
+  - Added Edit button per listing.
+  - Fixed redirect behavior.
+- Added JUnit tests for ListingService (create, delete, update, validation).
+
+Time spent: 8 hours
+
+
 
 	
 
