@@ -30,8 +30,8 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public String doLogin(@RequestParam String email,
-                          @RequestParam String password,
+    public String doLogin(@RequestParam("email") String email,
+                          @RequestParam("password") String password,
                           Model model,
                           HttpSession session) {
 
@@ -77,7 +77,7 @@ public class LoginController {
 
     @PostMapping("/profile/edit")
     public String editProfileSubmit(
-            @RequestParam String name,
+    		 @RequestParam("name") String name,
             @RequestParam(value = "phoneNumber", required = false, defaultValue = "") String phoneNumber,
             @RequestParam(value = "aboutMe",     required = false, defaultValue = "") String aboutMe,
             @RequestParam(value = "program",     required = false, defaultValue = "") String program,
