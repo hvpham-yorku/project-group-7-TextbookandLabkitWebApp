@@ -49,5 +49,14 @@ public class AuthService {
     public void logout() {
     	this.currentUser = null;
     }
-    
+
+    public User updateProfile(User currentUser, String newName, String newEmail) {
+        if (currentUser == null) return null;
+        if (newEmail == null || !newEmail.endsWith("@my.yorku.ca")) return null;
+
+        User updated = new User(newEmail, currentUser.getPassword(), newName);
+        userRepository.updateUser(currentUser.getEmail(), updated);
+        return updated;
+    }
+
 }
