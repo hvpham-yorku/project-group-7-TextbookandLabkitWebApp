@@ -47,6 +47,28 @@ public class StubListingRepository implements ListingRepository {
     }
 
     @Override
+    public Listing create(String sellerEmail, String title, String description, BigDecimal price) {
+        Listing listing = new Listing(
+                idSeq.getAndIncrement(),
+                sellerEmail,
+                title.trim(),
+                description.trim(),
+                price,
+                ListingStatus.AVAILABLE
+        );
+        listings.add(listing);
+        return listing;
+    }
+
+    @Override
+    public boolean deleteById(long id) {
+        Listing toRemove = findById(id);
+        if (toRemove == null) return false;
+        listings.remove(toRemove);
+        return true;
+    }
+
+    @Override
     public void save(Listing listing) {
         // For stub: if exists, update; else add.
         Listing existing = findById(listing.getId());
