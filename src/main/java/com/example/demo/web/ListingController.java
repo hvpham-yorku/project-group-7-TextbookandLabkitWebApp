@@ -35,6 +35,11 @@ public class ListingController {
     public String createListing(@RequestParam("title") String title,
                                 @RequestParam("description") String description,
                                 @RequestParam("price") BigDecimal price,
+                                @RequestParam(value = "courseCode", defaultValue = "") String courseCode,
+                                @RequestParam(value = "semester", defaultValue = "") String semester,
+                                @RequestParam(value = "materialType", defaultValue = "") String materialType,
+                                @RequestParam(value = "condition", defaultValue = "") String condition,
+                                @RequestParam(value = "exchangeType", defaultValue = "") String exchangeType,
                                 HttpSession session,
                                 Model model) {
 
@@ -43,7 +48,8 @@ public class ListingController {
 
         User user = (User) u;
 
-        Listing result = listingService.addListing(user.getEmail(), title, description, price);
+        Listing result = listingService.addListing(user.getEmail(), title, description, price,
+                courseCode, semester, materialType, condition, exchangeType);
         if (result == null) {
             model.addAttribute("user", user);
             model.addAttribute("listings", listingService.getListingsForSeller(user.getEmail()));

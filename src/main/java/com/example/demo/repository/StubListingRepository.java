@@ -16,15 +16,48 @@ public class StubListingRepository implements ListingRepository {
     private final AtomicLong idSeq = new AtomicLong(1);
 
     public StubListingRepository() {
-        // Sample data (seller emails match the stub users)
+        // Sample data — seller emails match the stub users
         listings.add(new Listing(idSeq.getAndIncrement(), "abc123@my.yorku.ca",
-                "EECS 2311 Textbook (Used)", "Good condition, some highlights.", new BigDecimal("40.00"), ListingStatus.AVAILABLE));
+                "EECS 2311 Textbook (Used)",
+                "Good condition, a few highlights in chapter 3. No missing pages.",
+                new BigDecimal("40.00"),
+                "EECS 2311", "Winter 2025", "Textbook", "Good", "Sell",
+                ListingStatus.AVAILABLE));
 
         listings.add(new Listing(idSeq.getAndIncrement(), "abc123@my.yorku.ca",
-                "Lab Kit - Digital Multimeter", "Works perfectly, includes leads.", new BigDecimal("25.00"), ListingStatus.AVAILABLE));
+                "EECS 1021 Lab Kit - Breadboard & Components",
+                "Full kit, everything included. Used for one semester only.",
+                new BigDecimal("20.00"),
+                "EECS 1021", "Fall 2024", "Lab Kit", "Good", "Sell",
+                ListingStatus.AVAILABLE));
 
         listings.add(new Listing(idSeq.getAndIncrement(), "student1@my.yorku.ca",
-                "ENG 1101 Notes", "Printed notes + past tests.", new BigDecimal("10.00"), ListingStatus.UNAVAILABLE));
+                "MATH 1013 Printed Notes + Past Midterms",
+                "Full set of handwritten notes and 3 past midterms with solutions.",
+                new BigDecimal("10.00"),
+                "MATH 1013", "Winter 2025", "Notes", "Good", "Sell",
+                ListingStatus.AVAILABLE));
+
+        listings.add(new Listing(idSeq.getAndIncrement(), "student1@my.yorku.ca",
+                "EECS 2030 Object-Oriented Programming Textbook",
+                "Lightly used. Will trade for EECS 3311 textbook.",
+                new BigDecimal("0.00"),
+                "EECS 2030", "Fall 2024", "Textbook", "Fair", "Trade",
+                ListingStatus.AVAILABLE));
+
+        listings.add(new Listing(idSeq.getAndIncrement(), "student2@my.yorku.ca",
+                "PHYS 1010 Lab Manual (Latest Edition)",
+                "Brand new, never written in. Bought the wrong section.",
+                new BigDecimal("15.00"),
+                "PHYS 1010", "Winter 2025", "Lab Kit", "New", "Sell",
+                ListingStatus.AVAILABLE));
+
+        listings.add(new Listing(idSeq.getAndIncrement(), "student2@my.yorku.ca",
+                "NATS 1840 Science and Technology Textbook",
+                "Free to a good home. Some underlining but fully readable.",
+                new BigDecimal("0.00"),
+                "NATS 1840", "Fall 2024", "Textbook", "Fair", "Giveaway",
+                ListingStatus.AVAILABLE));
     }
 
     @Override
@@ -47,13 +80,20 @@ public class StubListingRepository implements ListingRepository {
     }
 
     @Override
-    public Listing create(String sellerEmail, String title, String description, BigDecimal price) {
+    public Listing create(String sellerEmail, String title, String description, BigDecimal price,
+                          String courseCode, String semester, String materialType,
+                          String condition, String exchangeType) {
         Listing listing = new Listing(
                 idSeq.getAndIncrement(),
                 sellerEmail,
                 title.trim(),
                 description.trim(),
                 price,
+                courseCode,
+                semester,
+                materialType,
+                condition,
+                exchangeType,
                 ListingStatus.AVAILABLE
         );
         listings.add(listing);
@@ -73,7 +113,9 @@ public class StubListingRepository implements ListingRepository {
         List<Listing> updated = new ArrayList<>();
         for (Listing l : listings) {
             if (l.getSellerEmail().equalsIgnoreCase(oldEmail)) {
-                updated.add(new Listing(l.getId(), newEmail, l.getTitle(), l.getDescription(), l.getPrice(), l.getStatus()));
+                updated.add(new Listing(l.getId(), newEmail, l.getTitle(), l.getDescription(), l.getPrice(),
+                        l.getCourseCode(), l.getSemester(), l.getMaterialType(),
+                        l.getCondition(), l.getExchangeType(), l.getStatus()));
             } else {
                 updated.add(l);
             }
@@ -93,6 +135,11 @@ public class StubListingRepository implements ListingRepository {
         existing.setTitle(listing.getTitle());
         existing.setDescription(listing.getDescription());
         existing.setPrice(listing.getPrice());
+        existing.setCourseCode(listing.getCourseCode());
+        existing.setSemester(listing.getSemester());
+        existing.setMaterialType(listing.getMaterialType());
+        existing.setCondition(listing.getCondition());
+        existing.setExchangeType(listing.getExchangeType());
         existing.setStatus(listing.getStatus());
     }
 }
