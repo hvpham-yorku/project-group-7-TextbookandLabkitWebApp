@@ -6,7 +6,9 @@ import com.example.demo.repository.ListingRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ListingService {
@@ -45,6 +47,7 @@ public class ListingService {
     public boolean updateListing(long listingId, String sellerEmail,
                                  String title, String description,
                                  BigDecimal price, ListingStatus status) {
+
         if (sellerEmail == null || sellerEmail.isBlank()) return false;
         if (listingId <= 0) return false;
         if (title == null || title.isBlank()) return false;
@@ -54,12 +57,14 @@ public class ListingService {
 
         Listing listing = listingRepository.findById(listingId);
         if (listing == null) return false;
+
         if (!listing.getSellerEmail().equalsIgnoreCase(sellerEmail)) return false;
 
         listing.setTitle(title.trim());
         listing.setDescription(description.trim());
         listing.setPrice(price);
         listing.setStatus(status);
+
         listingRepository.save(listing);
         return true;
     }
@@ -67,6 +72,7 @@ public class ListingService {
     public void updateSellerEmail(String oldEmail, String newEmail) {
         if (oldEmail == null || newEmail == null) return;
         if (oldEmail.equalsIgnoreCase(newEmail)) return;
+
         listingRepository.updateSellerEmail(oldEmail, newEmail);
     }
 
@@ -75,20 +81,65 @@ public class ListingService {
     }
 
     /**
-     * User story: As a student(seller) I want to mark my listing as sold or unavailable
-     * once it has been purchased or exchanged to a buyer.
+     * User story: Seller can mark listing as sold/unavailable
      */
     public boolean updateStatus(long listingId, String sellerEmail, ListingStatus newStatus) {
+
         if (newStatus == null) return false;
 
         Listing listing = listingRepository.findById(listingId);
         if (listing == null) return false;
 
-        // Seller can only update their own listing
         if (!listing.getSellerEmail().equalsIgnoreCase(sellerEmail)) return false;
 
         listing.setStatus(newStatus);
         listingRepository.save(listing);
+
         return true;
     }
+
+
+    /**
+     * KAN-15
+     * Filter listings by seller email
+     */
+    public List<Listing> filterListingsBySeller(String sellerEmail) {
+
+        if (sellerEmail == null || sellerEmail.isBlank()) {
+            return listingRepository.findAll();
+        }
+
+        return listingRepository.findAll()
+                .stream()
+                .filter(l -> l.getSellerEmail() != null &&
+                             l.getSellerEmail().equalsIgnoreCase(sellerEmail))
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * KAN-17
+     * Sort listings by price
+     */
+    public List<Listing> sortListingsByPrice() {
+
+        return listingRepository.findAll()
+                .stream()
+                .sorted(Comparator.comparing(Listing::getPrice))
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * KAN-17
+     * Sort listings alphabetically by title
+     */
+    public List<Listing> sortListingsByTitle() {
+
+        return listingRepository.findAll()
+                .stream()
+                .sorted(Comparator.comparing(Listing::getTitle))
+                .collect(Collectors.toList());
+    }
+
 }
