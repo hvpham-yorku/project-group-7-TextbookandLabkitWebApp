@@ -174,7 +174,11 @@ Meeting:
 Time spent: 3 hours
 
 
+## Mar 13, 2026
+Implemented Browse Listings feature:
+repository findAll(), service getAllListings(), /browse controller, browse page, navbar link, empty state, login restriction, updated tests.
 
+Time spent: 5 hours
 
 
 
