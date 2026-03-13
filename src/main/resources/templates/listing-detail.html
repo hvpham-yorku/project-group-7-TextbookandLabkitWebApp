@@ -14,6 +14,7 @@
     <a class="navbar-brand" href="/dashboard">YorkU Circle</a>
 
     <div class="ms-auto">
+        <a href="/course-materials" class="btn btn-outline-light me-2">Course Materials</a>
         <a href="/browse" class="btn btn-outline-light me-2">Browse Listings</a>
         <a href="/my-listings" class="btn btn-outline-light me-2">My Listings</a>
         <a href="/profile" class="btn btn-outline-light me-2">Profile</a>
@@ -67,6 +68,19 @@
 
                 <dt class="col-sm-3">Price</dt>
                 <dd class="col-sm-9" th:text="'$' + ${listing.price}"></dd>
+
+                <dt class="col-sm-3">ISBN</dt>
+                <dd class="col-sm-9">
+                    <span th:if="${listing.isbn != null and !#strings.isEmpty(listing.isbn)}" th:text="${listing.isbn}"></span>
+                    <span th:unless="${listing.isbn != null and !#strings.isEmpty(listing.isbn)}" class="text-muted">—</span>
+                </dd>
+
+                <dt class="col-sm-3">Bookstore Price (New)</dt>
+                <dd class="col-sm-9">
+                    <span th:if="${listing.bookstorePrice != null}" th:text="'$' + ${listing.bookstorePrice}"></span>
+                    <span th:unless="${listing.bookstorePrice != null}" class="text-muted">—</span>
+                    <span th:if="${listing.savingsPercent != null}" class="badge bg-info text-dark ms-2" th:text="'Save ' + ${listing.savingsPercent} + '%'"></span>
+                </dd>
 
                 <dt class="col-sm-3">Posted by</dt>
                 <dd class="col-sm-9" th:text="${listing.sellerEmail}"></dd>
