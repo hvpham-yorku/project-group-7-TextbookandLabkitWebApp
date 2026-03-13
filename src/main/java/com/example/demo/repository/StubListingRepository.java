@@ -61,6 +61,11 @@ public class StubListingRepository implements ListingRepository {
     }
 
     @Override
+    public List<Listing> findAll() {
+        return new ArrayList<>(listings);
+    }
+
+    @Override
     public List<Listing> findBySellerEmail(String sellerEmail) {
         List<Listing> result = new ArrayList<>();
         for (Listing l : listings) {

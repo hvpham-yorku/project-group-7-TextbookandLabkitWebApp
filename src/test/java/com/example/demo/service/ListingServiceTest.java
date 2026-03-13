@@ -37,7 +37,8 @@ public class ListingServiceTest {
 
     @Test
     void addListing_validInputs_returnsListingWithCorrectFields() {
-        Listing result = service.addListing(SELLER_NEW, "Calculus Textbook", "Like new", new BigDecimal("35.00"));
+        Listing result = service.addListing(SELLER_NEW, "Calculus Textbook", "Like new", new BigDecimal("35.00"),
+                "EECS 2311", "Winter 2025", "Textbook", "Good", "Sell");
 
         assertNotNull(result);
         assertEquals(SELLER_NEW,           result.getSellerEmail());
@@ -49,7 +50,8 @@ public class ListingServiceTest {
 
     @Test
     void addListing_newListingAppearsInSellerList() {
-        service.addListing(SELLER_NEW, "Physics Notes", "Complete notes", new BigDecimal("15.00"));
+        service.addListing(SELLER_NEW, "Physics Notes", "Complete notes", new BigDecimal("15.00"),
+                "EECS 2311", "Winter 2025", "Textbook", "Good", "Sell");
 
         List<Listing> listings = service.getListingsForSeller(SELLER_NEW);
         assertEquals(1, listings.size());
@@ -58,7 +60,8 @@ public class ListingServiceTest {
 
     @Test
     void addListing_zeroPriceIsValid_returnsListing() {
-        Listing result = service.addListing(SELLER_NEW, "Free Notes", "Giving away", BigDecimal.ZERO);
+        Listing result = service.addListing(SELLER_NEW, "Free Notes", "Giving away", BigDecimal.ZERO,
+                "EECS 2311", "Winter 2025", "Textbook", "Good", "Sell");
 
         assertNotNull(result);
         assertEquals(BigDecimal.ZERO, result.getPrice());
@@ -66,49 +69,57 @@ public class ListingServiceTest {
 
     @Test
     void addListing_nullEmail_returnsNull() {
-        Listing result = service.addListing(null, "Title", "Desc", new BigDecimal("10.00"));
+        Listing result = service.addListing(null, "Title", "Desc", new BigDecimal("10.00"),
+                "EECS 2311", "Winter 2025", "Textbook", "Good", "Sell");
         assertNull(result);
     }
 
     @Test
     void addListing_blankEmail_returnsNull() {
-        Listing result = service.addListing("   ", "Title", "Desc", new BigDecimal("10.00"));
+        Listing result = service.addListing("   ", "Title", "Desc", new BigDecimal("10.00"),
+                "EECS 2311", "Winter 2025", "Textbook", "Good", "Sell");
         assertNull(result);
     }
 
     @Test
     void addListing_nullTitle_returnsNull() {
-        Listing result = service.addListing(SELLER_NEW, null, "Desc", new BigDecimal("10.00"));
+        Listing result = service.addListing(SELLER_NEW, null, "Desc", new BigDecimal("10.00"),
+                "EECS 2311", "Winter 2025", "Textbook", "Good", "Sell");
         assertNull(result);
     }
 
     @Test
     void addListing_blankTitle_returnsNull() {
-        Listing result = service.addListing(SELLER_NEW, "   ", "Desc", new BigDecimal("10.00"));
+        Listing result = service.addListing(SELLER_NEW, "   ", "Desc", new BigDecimal("10.00"),
+                "EECS 2311", "Winter 2025", "Textbook", "Good", "Sell");
         assertNull(result);
     }
 
     @Test
     void addListing_nullDescription_returnsNull() {
-        Listing result = service.addListing(SELLER_NEW, "Title", null, new BigDecimal("10.00"));
+        Listing result = service.addListing(SELLER_NEW, "Title", null, new BigDecimal("10.00"),
+                "EECS 2311", "Winter 2025", "Textbook", "Good", "Sell");
         assertNull(result);
     }
 
     @Test
     void addListing_blankDescription_returnsNull() {
-        Listing result = service.addListing(SELLER_NEW, "Title", "", new BigDecimal("10.00"));
+        Listing result = service.addListing(SELLER_NEW, "Title", "", new BigDecimal("10.00"),
+                "EECS 2311", "Winter 2025", "Textbook", "Good", "Sell");
         assertNull(result);
     }
 
     @Test
     void addListing_nullPrice_returnsNull() {
-        Listing result = service.addListing(SELLER_NEW, "Title", "Desc", null);
+        Listing result = service.addListing(SELLER_NEW, "Title", "Desc", null,
+                "EECS 2311", "Winter 2025", "Textbook", "Good", "Sell");
         assertNull(result);
     }
 
     @Test
     void addListing_negativePrice_returnsNull() {
-        Listing result = service.addListing(SELLER_NEW, "Title", "Desc", new BigDecimal("-0.01"));
+        Listing result = service.addListing(SELLER_NEW, "Title", "Desc", new BigDecimal("-0.01"),
+                "EECS 2311", "Winter 2025", "Textbook", "Good", "Sell");
         assertNull(result);
     }
 

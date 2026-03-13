@@ -77,6 +77,11 @@ public class ListingService {
         return listingRepository.findBySellerEmail(sellerEmail);
     }
 
+    // KAN-62
+    public List<Listing> getAllListings() {
+        return listingRepository.findAll();
+    }
+
     /**
      * User story: As a student(seller) I want to mark my listing as sold or unavailable
      * once it has been purchased or exchanged to a buyer.

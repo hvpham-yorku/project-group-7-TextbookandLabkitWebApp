@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface ListingRepository {
 
+    List<Listing> findAll();
+
     List<Listing> findBySellerEmail(String sellerEmail);
 
     Listing findById(long id);

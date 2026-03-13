@@ -31,6 +31,16 @@ public class ListingController {
         return "my-listings";
     }
 
+    // KAN-63 + KAN-68
+    @GetMapping("/browse")
+    public String browseListings(HttpSession session, Model model) {
+        Object u = session.getAttribute("user");
+        if (u == null) return "redirect:/login";
+
+        model.addAttribute("listings", listingService.getAllListings());
+        return "browse-listings";
+    }
+
     @PostMapping("/listings")
     public String createListing(@RequestParam("title") String title,
                                 @RequestParam("description") String description,
