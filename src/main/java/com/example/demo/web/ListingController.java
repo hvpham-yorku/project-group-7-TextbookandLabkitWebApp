@@ -31,6 +31,21 @@ public class ListingController {
         return "my-listings";
     }
 
+    // KAN-69: listing detail page
+    @GetMapping("/listings/{id}")
+    public String listingDetail(@PathVariable("id") long id,
+                                HttpSession session,
+                                Model model) {
+        Object u = session.getAttribute("user");
+        if (u == null) return "redirect:/login";
+
+        Listing listing = listingService.findById(id);
+        if (listing == null) return "redirect:/browse";
+
+        model.addAttribute("listing", listing);
+        return "listing-detail";
+    }
+
     // KAN-63 + KAN-68
     @GetMapping("/browse")
     public String browseListings(HttpSession session, Model model) {

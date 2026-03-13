@@ -506,4 +506,41 @@ public class ListingServiceTest {
 
         assertEquals(2, service.getListingsForSeller(SELLER_ABC).size());
     }
+
+    // -------------------------------------------------------------------------
+    // getAllListings (KAN-72)
+    // -------------------------------------------------------------------------
+
+    @Test
+    void getAllListings_returnsAllSixSeedListings() {
+        List<Listing> all = service.getAllListings();
+        assertEquals(6, all.size());
+    }
+
+    @Test
+    void getAllListings_afterAddingOneListing_returnsSevenListings() {
+        service.addListing(SELLER_NEW, "New Book", "A description", new BigDecimal("5.00"),
+                "EECS 2311", "Winter 2025", "Textbook", "Good", "Sell");
+
+        List<Listing> all = service.getAllListings();
+        assertEquals(7, all.size());
+    }
+
+    @Test
+    void getAllListings_afterDeletingOneListing_returnsFiveListings() {
+        service.deleteListing(1L, SELLER_ABC);
+
+        List<Listing> all = service.getAllListings();
+        assertEquals(5, all.size());
+    }
+
+    @Test
+    void getAllListings_containsListingsFromMultipleSellers() {
+        List<Listing> all = service.getAllListings();
+
+        boolean hasAbc = all.stream().anyMatch(l -> l.getSellerEmail().equalsIgnoreCase(SELLER_ABC));
+        boolean hasStu1 = all.stream().anyMatch(l -> l.getSellerEmail().equalsIgnoreCase(SELLER_STU1));
+        assertTrue(hasAbc);
+        assertTrue(hasStu1);
+    }
 }
