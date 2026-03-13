@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Controller
 public class ListingController {
@@ -140,5 +141,43 @@ public class ListingController {
         }
 
         return "redirect:/my-listings";
+    }
+
+
+    /* ===============================
+       KAN-15: Filter Listings
+       =============================== */
+
+    @GetMapping("/listings/filter")
+    public String filterListings(@RequestParam("sellerEmail") String sellerEmail,
+                                 Model model) {
+
+        List<Listing> filteredListings = listingService.filterListingsBySeller(sellerEmail);
+        model.addAttribute("listings", filteredListings);
+
+        return "listings";
+    }
+
+
+    /* ===============================
+       KAN-17: Sort Listings
+       =============================== */
+
+    @GetMapping("/listings/sort/price")
+    public String sortListingsByPrice(Model model) {
+
+        List<Listing> listings = listingService.sortListingsByPrice();
+        model.addAttribute("listings", listings);
+
+        return "listings";
+    }
+
+    @GetMapping("/listings/sort/title")
+    public String sortListingsByTitle(Model model) {
+
+        List<Listing> listings = listingService.sortListingsByTitle();
+        model.addAttribute("listings", listings);
+
+        return "listings";
     }
 }
