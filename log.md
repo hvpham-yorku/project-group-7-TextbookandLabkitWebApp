@@ -177,6 +177,7 @@ Time spent: 3 hours
 ## Mar 13, 2026
 Implemented Browse Listings feature:
 repository findAll(), service getAllListings(), /browse controller, browse page, navbar link, empty state, login restriction, updated tests.
+Implemented listing detail page, added view-details links from browse listings, styled pages consistently, and updated tests for getAllListings().
 
 Time spent: 5 hours
 
