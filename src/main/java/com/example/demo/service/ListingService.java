@@ -17,13 +17,16 @@ public class ListingService {
         this.listingRepository = listingRepository;
     }
 
-    public Listing addListing(String sellerEmail, String title, String description, BigDecimal price) {
+    public Listing addListing(String sellerEmail, String title, String description, BigDecimal price,
+                              String courseCode, String semester, String materialType,
+                              String condition, String exchangeType) {
         if (sellerEmail == null || sellerEmail.isBlank()) return null;
         if (title == null || title.isBlank()) return null;
         if (description == null || description.isBlank()) return null;
         if (price == null || price.compareTo(BigDecimal.ZERO) < 0) return null;
 
-        return listingRepository.create(sellerEmail, title, description, price);
+        return listingRepository.create(sellerEmail, title, description, price,
+                courseCode, semester, materialType, condition, exchangeType);
     }
 
     public boolean deleteListing(long listingId, String sellerEmail) {
@@ -72,6 +75,11 @@ public class ListingService {
 
     public List<Listing> getListingsForSeller(String sellerEmail) {
         return listingRepository.findBySellerEmail(sellerEmail);
+    }
+
+    // KAN-62
+    public List<Listing> getAllListings() {
+        return listingRepository.findAll();
     }
 
     /**

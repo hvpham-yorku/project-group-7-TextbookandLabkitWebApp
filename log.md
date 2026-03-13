@@ -152,6 +152,31 @@ Saif:
 
 Time spent: 8 hours
 
+## Mar 8, 2026
+**Attendees:** Saif, Ayesha  
+
+Meeting:
+
+- review parts assigned and started working on them
+
+
+
+## Mar 9, 2026
+### User Story: Browse Listings Preparation
+**Attendees:** Saif  
+**Branch:** kan-13-browse-listings  
+
+- Reviewed the Listing domain model for course-based listings.
+- Updated the Listing class to add courseCode, semester, materialType, condition, and exchangeType.
+- Updated stub repository with realistic course-material sample listings.
+- Updated repository, service, and controller to pass the new fields.
+
+Time spent: 3 hours
+
+
+
+
+
 
 
 	
