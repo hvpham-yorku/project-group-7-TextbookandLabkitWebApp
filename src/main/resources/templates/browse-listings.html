@@ -65,6 +65,9 @@
                               th:if="${l.status == T(com.example.demo.domain.ListingStatus).SOLD}">SOLD</span>
                     </p>
 
+                    <!-- KAN-69: link to detail page -->
+                    <a th:href="@{/listings/{id}(id=${l.id})}" class="btn btn-primary btn-sm mt-2">View Details</a>
+
                 </div>
             </div>
         </div>
