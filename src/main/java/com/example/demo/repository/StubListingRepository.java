@@ -16,15 +16,17 @@ public class StubListingRepository implements ListingRepository {
     private final AtomicLong idSeq = new AtomicLong(1);
 
     public StubListingRepository() {
-        // Sample data (seller emails match the stub users)
         listings.add(new Listing(idSeq.getAndIncrement(), "abc123@my.yorku.ca",
                 "EECS 2311 Textbook (Used)", "Good condition, some highlights.", new BigDecimal("40.00"), ListingStatus.AVAILABLE));
-
         listings.add(new Listing(idSeq.getAndIncrement(), "abc123@my.yorku.ca",
                 "Lab Kit - Digital Multimeter", "Works perfectly, includes leads.", new BigDecimal("25.00"), ListingStatus.AVAILABLE));
-
         listings.add(new Listing(idSeq.getAndIncrement(), "student1@my.yorku.ca",
                 "ENG 1101 Notes", "Printed notes + past tests.", new BigDecimal("10.00"), ListingStatus.UNAVAILABLE));
+    }
+
+    @Override
+    public List<Listing> findAll() {
+        return new ArrayList<>(listings);
     }
 
     @Override
@@ -84,7 +86,6 @@ public class StubListingRepository implements ListingRepository {
 
     @Override
     public void save(Listing listing) {
-        // For stub: if exists, update; else add.
         Listing existing = findById(listing.getId());
         if (existing == null) {
             listings.add(listing);
