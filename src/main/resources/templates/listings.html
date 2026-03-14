@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listings - YorkU Circle</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+  <a class="navbar-brand" href="/dashboard">YorkU Circle</a>
+  <div class="ms-auto">
+    <a href="/profile" class="btn btn-outline-light me-2">Profile</a>
+    <form action="/logout" method="post" style="display:inline;">
+      <button type="submit" class="btn btn-light">Logout</button>
+    </form>
+  </div>
+</nav>
+
+<div class="container mt-5">
+
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="mb-1">Browse Listings</h2>
+    <a class="btn btn-secondary" href="/dashboard">Back to Dashboard</a>
+  </div>
+
+  <!-- Filter Form -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title mb-3">Filter Listings</h5>
+      <form action="/listings/filter" method="get" class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Keyword</label>
+          <input type="text" class="form-control" name="keyword"
+                 placeholder="Search title or description"
+                 th:value="${keyword}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Status</label>
+          <select class="form-select" name="status">
+            <option value="">All</option>
+            <option value="AVAILABLE"   th:selected="${status != null and status.name() == 'AVAILABLE'}">Available</option>
+            <option value="UNAVAILABLE" th:selected="${status != null and status.name() == 'UNAVAILABLE'}">Unavailable</option>
+            <option value="SOLD"        th:selected="${status != null and status.name() == 'SOLD'}">Sold</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Min Price ($)</label>
+          <input type="number" class="form-control" name="minPrice"
+                 step="0.01" min="0" placeholder="0.00"
+                 th:value="${minPrice}">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Max Price ($)</label>
+          <input type="number" class="form-control" name="maxPrice"
+                 step="0.01" min="0" placeholder="Any"
+                 th:value="${maxPrice}">
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+          <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sort Controls -->
+  <div class="mb-3 d-flex gap-2 flex-wrap">
+    <a href="/listings" class="btn btn-outline-secondary btn-sm">All</a>
+    <a href="/listings/sort/price"       class="btn btn-sm"
+       th:classappend="${sortBy == 'price-asc'} ? 'btn-dark' : 'btn-outline-secondary'">Price ↑</a>
+    <a href="/listings/sort/price-desc"  class="btn btn-sm"
+       th:classappend="${sortBy == 'price-desc'} ? 'btn-dark' : 'btn-outline-secondary'">Price ↓</a>
+    <a href="/listings/sort/title"       class="btn btn-sm"
+       th:classappend="${sortBy == 'title-asc'} ? 'btn-dark' : 'btn-outline-secondary'">Title A→Z</a>
+    <a href="/listings/sort/title-desc"  class="btn btn-sm"
+       th:classappend="${sortBy == 'title-desc'} ? 'btn-dark' : 'btn-outline-secondary'">Title Z→A</a>
+  </div>
+
+  <!-- Listings Table -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div th:if="${#lists.isEmpty(listings)}" class="text-muted">
+        No listings found.
+      </div>
+      <div th:unless="${#lists.isEmpty(listings)}" class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Seller</th>
+            <th>Price</th>
+            <th>Status</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="l : ${listings}">
+            <td th:text="${l.id}"></td>
+            <td th:text="${l.title}"></td>
+            <td th:text="${l.description}"></td>
+            <td th:text="${l.sellerEmail}"></td>
+            <td th:text="'$' + ${l.price}"></td>
+            <td>
+              <span class="badge bg-success"
+                    th:if="${l.status == T(com.example.demo.domain.ListingStatus).AVAILABLE}">AVAILABLE</span>
+              <span class="badge bg-warning text-dark"
+                    th:if="${l.status == T(com.example.demo.domain.ListingStatus).UNAVAILABLE}">UNAVAILABLE</span>
+              <span class="badge bg-secondary"
+                    th:if="${l.status == T(com.example.demo.domain.ListingStatus).SOLD}">SOLD</span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
