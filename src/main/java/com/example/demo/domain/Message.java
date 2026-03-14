@@ -12,6 +12,7 @@ public class Message {
     private LocalDateTime timestamp;
 
     public Message() {
+        this.timestamp = LocalDateTime.now();
     }
 
     public Message(Long id, Long listingId, Long senderId, Long receiverId, String content) {
@@ -49,5 +50,25 @@ public class Message {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public void setListingId(Long listingId) {
+        this.listingId = listingId;
+    }
+
+    public void setSenderId(Long senderId) {
+        this.senderId = senderId;
+    }
+
+    public void setReceiverId(Long receiverId) {
+        this.receiverId = receiverId;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
     }
 }
