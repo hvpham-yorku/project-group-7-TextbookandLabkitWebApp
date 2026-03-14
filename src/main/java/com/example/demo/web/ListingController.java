@@ -23,14 +23,20 @@ public class ListingController {
 
     @GetMapping("/my-listings")
     public String myListings(HttpSession session, Model model) {
+
         Object u = session.getAttribute("user");
+
         if (u == null) return "redirect:/login";
 
         User user = (User) u;
+
         model.addAttribute("user", user);
-        model.addAttribute("listings", listingService.getListingsForSeller(user.getEmail()));
+        model.addAttribute("listings",
+                listingService.getListingsForSeller(user.getEmail()));
+
         return "my-listings";
     }
+
 
     @PostMapping("/listings")
     public String createListing(@RequestParam("title") String title,
@@ -40,65 +46,29 @@ public class ListingController {
                                 Model model) {
 
         Object u = session.getAttribute("user");
+
         if (u == null) return "redirect:/login";
 
         User user = (User) u;
 
-        Listing result = listingService.addListing(user.getEmail(), title, description, price);
+        Listing result =
+                listingService.addListing(user.getEmail(), title, description, price);
+
         if (result == null) {
+
             model.addAttribute("user", user);
-            model.addAttribute("listings", listingService.getListingsForSeller(user.getEmail()));
-            model.addAttribute("error", "Could not create listing. Please check your inputs.");
+            model.addAttribute("listings",
+                    listingService.getListingsForSeller(user.getEmail()));
+
+            model.addAttribute("error",
+                    "Could not create listing. Please check your inputs.");
+
             return "my-listings";
         }
 
         return "redirect:/my-listings";
     }
 
-    @GetMapping("/listings/{id}/edit")
-    public String editListingPage(@PathVariable("id") long id,
-                                  HttpSession session,
-                                  Model model) {
-
-        Object u = session.getAttribute("user");
-        if (u == null) return "redirect:/login";
-
-        User user = (User) u;
-
-        Listing listing = listingService.findById(id);
-        if (listing == null) return "redirect:/my-listings";
-        if (!listing.getSellerEmail().equalsIgnoreCase(user.getEmail())) return "redirect:/my-listings";
-
-        model.addAttribute("listing", listing);
-        model.addAttribute("statuses", ListingStatus.values());
-        return "edit-listing";
-    }
-
-    @PostMapping("/listings/{id}/edit")
-    public String editListingSubmit(@PathVariable("id") long id,
-                                    @RequestParam("title") String title,
-                                    @RequestParam("description") String description,
-                                    @RequestParam("price") BigDecimal price,
-                                    @RequestParam("status") ListingStatus status,
-                                    HttpSession session,
-                                    Model model) {
-
-        Object u = session.getAttribute("user");
-        if (u == null) return "redirect:/login";
-
-        User user = (User) u;
-
-        boolean ok = listingService.updateListing(id, user.getEmail(), title, description, price, status);
-        if (!ok) {
-            Listing listing = listingService.findById(id);
-            model.addAttribute("listing", listing);
-            model.addAttribute("statuses", ListingStatus.values());
-            model.addAttribute("error", "Could not save changes. Please check your inputs.");
-            return "edit-listing";
-        }
-
-        return "redirect:/my-listings";
-    }
 
     @PostMapping("/listings/{id}/delete")
     public String deleteListing(@PathVariable("id") long id,
@@ -106,37 +76,22 @@ public class ListingController {
                                 Model model) {
 
         Object u = session.getAttribute("user");
+
         if (u == null) return "redirect:/login";
 
         User user = (User) u;
 
         boolean ok = listingService.deleteListing(id, user.getEmail());
+
         if (!ok) {
+
             model.addAttribute("user", user);
-            model.addAttribute("listings", listingService.getListingsForSeller(user.getEmail()));
-            model.addAttribute("error", "Could not delete listing (not found or not your listing).");
-            return "my-listings";
-        }
+            model.addAttribute("listings",
+                    listingService.getListingsForSeller(user.getEmail()));
 
-        return "redirect:/my-listings";
-    }
+            model.addAttribute("error",
+                    "Could not delete listing.");
 
-    @PostMapping("/listings/{id}/status")
-    public String updateListingStatus(@PathVariable("id") long id,
-                                      @RequestParam("status") ListingStatus status,
-                                      HttpSession session,
-                                      Model model) {
-
-        Object u = session.getAttribute("user");
-        if (u == null) return "redirect:/login";
-
-        User user = (User) u;
-
-        boolean ok = listingService.updateStatus(id, user.getEmail(), status);
-        if (!ok) {
-            model.addAttribute("user", user);
-            model.addAttribute("listings", listingService.getListingsForSeller(user.getEmail()));
-            model.addAttribute("error", "Could not update listing status (not found or not your listing).");
             return "my-listings";
         }
 
@@ -144,40 +99,59 @@ public class ListingController {
     }
 
 
-    /* ===============================
-       KAN-15: Filter Listings
-       =============================== */
+    /* =====================================
+       KAN-15 Filter Listings
+       ===================================== */
 
     @GetMapping("/listings/filter")
-    public String filterListings(@RequestParam("sellerEmail") String sellerEmail,
-                                 Model model) {
+    public String filterListings(HttpSession session, Model model) {
 
-        List<Listing> filteredListings = listingService.filterListingsBySeller(sellerEmail);
-        model.addAttribute("listings", filteredListings);
+        User user = (User) session.getAttribute("user");
+
+        if (user == null) return "redirect:/login";
+
+        List<Listing> listings =
+                listingService.filterListingsBySeller(user.getEmail());
+
+        model.addAttribute("listings", listings);
 
         return "listings";
     }
 
 
-    /* ===============================
-       KAN-17: Sort Listings
-       =============================== */
+    /* =====================================
+       KAN-17 Sort Listings
+       ===================================== */
 
     @GetMapping("/listings/sort/price")
-    public String sortListingsByPrice(Model model) {
+    public String sortListingsByPrice(HttpSession session, Model model) {
 
-        List<Listing> listings = listingService.sortListingsByPrice();
+        User user = (User) session.getAttribute("user");
+
+        if (user == null) return "redirect:/login";
+
+        List<Listing> listings =
+                listingService.sortListingsByPrice(user.getEmail());
+
         model.addAttribute("listings", listings);
 
         return "listings";
     }
+
 
     @GetMapping("/listings/sort/title")
-    public String sortListingsByTitle(Model model) {
+    public String sortListingsByTitle(HttpSession session, Model model) {
 
-        List<Listing> listings = listingService.sortListingsByTitle();
+        User user = (User) session.getAttribute("user");
+
+        if (user == null) return "redirect:/login";
+
+        List<Listing> listings =
+                listingService.sortListingsByTitle(user.getEmail());
+
         model.addAttribute("listings", listings);
 
         return "listings";
     }
+
 }
