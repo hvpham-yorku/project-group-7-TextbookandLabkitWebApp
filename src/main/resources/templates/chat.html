@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+</head>
+
+<body>
+
+<h2>Chat</h2>
+
+<div id="messages"></div>
+
+<input type="text" id="messageContent" placeholder="Type a message">
+<button onclick="sendMessage()">Send</button>
+
+<script>
+
+const params = new URLSearchParams(window.location.search);
+const listingId = params.get("listingId");
+
+function loadMessages() {
+
+    fetch("/messages/listing/" + listingId)
+        .then(res => res.json())
+        .then(data => {
+
+            const container = document.getElementById("messages");
+            container.innerHTML = "";
+
+            data.forEach(m => {
+
+                const p = document.createElement("p");
+                p.innerText = m.senderId + ": " + m.content;
+                container.appendChild(p);
+
+            });
+
+        });
+}
+
+function sendMessage() {
+
+    const content = document.getElementById("messageContent").value;
+
+    fetch("/messages", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            listingId: listingId,
+            senderId: 1,
+            receiverId: 2,
+            content: content
+        })
+
+    }).then(() => {
+
+        document.getElementById("messageContent").value = "";
+        loadMessages();
+
+    });
+
+}
+
+loadMessages();
+
+</script>
+
+</body>
+</html>
