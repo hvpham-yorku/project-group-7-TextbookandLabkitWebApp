@@ -6,9 +6,7 @@ import com.example.demo.repository.ListingRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ListingService {
@@ -20,6 +18,7 @@ public class ListingService {
     }
 
     public Listing addListing(String sellerEmail, String title, String description, BigDecimal price) {
+
         if (sellerEmail == null || sellerEmail.isBlank()) return null;
         if (title == null || title.isBlank()) return null;
         if (description == null || description.isBlank()) return null;
@@ -29,10 +28,12 @@ public class ListingService {
     }
 
     public boolean deleteListing(long listingId, String sellerEmail) {
+
         if (sellerEmail == null || sellerEmail.isBlank()) return false;
         if (listingId <= 0) return false;
 
         Listing listing = listingRepository.findById(listingId);
+
         if (listing == null) return false;
 
         if (!listing.getSellerEmail().equalsIgnoreCase(sellerEmail)) return false;
@@ -44,9 +45,12 @@ public class ListingService {
         return listingRepository.findById(listingId);
     }
 
-    public boolean updateListing(long listingId, String sellerEmail,
-                                 String title, String description,
-                                 BigDecimal price, ListingStatus status) {
+    public boolean updateListing(long listingId,
+                                 String sellerEmail,
+                                 String title,
+                                 String description,
+                                 BigDecimal price,
+                                 ListingStatus status) {
 
         if (sellerEmail == null || sellerEmail.isBlank()) return false;
         if (listingId <= 0) return false;
@@ -56,6 +60,7 @@ public class ListingService {
         if (status == null) return false;
 
         Listing listing = listingRepository.findById(listingId);
+
         if (listing == null) return false;
 
         if (!listing.getSellerEmail().equalsIgnoreCase(sellerEmail)) return false;
@@ -66,10 +71,12 @@ public class ListingService {
         listing.setStatus(status);
 
         listingRepository.save(listing);
+
         return true;
     }
 
     public void updateSellerEmail(String oldEmail, String newEmail) {
+
         if (oldEmail == null || newEmail == null) return;
         if (oldEmail.equalsIgnoreCase(newEmail)) return;
 
@@ -81,13 +88,14 @@ public class ListingService {
     }
 
     /**
-     * User story: Seller can mark listing as sold/unavailable
+     * Seller can mark listing sold/unavailable
      */
     public boolean updateStatus(long listingId, String sellerEmail, ListingStatus newStatus) {
 
         if (newStatus == null) return false;
 
         Listing listing = listingRepository.findById(listingId);
+
         if (listing == null) return false;
 
         if (!listing.getSellerEmail().equalsIgnoreCase(sellerEmail)) return false;
@@ -98,48 +106,41 @@ public class ListingService {
         return true;
     }
 
+    /* =====================================
+       KAN-15 Filter Listings
+       ===================================== */
 
-    /**
-     * KAN-15
-     * Filter listings by seller email
-     */
     public List<Listing> filterListingsBySeller(String sellerEmail) {
 
         if (sellerEmail == null || sellerEmail.isBlank()) {
-            return listingRepository.findAll();
+            return List.of();
         }
 
-        return listingRepository.findAll()
-                .stream()
-                .filter(l -> l.getSellerEmail() != null &&
-                             l.getSellerEmail().equalsIgnoreCase(sellerEmail))
-                .collect(Collectors.toList());
+        return listingRepository.findBySellerEmail(sellerEmail);
     }
 
 
-    /**
-     * KAN-17
-     * Sort listings by price
-     */
-    public List<Listing> sortListingsByPrice() {
+    /* =====================================
+       KAN-17 Sort Listings
+       ===================================== */
 
-        return listingRepository.findAll()
-                .stream()
-                .sorted(Comparator.comparing(Listing::getPrice))
-                .collect(Collectors.toList());
+    public List<Listing> sortListingsByPrice(String sellerEmail) {
+
+        List<Listing> listings = listingRepository.findBySellerEmail(sellerEmail);
+
+        listings.sort((a, b) -> a.getPrice().compareTo(b.getPrice()));
+
+        return listings;
     }
 
 
-    /**
-     * KAN-17
-     * Sort listings alphabetically by title
-     */
-    public List<Listing> sortListingsByTitle() {
+    public List<Listing> sortListingsByTitle(String sellerEmail) {
 
-        return listingRepository.findAll()
-                .stream()
-                .sorted(Comparator.comparing(Listing::getTitle))
-                .collect(Collectors.toList());
+        List<Listing> listings = listingRepository.findBySellerEmail(sellerEmail);
+
+        listings.sort((a, b) -> a.getTitle().compareToIgnoreCase(b.getTitle()));
+
+        return listings;
     }
 
 }
