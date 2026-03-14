@@ -28,7 +28,7 @@ public class MessageRepositoryStub implements MessageRepository {
         List<Message> result = new ArrayList<>();
 
         for (Message m : messages.values()) {
-            if (m.getListingId().equals(listingId)) {
+            if (m.getListingId() != null && m.getListingId().equals(listingId)) {
                 result.add(m);
             }
         }
