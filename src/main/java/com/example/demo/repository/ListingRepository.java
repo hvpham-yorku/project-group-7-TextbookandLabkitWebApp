@@ -16,8 +16,9 @@ public interface ListingRepository {
     void save(Listing listing);
 
     Listing create(String sellerEmail, String title, String description, BigDecimal price,
-                   String courseCode, String semester, String materialType,
-                   String condition, String exchangeType);
+               String courseCode, String semester, String materialType,
+               String condition, String exchangeType,
+               String isbn, BigDecimal bookstorePrice);
 
     boolean deleteById(long id);
 

@@ -1,6 +1,8 @@
 package com.example.demo.domain;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -23,11 +25,19 @@ public class Listing {
     private String condition;     // e.g. "New", "Good", "Fair", "Poor"
     private String exchangeType;  // e.g. "Sell", "Trade", "Free"
 
+    // Optional identifiers for price comparison / required materials matching
+    private String isbn;          // e.g. "9780134685991"
+    private BigDecimal bookstorePrice; // YorkU Bookstore (new) price, if known
+
+    // Used for sorting (newest)
+    private LocalDateTime datePosted;
+
     private ListingStatus status;
 
     // No-arg constructor (required for Thymeleaf form binding)
     public Listing() {
         this.status = ListingStatus.AVAILABLE;
+        this.datePosted = LocalDateTime.now();
     }
 
     // Full constructor
@@ -54,6 +64,7 @@ public class Listing {
         this.condition = condition;
         this.exchangeType = exchangeType;
         this.status = status == null ? ListingStatus.AVAILABLE : status;
+        this.datePosted = LocalDateTime.now();
     }
 
     // --- Getters and Setters ---
@@ -88,8 +99,42 @@ public class Listing {
     public String getExchangeType() { return exchangeType; }
     public void setExchangeType(String exchangeType) { this.exchangeType = exchangeType; }
 
+    public String getIsbn() { return isbn; }
+    public void setIsbn(String isbn) { this.isbn = isbn; }
+
+    public BigDecimal getBookstorePrice() { return bookstorePrice; }
+    public void setBookstorePrice(BigDecimal bookstorePrice) { this.bookstorePrice = bookstorePrice; }
+
+    public LocalDateTime getDatePosted() { return datePosted; }
+    public void setDatePosted(LocalDateTime datePosted) { this.datePosted = datePosted; }
+
     public ListingStatus getStatus() { return status; }
     public void setStatus(ListingStatus status) { this.status = status; }
+
+    /**
+     * Returns an integer percent (0..100) representing how much cheaper this listing is
+     * compared to the bookstore price. Returns null if bookstorePrice is not available.
+     */
+    public Integer getSavingsPercent() {
+        if (bookstorePrice == null) return null;
+        if (price == null) return null;
+        if (bookstorePrice.compareTo(BigDecimal.ZERO) <= 0) return null;
+
+        BigDecimal diff = bookstorePrice.subtract(price);
+        if (diff.compareTo(BigDecimal.ZERO) <= 0) return 0;
+
+        BigDecimal pct = diff
+                .divide(bookstorePrice, 4, RoundingMode.HALF_UP)
+                .multiply(new BigDecimal("100"));
+        return pct.setScale(0, RoundingMode.HALF_UP).intValue();
+    }
+
+    public BigDecimal getSavingsAmount() {
+        if (bookstorePrice == null || price == null) return null;
+        BigDecimal diff = bookstorePrice.subtract(price);
+        if (diff.compareTo(BigDecimal.ZERO) <= 0) return BigDecimal.ZERO;
+        return diff;
+    }
 
     @Override
     public boolean equals(Object o) {

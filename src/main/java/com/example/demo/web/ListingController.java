@@ -48,11 +48,16 @@ public class ListingController {
 
     // KAN-63 + KAN-68
     @GetMapping("/browse")
-    public String browseListings(HttpSession session, Model model) {
+    public String browseListings(@RequestParam(value = "q", required = false) String q,
+                                 @RequestParam(value = "sortBy", required = false, defaultValue = "newest") String sortBy,
+                                 HttpSession session,
+                                 Model model) {
         Object u = session.getAttribute("user");
         if (u == null) return "redirect:/login";
 
-        model.addAttribute("listings", listingService.getAllListings());
+        model.addAttribute("q", q == null ? "" : q);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("listings", listingService.searchAndSort(q, sortBy));
         return "browse-listings";
     }
 
@@ -65,6 +70,8 @@ public class ListingController {
                                 @RequestParam(value = "materialType", defaultValue = "") String materialType,
                                 @RequestParam(value = "condition", defaultValue = "") String condition,
                                 @RequestParam(value = "exchangeType", defaultValue = "") String exchangeType,
+                                @RequestParam(value = "isbn", defaultValue = "") String isbn,
+                                @RequestParam(value = "bookstorePrice", required = false) BigDecimal bookstorePrice,
                                 HttpSession session,
                                 Model model) {
 
@@ -74,7 +81,8 @@ public class ListingController {
         User user = (User) u;
 
         Listing result = listingService.addListing(user.getEmail(), title, description, price,
-                courseCode, semester, materialType, condition, exchangeType);
+                courseCode, semester, materialType, condition, exchangeType,
+                isbn, bookstorePrice);
         if (result == null) {
             model.addAttribute("user", user);
             model.addAttribute("listings", listingService.getListingsForSeller(user.getEmail()));
@@ -110,6 +118,8 @@ public class ListingController {
                                     @RequestParam("description") String description,
                                     @RequestParam("price") BigDecimal price,
                                     @RequestParam("status") ListingStatus status,
+                                    @RequestParam(value = "isbn", defaultValue = "") String isbn,
+                                    @RequestParam(value = "bookstorePrice", required = false) BigDecimal bookstorePrice,
                                     HttpSession session,
                                     Model model) {
 
@@ -118,7 +128,7 @@ public class ListingController {
 
         User user = (User) u;
 
-        boolean ok = listingService.updateListing(id, user.getEmail(), title, description, price, status);
+        boolean ok = listingService.updateListing(id, user.getEmail(), title, description, price, status, isbn, bookstorePrice);
         if (!ok) {
             Listing listing = listingService.findById(id);
             model.addAttribute("listing", listing);
