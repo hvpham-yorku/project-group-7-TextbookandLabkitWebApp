@@ -8,5 +8,4 @@ public interface MessageRepository {
     Message save(Message message);
 
     List<Message> findByListingId(Long listingId);
-
 }
