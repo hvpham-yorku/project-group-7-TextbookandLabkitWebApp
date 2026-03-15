@@ -17,6 +17,7 @@ public class StubListingRepository implements ListingRepository {
     private final AtomicLong idSeq = new AtomicLong(1);
 
     public StubListingRepository() {
+
         Listing l1 = new Listing(idSeq.getAndIncrement(), "abc123@my.yorku.ca",
                 "EECS 2311 Textbook (Used)",
                 "Good condition, a few highlights in chapter 3. No missing pages.",
@@ -105,6 +106,7 @@ public class StubListingRepository implements ListingRepository {
                           String courseCode, String semester, String materialType,
                           String condition, String exchangeType,
                           String isbn, BigDecimal bookstorePrice) {
+
         Listing listing = new Listing(
                 idSeq.getAndIncrement(),
                 sellerEmail,
@@ -118,9 +120,11 @@ public class StubListingRepository implements ListingRepository {
                 exchangeType,
                 ListingStatus.AVAILABLE
         );
+
         listing.setIsbn(isbn == null ? "" : isbn.trim());
         listing.setBookstorePrice(bookstorePrice);
         listing.setDatePosted(LocalDateTime.now());
+
         listings.add(listing);
         return listing;
     }
@@ -135,22 +139,11 @@ public class StubListingRepository implements ListingRepository {
 
     @Override
     public void updateSellerEmail(String oldEmail, String newEmail) {
-        List<Listing> updated = new ArrayList<>();
         for (Listing l : listings) {
             if (l.getSellerEmail().equalsIgnoreCase(oldEmail)) {
-                Listing copy = new Listing(l.getId(), newEmail, l.getTitle(), l.getDescription(), l.getPrice(),
-                        l.getCourseCode(), l.getSemester(), l.getMaterialType(),
-                        l.getCondition(), l.getExchangeType(), l.getStatus());
-                copy.setIsbn(l.getIsbn());
-                copy.setBookstorePrice(l.getBookstorePrice());
-                copy.setDatePosted(l.getDatePosted());
-                updated.add(copy);
-            } else {
-                updated.add(l);
+                l.setSellerEmail(newEmail);
             }
         }
-        listings.clear();
-        listings.addAll(updated);
     }
 
     @Override
@@ -160,6 +153,7 @@ public class StubListingRepository implements ListingRepository {
             listings.add(listing);
             return;
         }
+
         existing.setTitle(listing.getTitle());
         existing.setDescription(listing.getDescription());
         existing.setPrice(listing.getPrice());
