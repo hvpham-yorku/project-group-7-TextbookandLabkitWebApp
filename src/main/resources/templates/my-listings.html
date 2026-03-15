@@ -14,6 +14,7 @@
   <a class="navbar-brand" href="/dashboard">YorkU Circle</a>
 
   <div class="ms-auto">
+    <a href="/course-materials" class="btn btn-outline-light me-2">Course Materials</a>
     <a href="/profile" class="btn btn-outline-light me-2">Profile</a>
     <form action="/logout" method="post" style="display:inline;">
       <button type="submit" class="btn btn-light">Logout</button>
@@ -50,6 +51,54 @@
           <label for="price" class="form-label">Price ($)</label>
           <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" placeholder="e.g. 40.00" required>
         </div>
+
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label for="courseCode" class="form-label">Course Code</label>
+            <input type="text" class="form-control" id="courseCode" name="courseCode" placeholder="e.g. EECS 2311">
+          </div>
+          <div class="col-md-4">
+            <label for="materialType" class="form-label">Material Type</label>
+            <select class="form-select" id="materialType" name="materialType">
+              <option value="">(Optional)</option>
+              <option value="Textbook">Textbook</option>
+              <option value="Lab Kit">Lab Kit</option>
+              <option value="Notes">Notes</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label for="condition" class="form-label">Condition</label>
+            <select class="form-select" id="condition" name="condition">
+              <option value="">(Optional)</option>
+              <option value="New">New</option>
+              <option value="Good">Good</option>
+              <option value="Fair">Fair</option>
+              <option value="Poor">Poor</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row g-3 mt-1">
+          <div class="col-md-4">
+            <label for="exchangeType" class="form-label">Exchange Type</label>
+            <select class="form-select" id="exchangeType" name="exchangeType">
+              <option value="">(Optional)</option>
+              <option value="Sell">Sell</option>
+              <option value="Trade">Trade</option>
+              <option value="Free">Free</option>
+              <option value="Giveaway">Giveaway</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label for="isbn" class="form-label">ISBN (Optional)</label>
+            <input type="text" class="form-control" id="isbn" name="isbn" placeholder="e.g. 9780134685991">
+          </div>
+          <div class="col-md-4">
+            <label for="bookstorePrice" class="form-label">Bookstore Price (New) ($, Optional)</label>
+            <input type="number" class="form-control" id="bookstorePrice" name="bookstorePrice" step="0.01" min="0" placeholder="e.g. 120.00">
+          </div>
+        </div>
+
         <button type="submit" class="btn btn-success">Add Listing</button>
       </form>
     </div>
@@ -70,6 +119,8 @@
             <th>Title</th>
             <th>Description</th>
             <th>Price</th>
+            <th>Bookstore</th>
+            <th>Save</th>
             <th>Status</th>
             <th>Edit</th>
           </tr>
@@ -80,6 +131,14 @@
             <td th:text="${l.title}"></td>
             <td th:text="${l.description}"></td>
             <td th:text="'$' + ${l.price}"></td>
+            <td>
+              <span th:if="${l.bookstorePrice != null}" th:text="'$' + ${l.bookstorePrice}"></span>
+              <span th:unless="${l.bookstorePrice != null}" class="text-muted">—</span>
+            </td>
+            <td>
+              <span th:if="${l.savingsPercent != null}" class="badge bg-info text-dark" th:text="${l.savingsPercent} + '%'"></span>
+              <span th:unless="${l.savingsPercent != null}" class="text-muted">—</span>
+            </td>
             <td>
               <span class="badge bg-success"
                     th:if="${l.status == T(com.example.demo.domain.ListingStatus).AVAILABLE}">
