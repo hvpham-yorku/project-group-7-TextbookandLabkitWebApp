@@ -15,7 +15,6 @@ import java.util.List;
 @Controller
 public class ListingController {
 
-```
 private final ListingService listingService;
 
 public ListingController(ListingService listingService) {

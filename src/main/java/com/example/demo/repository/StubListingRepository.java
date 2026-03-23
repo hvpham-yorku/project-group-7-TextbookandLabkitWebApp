@@ -2,6 +2,7 @@ package com.example.demo.repository;
 
 import com.example.demo.domain.Listing;
 import com.example.demo.domain.ListingStatus;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
+@Profile("stub")
 public class StubListingRepository implements ListingRepository {
 
     private final List<Listing> listings = new ArrayList<>();

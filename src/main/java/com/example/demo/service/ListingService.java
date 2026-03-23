@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 @Service
 public class ListingService {
 
-```
 private final ListingRepository listingRepository;
 
 public ListingService(ListingRepository listingRepository) {
@@ -128,7 +127,7 @@ public List<Listing> getListingsForSeller(String sellerEmail) {
 
 // ===============================
 // Browse Listings (Search + Sort)
-// ===============================
+
 
 public List<Listing> getAllListings() {
     return listingRepository.findAll();

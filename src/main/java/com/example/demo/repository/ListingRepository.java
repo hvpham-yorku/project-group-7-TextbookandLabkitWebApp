@@ -7,8 +7,11 @@ import java.util.List;
 
 public interface ListingRepository {
 
-    // Create listing (simple version)
-    Listing create(String sellerEmail, String title, String description, BigDecimal price);
+    // Create listing (simple version) — delegates to full version with empty optional fields.
+    // Declared as a default so implementations only need to override the full version.
+    default Listing create(String sellerEmail, String title, String description, BigDecimal price) {
+        return create(sellerEmail, title, description, price, "", "", "", "", "", "", null);
+    }
 
     // Create listing (full version used in main)
     Listing create(String sellerEmail, String title, String description, BigDecimal price,
