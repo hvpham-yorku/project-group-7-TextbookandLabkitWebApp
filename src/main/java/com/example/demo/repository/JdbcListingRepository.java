@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import com.example.demo.domain.Listing;
+
 import com.example.demo.domain.ListingStatus;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,6 +14,8 @@ import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import java.util.Map;
 
 
 @Repository
@@ -101,7 +104,9 @@ public class JdbcListingRepository implements ListingRepository {
             return ps;
         }, keyHolder);
 
-        long generatedId = keyHolder.getKey().longValue();
+        Map<String, Object> keys = keyHolder.getKeys();
+        Number id = (Number) keys.get("id");
+        long generatedId = id.longValue();
 
         // Build and return the newly created listing
         Listing listing = new Listing(
