@@ -18,12 +18,12 @@ public class LoginControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    void validLoginShouldRedirectToDashboard() throws Exception {
+    void validLoginShouldRedirectToBrowse() throws Exception {
         mockMvc.perform(post("/login")
                 .param("email", "saif0@my.yorku.ca")
                 .param("password", "1234"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/dashboard"));
+                .andExpect(redirectedUrl("/browse"));
     }
 
     @Test
@@ -37,8 +37,8 @@ public class LoginControllerTest {
     }
 
     @Test
-    void dashboardWithoutLoginShouldRedirectToLogin() throws Exception {
-        mockMvc.perform(get("/dashboard"))
+    void browseWithoutLoginShouldRedirectToLogin() throws Exception {
+        mockMvc.perform(get("/browse"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login"));
     }

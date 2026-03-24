@@ -1,7 +1,6 @@
 package com.example.demo.web;
 
 import com.example.demo.service.AuthService;
-import com.example.demo.service.ListingService;
 import com.example.demo.domain.User;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -12,11 +11,9 @@ import org.springframework.web.bind.annotation.*;
 public class LoginController {
 
     private final AuthService authService;
-    private final ListingService listingService;
 
-    public LoginController(AuthService authService, ListingService listingService) {
+    public LoginController(AuthService authService) {
         this.authService = authService;
-        this.listingService = listingService;
     }
 
     @GetMapping("/")
@@ -43,18 +40,7 @@ public class LoginController {
         }
 
         session.setAttribute("user", user);
-        return "redirect:/dashboard";
-    }
-
-    @GetMapping("/dashboard")
-    public String dashboard(HttpSession session, Model model) {
-        Object u = session.getAttribute("user");
-        if (u == null) return "redirect:/login";
-
-        User user = (User) u;
-        model.addAttribute("user", user);
-        model.addAttribute("listings", listingService.getListingsForSeller(user.getEmail()));
-        return "dashboard";
+        return "redirect:/browse";
     }
 
     @GetMapping("/profile")

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<nav th:fragment="navbar(currentPage)" class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+    <a class="navbar-brand fw-semibold" th:href="@{/browse}">YorkU Circle</a>
+
+    <div class="ms-auto d-flex align-items-center gap-2">
+        <a th:href="@{/browse}"
+           th:class="${currentPage == 'browse'} ? 'btn btn-light' : 'btn btn-outline-light'">
+            Browse
+        </a>
+        <a th:href="@{/course-materials}"
+           th:class="${currentPage == 'course-materials'} ? 'btn btn-light' : 'btn btn-outline-light'">
+            Course Materials
+        </a>
+        <a th:href="@{/my-listings}"
+           th:class="${currentPage == 'my-listings'} ? 'btn btn-light' : 'btn btn-outline-light'">
+            My Listings
+        </a>
+        <a th:href="@{/profile}"
+           th:class="${currentPage == 'profile'} ? 'btn btn-light' : 'btn btn-outline-light'">
+            Profile
+        </a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="btn btn-outline-danger">Logout</button>
+        </form>
+    </div>
+</nav>
+
+</body>
+</html>
