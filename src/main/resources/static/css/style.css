@@ -29,3 +29,140 @@ h2 {
 .navbar-brand {
     font-weight: bold;
 }
+
+/* ============================================================
+   YorkU Circle — Two-row header (KAN-83 redesign)
+   Row 1: light top header  |  Row 2: red nav bar
+   ============================================================ */
+:root {
+    --yk-red:           #C8102E;
+    --yk-dark-red:      #8C1D40;
+    --yk-nav-active-bg: #9e0b22;   /* darker red block for active nav item  */
+    --yk-header-bg:     #FFFFFF;
+    --yk-header-border: #E2E2E2;
+    --yk-text-dark:     #1F1F1F;
+    --yk-text-muted:    #666666;
+}
+
+/* ===== Row 1 — Top header ===== */
+.yk-header-top {
+    background-color: var(--yk-header-bg);
+    border-bottom: 1px solid var(--yk-header-border);
+    padding: 0.7rem 0;
+}
+
+.yk-header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Brand */
+.yk-header-brand {
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+}
+.yk-brand-name {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--yk-dark-red);
+    letter-spacing: 0.01em;
+}
+.yk-brand-tagline {
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: var(--yk-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+}
+.yk-header-brand:hover .yk-brand-name {
+    color: var(--yk-red);
+}
+
+/* Profile link + Logout */
+.yk-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.yk-header-link {
+    color: var(--yk-text-dark);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: color 0.15s ease;
+}
+.yk-header-link:hover {
+    color: var(--yk-red);
+}
+.yk-header-logout {
+    background:    transparent;
+    border:        1px solid #c8c8c8;
+    color:         var(--yk-text-dark);
+    font-size:     0.85rem;
+    font-weight:   500;
+    padding:       0.28rem 0.85rem;
+    border-radius: 3px;
+    cursor:        pointer;
+    transition:    border-color 0.15s ease, color 0.15s ease;
+}
+.yk-header-logout:hover {
+    border-color: var(--yk-red);
+    color:        var(--yk-red);
+}
+
+/* ===== Row 2 — Red navigation bar ===== */
+.yk-nav-bar {
+    background-color: var(--yk-red);
+}
+
+.yk-nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: stretch;
+}
+
+.yk-nav-bar .yk-nav-link {
+    color:           rgba(255, 255, 255, 0.92);
+    text-decoration: none;
+    font-size:       0.9rem;
+    font-weight:     500;
+    padding:         0.82rem 1.2rem;
+    display:         inline-block;
+    letter-spacing:  0.02em;
+    transition:      background-color 0.15s ease;
+}
+.yk-nav-bar .yk-nav-link:hover {
+    color:            #fff;
+    background-color: rgba(0, 0, 0, 0.12);
+}
+.yk-nav-bar .yk-nav-link.yk-nav-active {
+    color:            #fff;
+    background-color: var(--yk-nav-active-bg);
+    font-weight:      600;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .yk-header-inner,
+    .yk-nav-inner {
+        padding: 0 1rem;
+    }
+    .yk-brand-name {
+        font-size: 1.15rem;
+    }
+    .yk-brand-tagline {
+        display: none;
+    }
+    .yk-nav-bar .yk-nav-link {
+        padding:   0.72rem 0.85rem;
+        font-size: 0.85rem;
+    }
+}
