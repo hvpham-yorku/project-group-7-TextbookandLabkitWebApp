@@ -34,10 +34,10 @@ CREATE TABLE IF NOT EXISTS listings (
 );
 
 -- -------------------------------------------------------
--- MESSAGES
--- listing_id ties a message to a specific listing.
--- sender_id / receiver_id are stored as BIGINT (user ID
-
+-- MESSAGES (legacy stub — kept for reference)
+-- sender_id / receiver_id are BIGINT user IDs.
+-- Not used by the current contact flow; see contact_messages below.
+-- -------------------------------------------------------
 CREATE TABLE IF NOT EXISTS messages (
     id          BIGSERIAL PRIMARY KEY,
     listing_id  BIGINT    NOT NULL,
@@ -45,4 +45,20 @@ CREATE TABLE IF NOT EXISTS messages (
     receiver_id BIGINT,
     content     TEXT      NOT NULL,
     timestamp   TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- -------------------------------------------------------
+-- CONTACT MESSAGES  (KAN-93)
+-- Stores messages sent from a buyer to a seller about
+-- a specific listing.  Uses email addresses (consistent
+-- with how users are identified elsewhere in the schema).
+-- -------------------------------------------------------
+CREATE TABLE IF NOT EXISTS contact_messages (
+    id           BIGSERIAL    PRIMARY KEY,
+    listing_id   BIGINT       NOT NULL,
+    sender_email VARCHAR(255) NOT NULL,
+    seller_email VARCHAR(255) NOT NULL,
+    subject      VARCHAR(500) NOT NULL,
+    message      TEXT         NOT NULL,
+    created_at   TIMESTAMP    NOT NULL DEFAULT NOW()
 );
