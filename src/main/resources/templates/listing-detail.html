@@ -13,6 +13,11 @@
 
 <div class="container yk-page-wrap">
 
+    <!-- Success notice after contact form submit -->
+    <div th:if="${param.contacted}" class="alert alert-success" role="alert">
+        Your message was sent. The seller will get back to you.
+    </div>
+
     <!-- Back link -->
     <a href="/browse" class="yk-back-link">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

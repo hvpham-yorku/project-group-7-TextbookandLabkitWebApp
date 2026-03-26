@@ -3,6 +3,7 @@ package com.example.demo.web;
 import com.example.demo.domain.Listing;
 import com.example.demo.domain.ListingStatus;
 import com.example.demo.domain.User;
+import com.example.demo.service.ContactMessageService;
 import com.example.demo.service.ListingService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -22,9 +23,12 @@ import java.util.UUID;
 public class ListingController {
 
 private final ListingService listingService;
+private final ContactMessageService contactMessageService;
 
-public ListingController(ListingService listingService) {
+public ListingController(ListingService listingService,
+                         ContactMessageService contactMessageService) {
     this.listingService = listingService;
+    this.contactMessageService = contactMessageService;
 }
 
 @GetMapping("/my-listings")
@@ -75,6 +79,37 @@ public String contactSellerPlaceholder(@PathVariable("id") long id,
 
     model.addAttribute("listing", listing);
     return "contact-seller";
+}
+
+@PostMapping("/listings/{id}/contact")
+public String contactSellerSubmit(@PathVariable("id") long id,
+                                  @RequestParam("subject") String subject,
+                                  @RequestParam("message") String message,
+                                  HttpSession session,
+                                  Model model) {
+
+    Object u = session.getAttribute("user");
+    if (u == null) return "redirect:/login";
+
+    Listing listing = listingService.findById(id);
+    if (listing == null) return "redirect:/browse";
+
+    User user = (User) u;
+
+    // Sellers cannot message themselves
+    if (user.getEmail().equalsIgnoreCase(listing.getSellerEmail())) {
+        return "redirect:/listings/" + id;
+    }
+
+    contactMessageService.sendMessage(
+            id,
+            user.getEmail(),
+            listing.getSellerEmail(),
+            subject,
+            message
+    );
+
+    return "redirect:/listings/" + id + "?contacted=true";
 }
 
 @GetMapping("/browse")
