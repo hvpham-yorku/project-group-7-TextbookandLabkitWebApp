@@ -74,7 +74,7 @@ public String contactSellerPlaceholder(@PathVariable("id") long id,
     }
 
     model.addAttribute("listing", listing);
-    return "contact-seller-placeholder";
+    return "contact-seller";
 }
 
 @GetMapping("/browse")
