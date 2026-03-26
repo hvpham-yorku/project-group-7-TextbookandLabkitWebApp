@@ -34,6 +34,9 @@ public class Listing {
 
     private ListingStatus status;
 
+    // Optional uploaded image path (e.g. "/uploads/abc123.jpg")
+    private String imagePath;
+
     // No-arg constructor (required for Thymeleaf form binding)
     public Listing() {
         this.status = ListingStatus.AVAILABLE;
@@ -110,6 +113,9 @@ public class Listing {
 
     public ListingStatus getStatus() { return status; }
     public void setStatus(ListingStatus status) { this.status = status; }
+
+    public String getImagePath() { return imagePath; }
+    public void setImagePath(String imagePath) { this.imagePath = imagePath; }
 
     /**
      * Returns an integer percent (0..100) representing how much cheaper this listing is

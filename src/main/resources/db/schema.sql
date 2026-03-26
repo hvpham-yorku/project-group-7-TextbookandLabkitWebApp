@@ -29,7 +29,8 @@ CREATE TABLE IF NOT EXISTS listings (
     isbn            VARCHAR(50),
     bookstore_price NUMERIC(10, 2),
     date_posted     TIMESTAMP    NOT NULL DEFAULT NOW(),
-    status          VARCHAR(50)  NOT NULL DEFAULT 'AVAILABLE'
+    status          VARCHAR(50)  NOT NULL DEFAULT 'AVAILABLE',
+    image_path      VARCHAR(500)
 );
 
 -- -------------------------------------------------------
