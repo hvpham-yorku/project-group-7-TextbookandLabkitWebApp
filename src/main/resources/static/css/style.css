@@ -798,6 +798,67 @@ body.browse-page {
     border-top:  1px solid #ede9e4;
 }
 
+/* ============================================================
+   KAN-91 — Contact Seller page
+   ============================================================ */
+
+/* Two-card stacked layout, capped width for readability */
+.cs-layout {
+    display:        flex;
+    flex-direction: column;
+    gap:            1.25rem;
+    max-width:      640px;
+}
+
+/* Summary card — slightly compact */
+.cs-summary-card .yk-card-body {
+    padding: 1.1rem 1.25rem;
+}
+
+.cs-summary-label {
+    font-size:      0.72rem;
+    font-weight:    600;
+    color:          var(--yk-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom:  0.6rem;
+}
+
+.cs-summary-title {
+    font-size:     1rem;
+    font-weight:   700;
+    color:         var(--yk-text-dark);
+    margin-bottom: 0.3rem;
+    line-height:   1.35;
+}
+
+.cs-summary-price {
+    font-size:     1.15rem;
+    font-weight:   800;
+    color:         #111;
+    margin-bottom: 0.55rem;
+    line-height:   1;
+}
+
+.cs-seller-row {
+    display:     flex;
+    align-items: baseline;
+    gap:         0.5rem;
+}
+.cs-seller-label {
+    font-size:      0.72rem;
+    font-weight:    600;
+    color:          var(--yk-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space:    nowrap;
+}
+.cs-seller-email {
+    font-size: 0.88rem;
+    color:     var(--yk-text-dark);
+    word-break: break-all;
+}
+
 /* ── Danger zone (delete action) ─────────────────────────── */
 .yk-danger-zone {
     border-top:  1px solid #fee2e2;
