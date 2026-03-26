@@ -101,6 +101,14 @@
                 <dd class="col-sm-9" th:text="${listing.sellerEmail}"></dd>
             </dl>
 
+            <!-- Contact Seller action — hidden for the seller's own listing -->
+            <div th:unless="${isSeller}" class="ld-contact-row">
+                <a th:href="@{/listings/{id}/contact(id=${listing.id})}"
+                   class="btn btn-primary">
+                    Contact Seller
+                </a>
+            </div>
+
         </div>
     </div>
 

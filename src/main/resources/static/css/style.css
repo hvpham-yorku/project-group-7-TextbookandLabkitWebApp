@@ -791,6 +791,13 @@ body.browse-page {
     color:     var(--yk-text-dark);
 }
 
+/* ── Contact seller action row (listing detail) ─────────── */
+.ld-contact-row {
+    margin-top:  1.5rem;
+    padding-top: 1.25rem;
+    border-top:  1px solid #ede9e4;
+}
+
 /* ── Danger zone (delete action) ─────────────────────────── */
 .yk-danger-zone {
     border-top:  1px solid #fee2e2;

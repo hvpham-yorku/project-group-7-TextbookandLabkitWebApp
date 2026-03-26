@@ -48,8 +48,33 @@ public String listingDetail(@PathVariable("id") long id,
     Listing listing = listingService.findById(id);
     if (listing == null) return "redirect:/browse";
 
+    User user = (User) u;
+    boolean isSeller = user.getEmail().equalsIgnoreCase(listing.getSellerEmail());
+
     model.addAttribute("listing", listing);
+    model.addAttribute("isSeller", isSeller);
     return "listing-detail";
+}
+
+@GetMapping("/listings/{id}/contact")
+public String contactSellerPlaceholder(@PathVariable("id") long id,
+                                       HttpSession session,
+                                       Model model) {
+
+    Object u = session.getAttribute("user");
+    if (u == null) return "redirect:/login";
+
+    Listing listing = listingService.findById(id);
+    if (listing == null) return "redirect:/browse";
+
+    // Sellers cannot contact themselves
+    User user = (User) u;
+    if (user.getEmail().equalsIgnoreCase(listing.getSellerEmail())) {
+        return "redirect:/listings/" + id;
+    }
+
+    model.addAttribute("listing", listing);
+    return "contact-seller-placeholder";
 }
 
 @GetMapping("/browse")
