@@ -59,6 +59,8 @@ public class JdbcListingRepository implements ListingRepository {
                 listing.setDatePosted(ts.toLocalDateTime());
             }
 
+            listing.setImagePath(rs.getString("image_path"));
+
             return listing;
         }
     };
@@ -133,19 +135,20 @@ public class JdbcListingRepository implements ListingRepository {
     public void save(Listing listing) {
         String sql = """
                 UPDATE listings
-                   SET seller_email   = ?,
-                       title          = ?,
-                       description    = ?,
-                       price          = ?,
-                       course_code    = ?,
-                       semester       = ?,
-                       material_type  = ?,
-                       condition      = ?,
-                       exchange_type  = ?,
-                       isbn           = ?,
+                   SET seller_email    = ?,
+                       title           = ?,
+                       description     = ?,
+                       price           = ?,
+                       course_code     = ?,
+                       semester        = ?,
+                       material_type   = ?,
+                       condition       = ?,
+                       exchange_type   = ?,
+                       isbn            = ?,
                        bookstore_price = ?,
-                       date_posted    = ?,
-                       status         = ?
+                       date_posted     = ?,
+                       status          = ?,
+                       image_path      = ?
                  WHERE id = ?
                 """;
 
@@ -163,6 +166,7 @@ public class JdbcListingRepository implements ListingRepository {
                 listing.getBookstorePrice(),
                 listing.getDatePosted() != null ? Timestamp.valueOf(listing.getDatePosted()) : null,
                 listing.getStatus() != null ? listing.getStatus().name() : ListingStatus.AVAILABLE.name(),
+                listing.getImagePath(),
                 listing.getId());
     }
 

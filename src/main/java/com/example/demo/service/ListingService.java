@@ -113,6 +113,13 @@ public boolean updateListing(long listingId, String sellerEmail,
     );
 }
 
+public void updateImagePath(long listingId, String imagePath) {
+    Listing listing = listingRepository.findById(listingId);
+    if (listing == null) return;
+    listing.setImagePath(imagePath);
+    listingRepository.save(listing);
+}
+
 public void updateSellerEmail(String oldEmail, String newEmail) {
 
     if (oldEmail == null || newEmail == null) return;

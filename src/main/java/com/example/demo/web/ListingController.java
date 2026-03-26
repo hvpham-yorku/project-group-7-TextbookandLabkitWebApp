@@ -8,9 +8,15 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 public class ListingController {
@@ -73,6 +79,7 @@ public String createListing(@RequestParam("title") String title,
                             @RequestParam(value = "exchangeType", defaultValue = "") String exchangeType,
                             @RequestParam(value = "isbn", defaultValue = "") String isbn,
                             @RequestParam(value = "bookstorePrice", required = false) BigDecimal bookstorePrice,
+                            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
                             HttpSession session,
                             Model model) {
 
@@ -102,7 +109,45 @@ public String createListing(@RequestParam("title") String title,
         return "my-listings";
     }
 
+    // Save uploaded image if provided
+    if (imageFile != null && !imageFile.isEmpty()) {
+        String savedPath = saveUploadedImage(imageFile);
+        if (savedPath != null) {
+            listingService.updateImagePath(result.getId(), savedPath);
+        }
+    }
+
     return "redirect:/my-listings";
+}
+
+/**
+ * Saves the uploaded image to the local uploads/ directory.
+ * Returns the web-accessible path (e.g. "/uploads/abc123.jpg"), or null on failure.
+ */
+private String saveUploadedImage(MultipartFile file) {
+    String original = file.getOriginalFilename();
+    if (original == null || original.isBlank()) return null;
+
+    String ext = "";
+    int dot = original.lastIndexOf('.');
+    if (dot >= 0) ext = original.substring(dot).toLowerCase();
+
+    // Only allow common image types
+    if (!List.of(".jpg", ".jpeg", ".png", ".webp").contains(ext)) return null;
+
+    try {
+        Path uploadDir = Paths.get("uploads");
+        Files.createDirectories(uploadDir);
+
+        String filename = UUID.randomUUID() + ext;
+        Path dest = uploadDir.resolve(filename).toAbsolutePath();
+        file.transferTo(dest.toFile());
+
+        return "/uploads/" + filename;
+    } catch (IOException e) {
+        // Non-fatal: listing is created without image
+        return null;
+    }
 }
 
 @GetMapping("/listings/{id}/edit")

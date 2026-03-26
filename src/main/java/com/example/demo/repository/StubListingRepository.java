@@ -168,5 +168,6 @@ public class StubListingRepository implements ListingRepository {
         existing.setIsbn(listing.getIsbn());
         existing.setBookstorePrice(listing.getBookstorePrice());
         existing.setDatePosted(listing.getDatePosted());
+        existing.setImagePath(listing.getImagePath());
     }
 }
