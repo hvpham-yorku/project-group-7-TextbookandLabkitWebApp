@@ -12,6 +12,7 @@
         'course-materials' → highlights Course Materials
         'my-listings'      → highlights My Listings
         'inbox'            → highlights Inbox
+        'notifications'    → highlights Notifications
         (any other)        → no nav item highlighted
 -->
 <div th:fragment="navbar(currentPage)">
@@ -63,6 +64,14 @@
             <a th:href="@{/inbox}"
                th:class="${currentPage == 'inbox'} ? 'yk-nav-link yk-nav-active' : 'yk-nav-link'">
                 Inbox
+            </a>
+
+            <a th:href="@{/notifications}"
+               th:class="${currentPage == 'notifications'} ? 'yk-nav-link yk-nav-active' : 'yk-nav-link'">
+                Notifications
+                <span th:if="${unreadCount != null and unreadCount > 0}"
+                      class="yk-nav-badge"
+                      th:text="${unreadCount}"></span>
             </a>
 
         </div>
