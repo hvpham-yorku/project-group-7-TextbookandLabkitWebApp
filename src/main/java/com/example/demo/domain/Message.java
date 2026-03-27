@@ -10,44 +10,35 @@ public class Message {
     private Long receiverId;
     private String content;
     private LocalDateTime timestamp;
+    private boolean read;
 
     public Message() {
+        this.timestamp = LocalDateTime.now();
+        this.read = false;
     }
 
-    public Message(Long id, Long listingId, Long senderId, Long receiverId, String content) {
-        this.id = id;
+    public Message(Long listingId, Long senderId, Long receiverId, String content) {
         this.listingId = listingId;
         this.senderId = senderId;
         this.receiverId = receiverId;
         this.content = content;
         this.timestamp = LocalDateTime.now();
+        this.read = false;
     }
 
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public Long getListingId() { return listingId; }
+    public Long getSenderId() { return senderId; }
+    public Long getReceiverId() { return receiverId; }
+    public String getContent() { return content; }
+    public LocalDateTime getTimestamp() { return timestamp; }
+    public boolean isRead() { return read; }
 
-    public Long getListingId() {
-        return listingId;
-    }
-
-    public Long getSenderId() {
-        return senderId;
-    }
-
-    public Long getReceiverId() {
-        return receiverId;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public void setId(Long id) { this.id = id; }
+    public void setListingId(Long listingId) { this.listingId = listingId; }
+    public void setSenderId(Long senderId) { this.senderId = senderId; }
+    public void setReceiverId(Long receiverId) { this.receiverId = receiverId; }
+    public void setContent(String content) { this.content = content; }
+    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+    public void markAsRead() { this.read = true; }
 }
