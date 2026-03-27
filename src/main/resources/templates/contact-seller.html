@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Seller - YorkU Circle</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=9)}">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar('browse')}"></div>
+
+<div class="container yk-page-wrap">
+
+    <!-- Back link -->
+    <a th:href="@{/listings/{id}(id=${listing.id})}" class="yk-back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+             fill="currentColor" aria-hidden="true">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+        Back to Listing
+    </a>
+
+    <!-- Page heading -->
+    <div class="yk-page-head">
+        <h2 class="yk-page-title">Contact Seller</h2>
+        <p class="yk-page-sub">Fill in your message below and the seller will get back to you.</p>
+    </div>
+
+    <div class="cs-layout">
+
+        <!-- Listing summary block -->
+        <div class="yk-card cs-summary-card">
+            <div class="yk-card-body">
+                <p class="cs-summary-label">About this listing</p>
+
+                <!-- Badges: course + status -->
+                <div class="bm-card-badges mb-2">
+                    <span class="bm-badge-course"
+                          th:if="${listing.courseCode != null and !#strings.isEmpty(listing.courseCode)}"
+                          th:text="${listing.courseCode}"></span>
+                    <span class="yk-status yk-status-available"
+                          th:if="${listing.status == T(com.example.demo.domain.ListingStatus).AVAILABLE}">Available</span>
+                    <span class="yk-status yk-status-unavailable"
+                          th:if="${listing.status == T(com.example.demo.domain.ListingStatus).UNAVAILABLE}">Unavailable</span>
+                    <span class="yk-status yk-status-sold"
+                          th:if="${listing.status == T(com.example.demo.domain.ListingStatus).SOLD}">Sold</span>
+                </div>
+
+                <!-- Title -->
+                <p class="cs-summary-title" th:text="${listing.title}"></p>
+
+                <!-- Price -->
+                <p class="cs-summary-price" th:text="'$' + ${listing.price}"></p>
+
+                <!-- Meta chips: condition · material type -->
+                <div class="bm-card-meta mb-3">
+                    <span class="bm-meta-chip"
+                          th:if="${listing.materialType != null and !#strings.isEmpty(listing.materialType)}"
+                          th:text="${listing.materialType}"></span>
+                    <span class="bm-meta-chip"
+                          th:if="${listing.condition != null and !#strings.isEmpty(listing.condition)}"
+                          th:text="${listing.condition}"></span>
+                    <span class="bm-meta-chip"
+                          th:if="${listing.exchangeType != null and !#strings.isEmpty(listing.exchangeType)}"
+                          th:text="${listing.exchangeType}"></span>
+                </div>
+
+                <!-- Seller -->
+                <div class="cs-seller-row">
+                    <span class="cs-seller-label">Seller</span>
+                    <span class="cs-seller-email" th:text="${listing.sellerEmail}"></span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Contact form -->
+        <div class="yk-card">
+            <div class="yk-card-body">
+                <h5 class="yk-card-section-title">Your Message</h5>
+
+                <form th:action="@{/listings/{id}/contact(id=${listing.id})}" method="post">
+
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Subject</label>
+                        <input type="text"
+                               class="form-control"
+                               th:classappend="${subjectError != null} ? ' is-invalid' : ''"
+                               id="subject"
+                               name="subject"
+                               th:value="${subject}"
+                               placeholder="e.g. Is this still available?">
+                        <div th:if="${subjectError != null}"
+                             class="invalid-feedback"
+                             th:text="${subjectError}"></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="message" class="form-label">Message</label>
+                        <textarea class="form-control"
+                                  th:classappend="${messageError != null} ? ' is-invalid' : ''"
+                                  id="message"
+                                  name="message"
+                                  rows="5"
+                                  placeholder="Write your message to the seller..."
+                                  th:text="${message}"></textarea>
+                        <div th:if="${messageError != null}"
+                             class="invalid-feedback"
+                             th:text="${messageError}"></div>
+                    </div>
+
+                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                        <a th:href="@{/listings/{id}(id=${listing.id})}"
+                           class="btn btn-outline-secondary">Cancel</a>
+                        <span class="cs-send-note">The seller will receive your message directly.</span>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div><!-- /.cs-layout -->
+
+</div>
+
+</body>
+</html>

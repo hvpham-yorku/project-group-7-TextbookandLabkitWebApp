@@ -1,27 +1,59 @@
 package com.example.demo.domain;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
- * A simple domain object for Iteration 0/1 (stub persistence).
- * In a real app, this would likely be a JPA @Entity.
+ * Domain object representing a YorkU course-material listing.
+ * KAN-60: updated to support academic fields (courseCode, semester, etc.)
  */
 public class Listing {
 
-    private final long id;
-    private final String sellerEmail;
+    private long id;
+    private String sellerEmail;
 
     private String title;
     private String description;
     private BigDecimal price;
+
+    // Academic / course-specific fields
+    private String courseCode;    // e.g. "EECS 2311"
+    private String semester;      // e.g. "Winter 2025"
+    private String materialType;  // e.g. "Textbook", "Lab Kit", "Notes"
+    private String condition;     // e.g. "New", "Good", "Fair", "Poor"
+    private String exchangeType;  // e.g. "Sell", "Trade", "Free"
+
+    // Optional identifiers for price comparison / required materials matching
+    private String isbn;          // e.g. "9780134685991"
+    private BigDecimal bookstorePrice; // YorkU Bookstore (new) price, if known
+
+    // Used for sorting (newest)
+    private LocalDateTime datePosted;
+
     private ListingStatus status;
 
+    // Optional uploaded image path (e.g. "/uploads/abc123.jpg")
+    private String imagePath;
+
+    // No-arg constructor (required for Thymeleaf form binding)
+    public Listing() {
+        this.status = ListingStatus.AVAILABLE;
+        this.datePosted = LocalDateTime.now();
+    }
+
+    // Full constructor
     public Listing(long id,
                    String sellerEmail,
                    String title,
                    String description,
                    BigDecimal price,
+                   String courseCode,
+                   String semester,
+                   String materialType,
+                   String condition,
+                   String exchangeType,
                    ListingStatus status) {
 
         this.id = id;
@@ -29,47 +61,85 @@ public class Listing {
         this.title = title;
         this.description = description;
         this.price = price;
+        this.courseCode = courseCode;
+        this.semester = semester;
+        this.materialType = materialType;
+        this.condition = condition;
+        this.exchangeType = exchangeType;
         this.status = status == null ? ListingStatus.AVAILABLE : status;
+        this.datePosted = LocalDateTime.now();
     }
 
-    public long getId() {
-        return id;
+    // --- Getters and Setters ---
+
+    public long getId() { return id; }
+    public void setId(long id) { this.id = id; }
+
+    public String getSellerEmail() { return sellerEmail; }
+    public void setSellerEmail(String sellerEmail) { this.sellerEmail = sellerEmail; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public BigDecimal getPrice() { return price; }
+    public void setPrice(BigDecimal price) { this.price = price; }
+
+    public String getCourseCode() { return courseCode; }
+    public void setCourseCode(String courseCode) { this.courseCode = courseCode; }
+
+    public String getSemester() { return semester; }
+    public void setSemester(String semester) { this.semester = semester; }
+
+    public String getMaterialType() { return materialType; }
+    public void setMaterialType(String materialType) { this.materialType = materialType; }
+
+    public String getCondition() { return condition; }
+    public void setCondition(String condition) { this.condition = condition; }
+
+    public String getExchangeType() { return exchangeType; }
+    public void setExchangeType(String exchangeType) { this.exchangeType = exchangeType; }
+
+    public String getIsbn() { return isbn; }
+    public void setIsbn(String isbn) { this.isbn = isbn; }
+
+    public BigDecimal getBookstorePrice() { return bookstorePrice; }
+    public void setBookstorePrice(BigDecimal bookstorePrice) { this.bookstorePrice = bookstorePrice; }
+
+    public LocalDateTime getDatePosted() { return datePosted; }
+    public void setDatePosted(LocalDateTime datePosted) { this.datePosted = datePosted; }
+
+    public ListingStatus getStatus() { return status; }
+    public void setStatus(ListingStatus status) { this.status = status; }
+
+    public String getImagePath() { return imagePath; }
+    public void setImagePath(String imagePath) { this.imagePath = imagePath; }
+
+    /**
+     * Returns an integer percent (0..100) representing how much cheaper this listing is
+     * compared to the bookstore price. Returns null if bookstorePrice is not available.
+     */
+    public Integer getSavingsPercent() {
+        if (bookstorePrice == null) return null;
+        if (price == null) return null;
+        if (bookstorePrice.compareTo(BigDecimal.ZERO) <= 0) return null;
+
+        BigDecimal diff = bookstorePrice.subtract(price);
+        if (diff.compareTo(BigDecimal.ZERO) <= 0) return 0;
+
+        BigDecimal pct = diff
+                .divide(bookstorePrice, 4, RoundingMode.HALF_UP)
+                .multiply(new BigDecimal("100"));
+        return pct.setScale(0, RoundingMode.HALF_UP).intValue();
     }
 
-    public String getSellerEmail() {
-        return sellerEmail;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public ListingStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ListingStatus status) {
-        this.status = status;
+    public BigDecimal getSavingsAmount() {
+        if (bookstorePrice == null || price == null) return null;
+        BigDecimal diff = bookstorePrice.subtract(price);
+        if (diff.compareTo(BigDecimal.ZERO) <= 0) return BigDecimal.ZERO;
+        return diff;
     }
 
     @Override

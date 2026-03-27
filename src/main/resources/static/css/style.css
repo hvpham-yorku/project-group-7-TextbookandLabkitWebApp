@@ -1,3 +1,7 @@
+/* ============================================================
+   YorkU Circle — Global base
+   ============================================================ */
+
 body.login-page {
     background: #f4f6f9;
     font-family: Arial, sans-serif;
@@ -9,23 +13,1077 @@ body.login-page {
     border-radius: 15px;
 }
 
+/* Global h2 = maroon heading (page titles inherit this) */
 h2 {
     color: #8c1d40;
 }
 
+/* ── Buttons ─────────────────────────────────────────────── */
+
+/* Base button: shared radius, weight, and transition */
+.btn {
+    border-radius:  8px;
+    font-weight:    500;
+    font-size:      0.9rem;
+    transition:     background-color 0.15s ease, border-color 0.15s ease,
+                    color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Primary = YorkU maroon */
 .btn-primary {
     background-color: #8c1d40;
-    border: none;
+    border-color:     #8c1d40;
+    color:            #fff;
 }
-
 .btn-primary:hover {
     background-color: #6f1633;
+    border-color:     #6f1633;
+    color:            #fff;
+}
+.btn-primary:focus-visible {
+    box-shadow: 0 0 0 3px rgba(140, 29, 64, 0.3);
 }
 
+/* Outline-primary = maroon outline (used for secondary actions) */
+.btn-outline-primary {
+    color:        #8c1d40;
+    border-color: #8c1d40;
+    background:   transparent;
+}
+.btn-outline-primary:hover {
+    background-color: #8c1d40;
+    border-color:     #8c1d40;
+    color:            #fff;
+}
+
+/* Secondary = slate gray */
+.btn-secondary {
+    background-color: #64748b;
+    border-color:     #64748b;
+    color:            #fff;
+}
+.btn-secondary:hover {
+    background-color: #475569;
+    border-color:     #475569;
+    color:            #fff;
+}
+
+/* Outline-secondary = subtle ghost button */
+.btn-outline-secondary {
+    color:        #64748b;
+    border-color: #d1d5db;
+    background:   transparent;
+}
+.btn-outline-secondary:hover {
+    background-color: #f1f5f9;
+    border-color:     #94a3b8;
+    color:            #374151;
+}
+
+/* Danger = red (delete actions only) */
+.btn-danger {
+    background-color: #dc2626;
+    border-color:     #dc2626;
+}
+.btn-danger:hover {
+    background-color: #b91c1c;
+    border-color:     #b91c1c;
+}
+.btn-danger:focus-visible {
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
+}
+
+/* ── Form controls ───────────────────────────────────────── */
+
 .form-control {
-    border-radius: 10px;
+    border-radius:    8px;
+    border-color:     #d8d7d5;
+    background-color: #fafaf9;
+    font-size:        0.9rem;
+    color:            #1a1a1a;
+    transition:       border-color 0.15s ease, box-shadow 0.15s ease,
+                      background-color 0.15s ease;
+}
+.form-control:focus {
+    border-color:     #8c1d40;
+    box-shadow:       0 0 0 3px rgba(140, 29, 64, 0.12);
+    background-color: #fff;
+}
+.form-control:disabled,
+.form-control[readonly] {
+    background-color: #f4f3f1;
+    border-color:     #e5e4e2;
+    color:            #6b6b6b;
+}
+
+.form-select {
+    border-radius:    8px;
+    border-color:     #d8d7d5;
+    background-color: #fafaf9;
+    font-size:        0.9rem;
+    color:            #1a1a1a;
+    transition:       border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.form-select:focus {
+    border-color: #8c1d40;
+    box-shadow:   0 0 0 3px rgba(140, 29, 64, 0.12);
+}
+
+.form-label {
+    font-size:     0.875rem;
+    font-weight:   500;
+    color:         #374151;
+    margin-bottom: 0.35rem;
+}
+
+.form-text {
+    font-size: 0.8rem;
+    color:     #6b6b6b;
+}
+
+/* Alert rounded corners */
+.alert {
+    border-radius: 8px;
 }
 
 .navbar-brand {
     font-weight: bold;
+}
+
+/* ============================================================
+   YorkU Circle — Design tokens
+   ============================================================ */
+:root {
+    --yk-red:           #C8102E;
+    --yk-dark-red:      #8C1D40;
+    --yk-nav-active-bg: #9e0b22;
+    --yk-header-bg:     #FFFFFF;
+    --yk-header-border: #E2E2E2;
+    --yk-text-dark:     #1a1a1a;
+    --yk-text-muted:    #6b6b6b;
+
+    /* Browse page */
+    --bm-page-bg:       #f5f4f2;
+    --bm-card-bg:       #ffffff;
+    --bm-border:        rgba(0, 0, 0, 0.07);
+}
+
+/* ============================================================
+   Global page background — warm off-white for all inner pages.
+   login-page overrides this with its own cooler tone.
+   ============================================================ */
+body {
+    background-color: var(--bm-page-bg);
+}
+
+/* ============================================================
+   Two-row header — KAN-83
+   Row 1: white top header | Row 2: red nav bar
+   ============================================================ */
+
+.yk-header-top {
+    background-color: var(--yk-header-bg);
+    border-bottom: 1px solid var(--yk-header-border);
+    padding: 0.7rem 0;
+}
+
+.yk-header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.yk-header-brand {
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+}
+.yk-brand-name {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--yk-dark-red);
+    letter-spacing: 0.01em;
+}
+.yk-brand-tagline {
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: var(--yk-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+}
+.yk-header-brand:hover .yk-brand-name {
+    color: var(--yk-red);
+}
+
+.yk-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.yk-header-link {
+    color: var(--yk-text-dark);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: color 0.15s ease;
+}
+.yk-header-link:hover {
+    color: var(--yk-red);
+}
+.yk-header-logout {
+    background:    transparent;
+    border:        1px solid #c8c8c8;
+    color:         var(--yk-text-dark);
+    font-size:     0.85rem;
+    font-weight:   500;
+    padding:       0.28rem 0.85rem;
+    border-radius: 3px;
+    cursor:        pointer;
+    transition:    border-color 0.15s ease, color 0.15s ease;
+}
+.yk-header-logout:hover {
+    border-color: var(--yk-red);
+    color:        var(--yk-red);
+}
+
+.yk-nav-bar {
+    background-color: var(--yk-red);
+}
+
+.yk-nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: stretch;
+}
+
+.yk-nav-bar .yk-nav-link {
+    color:           rgba(255, 255, 255, 0.92);
+    text-decoration: none;
+    font-size:       0.9rem;
+    font-weight:     500;
+    padding:         0.82rem 1.2rem;
+    display:         inline-block;
+    letter-spacing:  0.02em;
+    transition:      background-color 0.15s ease;
+}
+.yk-nav-bar .yk-nav-link:hover {
+    color:            #fff;
+    background-color: rgba(0, 0, 0, 0.12);
+}
+.yk-nav-bar .yk-nav-link.yk-nav-active {
+    color:            #fff;
+    background-color: var(--yk-nav-active-bg);
+    font-weight:      600;
+}
+
+@media (max-width: 768px) {
+    .yk-header-inner,
+    .yk-nav-inner { padding: 0 1rem; }
+    .yk-brand-name { font-size: 1.15rem; }
+    .yk-brand-tagline { display: none; }
+    .yk-nav-bar .yk-nav-link { padding: 0.72rem 0.85rem; font-size: 0.85rem; }
+}
+
+/* ============================================================
+   Browse page body background
+   Warm off-white surface makes white cards pop.
+   ============================================================ */
+
+body.browse-page {
+    background-color: var(--bm-page-bg);
+}
+
+/* ============================================================
+   Browse page — KAN-84 top section: heading + search
+   ============================================================ */
+
+.bm-page-wrap {
+    margin-top: 2rem;
+    margin-bottom: 3rem;
+}
+
+.bm-heading-block {
+    margin-bottom: 1.25rem;
+}
+.bm-page-title {
+    font-size:     1.6rem;
+    font-weight:   700;
+    color:         var(--yk-dark-red);
+    margin-bottom: 0.2rem;
+    line-height:   1.2;
+}
+.bm-page-subtitle {
+    font-size: 0.9rem;
+    color:     var(--yk-text-muted);
+    margin:    0;
+}
+
+/* Search + sort panel: white card lifts above the warm page bg */
+.bm-search-panel {
+    background-color: #ffffff;
+    border:           1px solid #e8e7e5;
+    border-radius:    10px;
+    padding:          0.9rem 1.1rem;
+    margin-bottom:    1rem;
+    box-shadow:       0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.bm-search-form {
+    display:     flex;
+    align-items: center;
+    gap:         0.6rem;
+    flex-wrap:   wrap;
+}
+
+.bm-input-wrap {
+    flex:      1 1 260px;
+    min-width: 0;
+}
+
+/* Search input — inherits .form-control globals, slight overrides */
+.bm-search-input {
+    border-radius: 8px;
+    height:        40px;
+}
+.bm-search-input:focus {
+    border-color: var(--yk-dark-red);
+    box-shadow:   0 0 0 3px rgba(140, 29, 64, 0.12);
+}
+
+.bm-controls-wrap {
+    display:     flex;
+    align-items: center;
+    gap:         0.55rem;
+    flex-shrink: 0;
+}
+
+.bm-sort-select {
+    border-radius: 8px;
+    height:        40px;
+    min-width:     185px;
+}
+
+.bm-search-btn {
+    border-radius:  8px;
+    font-size:      0.9rem;
+    font-weight:    600;
+    height:         40px;
+    padding:        0 1.3rem;
+    white-space:    nowrap;
+    letter-spacing: 0.01em;
+}
+
+/* Result count */
+.bm-result-count {
+    font-size:     0.82rem;
+    color:         var(--yk-text-muted);
+    margin-bottom: 1rem;
+    letter-spacing: 0.01em;
+}
+
+/* Empty state */
+.bm-empty-state {
+    text-align: center;
+    padding:    3.5rem 1rem;
+    color:      var(--yk-text-muted);
+}
+.bm-empty-state svg {
+    width:         40px;
+    height:        40px;
+    fill:          #c8c6c3;
+    margin-bottom: 0.75rem;
+    display:       block;
+    margin-left:   auto;
+    margin-right:  auto;
+}
+.bm-empty-state p {
+    font-size: 0.92rem;
+    margin:    0;
+}
+
+@media (max-width: 576px) {
+    .bm-search-form   { flex-direction: column; align-items: stretch; }
+    .bm-controls-wrap { flex-direction: column; }
+    .bm-sort-select,
+    .bm-search-btn    { width: 100%; }
+}
+
+/* ============================================================
+   Marketplace listing cards — KAN-85
+   Image-first · whole-card clickable · no separate button
+   ============================================================ */
+
+/* Block anchor wrapper — entire card is one link */
+.bm-card-link {
+    display:         block;
+    text-decoration: none;
+    color:           inherit;
+    height:          100%;
+    border-radius:   14px;
+    outline-offset:  2px;
+}
+.bm-card-link:focus-visible {
+    outline: 2px solid var(--yk-dark-red);
+}
+
+.bm-card {
+    display:        flex;
+    flex-direction: column;
+    height:         100%;
+    background:     var(--bm-card-bg);
+    border-radius:  14px;
+    border:         1px solid var(--bm-border);
+    overflow:       hidden;
+    box-shadow:     0 1px 2px rgba(0, 0, 0, 0.05),
+                    0 4px 14px rgba(0, 0, 0, 0.08);
+    transition:     transform 0.2s ease, box-shadow 0.2s ease;
+    cursor:         pointer;
+    will-change:    transform;
+}
+
+.bm-card-link:hover .bm-card {
+    transform:  translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.11),
+                0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+/* Image: full-width, taller, edge-to-edge */
+.bm-card-img-wrap {
+    width:       100%;
+    height:      230px;
+    overflow:    hidden;
+    flex-shrink: 0;
+    background:  #eeece9;
+}
+
+.bm-card-img {
+    width:      100%;
+    height:     100%;
+    object-fit: cover;
+    display:    block;
+    transition: transform 0.35s ease;
+}
+
+.bm-card-link:hover .bm-card-img {
+    transform: scale(1.04);
+}
+
+/* Placeholder: warm gradient + icon */
+.bm-card-img-placeholder {
+    width:           100%;
+    height:          100%;
+    background:      linear-gradient(145deg, #f8f6f3 0%, #ede9e4 100%);
+    display:         flex;
+    flex-direction:  column;
+    align-items:     center;
+    justify-content: center;
+    gap:             0.6rem;
+}
+
+.bm-placeholder-icon {
+    width:  46px;
+    height: 46px;
+    fill:   #ccc8c3;
+}
+
+.bm-placeholder-text {
+    font-size:      0.7rem;
+    font-weight:    600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color:          #bfbab5;
+}
+
+/* Card content */
+.bm-card-body {
+    flex:           1;
+    display:        flex;
+    flex-direction: column;
+    padding:        0.75rem 1rem 1rem;
+}
+
+/* Badges */
+.bm-card-badges {
+    display:       flex;
+    align-items:   center;
+    gap:           0.35rem;
+    flex-wrap:     wrap;
+    margin-bottom: 0.45rem;
+}
+
+.bm-badge-course {
+    background:     var(--yk-dark-red);
+    color:          #fff;
+    font-size:      0.7rem;
+    font-weight:    700;
+    padding:        0.22rem 0.55rem;
+    border-radius:  4px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height:    1;
+}
+
+.bm-badge-status {
+    font-size:      0.7rem;
+    font-weight:    600;
+    padding:        0.22rem 0.55rem;
+    border-radius:  4px;
+    letter-spacing: 0.02em;
+    line-height:    1;
+}
+
+.bm-badge-available   { background: #bbf7d0; color: #14532d; }
+.bm-badge-unavailable { background: #fef3c7; color: #92400e; }
+.bm-badge-sold        { background: #e5e7eb; color: #374151; }
+
+/* Title */
+.bm-card-title {
+    font-size:           0.97rem;
+    font-weight:         700;
+    color:               var(--yk-text-dark);
+    margin:              0 0 0.5rem;
+    line-height:         1.4;
+    display:             -webkit-box;
+    -webkit-line-clamp:  2;
+    -webkit-box-orient:  vertical;
+    overflow:            hidden;
+    min-height:          2.8em;
+}
+
+/* Price */
+.bm-card-price {
+    display:        flex;
+    align-items:    baseline;
+    gap:            0.45rem;
+    font-size:      1.2rem;
+    font-weight:    800;
+    color:          #111111;
+    margin-bottom:  0.55rem;
+    line-height:    1;
+    letter-spacing: -0.01em;
+}
+
+/* Meta chips */
+.bm-card-meta {
+    display:     flex;
+    flex-wrap:   wrap;
+    gap:         0.28rem;
+    margin-top:  auto;
+    padding-top: 0.3rem;
+}
+
+.bm-meta-chip {
+    font-size:      0.72rem;
+    font-weight:    500;
+    color:          #5c5853;
+    background:     #f2efeb;
+    border:         1px solid #e5e1dc;
+    padding:        0.2rem 0.58rem;
+    border-radius:  20px;
+    white-space:    nowrap;
+    line-height:    1.5;
+}
+
+/* Browse grid responsive */
+@media (max-width: 991px) {
+    .bm-card-img-wrap { height: 210px; }
+}
+@media (max-width: 576px) {
+    .bm-card-img-wrap  { height: 200px; }
+    .bm-card-body      { padding: 0.65rem 0.85rem 0.85rem; }
+    .bm-card-price     { font-size: 1.1rem; }
+    .bm-page-wrap      { margin-top: 1.25rem; margin-bottom: 2rem; }
+    .bm-page-title     { font-size: 1.4rem; }
+}
+
+/* ============================================================
+   KAN-87 — Reusable design system components
+   Shared across my-listings, detail, edit, profile pages
+   ============================================================ */
+
+/* ── Page wrapper ────────────────────────────────────────── */
+/* Replaces the ad-hoc mt-5 on each page container */
+.yk-page-wrap {
+    margin-top:    2rem;
+    margin-bottom: 3rem;
+}
+
+/* ── Page heading ────────────────────────────────────────── */
+.yk-page-head {
+    margin-bottom: 1.5rem;
+}
+.yk-page-title {
+    font-size:     1.5rem;
+    font-weight:   700;
+    color:         var(--yk-dark-red);  /* h2 global already sets this */
+    margin-bottom: 0.2rem;
+    line-height:   1.2;
+}
+.yk-page-sub {
+    font-size: 0.88rem;
+    color:     var(--yk-text-muted);
+    margin:    0;
+}
+
+/* ── Content card ────────────────────────────────────────── */
+/* Replaces Bootstrap's .card.shadow-sm across internal pages */
+.yk-card {
+    background:    #fff;
+    border:        1px solid #e8e7e5;
+    border-radius: 12px;
+    box-shadow:    0 1px 3px rgba(0, 0, 0, 0.05),
+                   0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+    overflow:      hidden;
+}
+
+.yk-card-body {
+    padding: 1.5rem;
+}
+
+/* Section title inside a card (e.g. "Add a New Listing") */
+.yk-card-section-title {
+    font-size:      0.95rem;
+    font-weight:    600;
+    color:          var(--yk-text-dark);
+    margin-bottom:  1.25rem;
+    padding-bottom: 0.65rem;
+    border-bottom:  1px solid #ede9e4;
+}
+
+/* ── Status badges — KAN-86 ──────────────────────────────── */
+/* Consistent across all pages.
+   Usage: <span class="yk-status yk-status-available">Available</span> */
+.yk-status {
+    display:        inline-block;
+    font-size:      0.72rem;
+    font-weight:    600;
+    padding:        0.25rem 0.6rem;
+    border-radius:  4px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height:    1;
+    vertical-align: middle;
+}
+.yk-status-available   { background: #bbf7d0; color: #14532d; }
+.yk-status-unavailable { background: #fef3c7; color: #92400e; }
+.yk-status-sold        { background: #e5e7eb; color: #374151; }
+
+/* Larger badge variant for detail pages */
+.yk-status-lg {
+    font-size:  0.8rem;
+    padding:    0.3rem 0.8rem;
+}
+
+/* Savings / info chip (used alongside bookstore price) */
+.yk-savings {
+    display:        inline-block;
+    background:     #dbeafe;
+    color:          #1e40af;
+    font-size:      0.72rem;
+    font-weight:    600;
+    padding:        0.22rem 0.55rem;
+    border-radius:  4px;
+    letter-spacing: 0.02em;
+    line-height:    1;
+    vertical-align: middle;
+}
+
+/* ── Profile card ────────────────────────────────────────── */
+.yk-profile-card {
+    max-width:    620px;
+    margin-left:  auto;
+    margin-right: auto;
+}
+
+/* ── Info display list (profile view) ────────────────────── */
+.yk-info-list dt,
+.yk-info-list dd {
+    padding-top:    0.65rem;
+    padding-bottom: 0.65rem;
+    border-bottom:  1px solid #f0ece8;
+    margin-bottom:  0;
+}
+.yk-info-list dt {
+    font-size:      0.73rem;
+    font-weight:    600;
+    color:          var(--yk-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display:        flex;
+    align-items:    center;
+}
+.yk-info-list dd {
+    font-size: 0.93rem;
+    color:     var(--yk-text-dark);
+}
+
+/* ── Back navigation link ────────────────────────────────── */
+.yk-back-link {
+    display:         inline-flex;
+    align-items:     center;
+    gap:             0.3rem;
+    font-size:       0.875rem;
+    color:           var(--yk-text-muted);
+    text-decoration: none;
+    font-weight:     500;
+    margin-bottom:   1.25rem;
+    transition:      color 0.15s ease;
+}
+.yk-back-link:hover {
+    color: var(--yk-dark-red);
+}
+
+/* ── Listing detail layout ───────────────────────────────── */
+.yk-detail-header {
+    display:         flex;
+    align-items:     flex-start;
+    justify-content: space-between;
+    gap:             1rem;
+    margin-bottom:   1rem;
+}
+
+/* Detail title overrides the global h2 color to be near-black
+   (content title, not a page navigation title) */
+.yk-detail-title {
+    font-size:   1.3rem;
+    font-weight: 700;
+    color:       var(--yk-text-dark);   /* override global h2 maroon */
+    margin:      0;
+    line-height: 1.3;
+}
+
+/* Thin section divider inside cards */
+.yk-divider {
+    border:     none;
+    border-top: 1px solid #ede9e4;
+    margin:     1rem 0 1.25rem;
+}
+
+/* Detail definition list */
+.yk-dl {
+    margin: 0;
+}
+.yk-dl dt,
+.yk-dl dd {
+    padding-top:    0.6rem;
+    padding-bottom: 0.6rem;
+    border-bottom:  1px solid #f0ece8;
+    margin-bottom:  0;
+}
+.yk-dl dt {
+    font-size:      0.73rem;
+    font-weight:    600;
+    color:          var(--yk-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display:        flex;
+    align-items:    center;
+}
+.yk-dl dd {
+    font-size: 0.92rem;
+    color:     var(--yk-text-dark);
+}
+
+/* ── Contact seller action row (listing detail) ─────────── */
+.ld-contact-row {
+    margin-top:  1.5rem;
+    padding-top: 1.25rem;
+    border-top:  1px solid #ede9e4;
+}
+
+/* Success state shown after message is sent */
+.ld-contact-success {
+    display:     flex;
+    align-items: flex-start;
+    gap:         0.65rem;
+    color:       #14532d;
+}
+.ld-contact-success svg {
+    fill:       #16a34a;
+    flex-shrink: 0;
+    margin-top:  0.1rem;
+}
+.ld-success-title {
+    font-size:   0.95rem;
+    font-weight: 600;
+    color:       #14532d;
+    margin:      0 0 0.1rem;
+}
+.ld-success-sub {
+    font-size: 0.85rem;
+    color:     #166534;
+    margin:    0;
+}
+
+/* ============================================================
+   KAN-91 — Contact Seller page
+   ============================================================ */
+
+/* Two-card stacked layout, capped width for readability */
+.cs-layout {
+    display:        flex;
+    flex-direction: column;
+    gap:            1.25rem;
+    max-width:      640px;
+}
+
+/* Summary card — slightly compact */
+.cs-summary-card .yk-card-body {
+    padding: 1.1rem 1.25rem;
+}
+
+.cs-summary-label {
+    font-size:      0.72rem;
+    font-weight:    600;
+    color:          var(--yk-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom:  0.6rem;
+}
+
+.cs-summary-title {
+    font-size:     1rem;
+    font-weight:   700;
+    color:         var(--yk-text-dark);
+    margin-bottom: 0.3rem;
+    line-height:   1.35;
+}
+
+.cs-summary-price {
+    font-size:     1.15rem;
+    font-weight:   800;
+    color:         #111;
+    margin-bottom: 0.55rem;
+    line-height:   1;
+}
+
+.cs-seller-row {
+    display:     flex;
+    align-items: baseline;
+    gap:         0.5rem;
+}
+.cs-seller-label {
+    font-size:      0.72rem;
+    font-weight:    600;
+    color:          var(--yk-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space:    nowrap;
+}
+.cs-seller-email {
+    font-size: 0.88rem;
+    color:     var(--yk-text-dark);
+    word-break: break-all;
+}
+
+.cs-send-note {
+    font-size: 0.8rem;
+    color:     var(--yk-text-muted);
+}
+
+/* ── Danger zone (delete action) ─────────────────────────── */
+.yk-danger-zone {
+    border-top:  1px solid #fee2e2;
+    padding-top: 1.25rem;
+    text-align:  right;
+}
+
+/* ── My listings table ───────────────────────────────────── */
+.yk-table {
+    font-size: 0.875rem;
+    width:     100%;
+}
+.yk-table thead th {
+    font-size:      0.72rem;
+    font-weight:    600;
+    color:          var(--yk-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom:  2px solid #ede9e4;
+    padding:        0.55rem 0.75rem;
+    white-space:    nowrap;
+}
+.yk-table td {
+    padding:       0.7rem 0.75rem;
+    vertical-align: middle;
+    border-bottom:  1px solid #f5f3f0;
+    color:          var(--yk-text-dark);
+}
+.yk-table tbody tr:last-child td {
+    border-bottom: none;
+}
+.yk-table tbody tr:hover {
+    background-color: #faf9f7;
+}
+
+/* ── Listing detail image ────────────────────────────────── */
+.ld-img-wrap {
+    max-width:     520px;
+    border-radius: 12px;
+    overflow:      hidden;
+    border:        1px solid #e8e7e5;
+    box-shadow:    0 2px 8px rgba(0, 0, 0, 0.07);
+}
+
+.ld-img {
+    width:      100%;
+    height:     auto;
+    max-height: 380px;
+    object-fit: contain;
+    display:    block;
+    background: #fafaf9;
+}
+
+.ld-img-placeholder {
+    width:           100%;
+    height:          200px;
+    background:      linear-gradient(145deg, #f8f6f3 0%, #ede9e4 100%);
+    display:         flex;
+    flex-direction:  column;
+    align-items:     center;
+    justify-content: center;
+    gap:             0.6rem;
+}
+
+.ld-placeholder-icon {
+    width:  46px;
+    height: 46px;
+    fill:   #ccc8c3;
+}
+
+.ld-placeholder-text {
+    font-size:      0.7rem;
+    font-weight:    600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color:          #bfbab5;
+    font-style:     normal;
+}
+
+/* ============================================================
+   KAN-89 — Responsive consistency pass
+   ============================================================ */
+
+@media (max-width: 767px) {
+    .yk-page-wrap {
+        margin-top:    1.25rem;
+        margin-bottom: 2rem;
+    }
+    .yk-card-body {
+        padding: 1.1rem;
+    }
+    .yk-page-title {
+        font-size: 1.3rem;
+    }
+    /* Detail title + badge stack on narrow screens */
+    .yk-detail-header {
+        flex-direction: column;
+        gap:            0.5rem;
+    }
+    .yk-detail-title {
+        font-size: 1.15rem;
+    }
+    /* Profile card: full-width on mobile */
+    .yk-profile-card {
+        max-width: 100%;
+    }
+    /* Shrink table font slightly */
+    .yk-table, .yk-table thead th {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .yk-page-wrap {
+        margin-top:    1rem;
+        margin-bottom: 1.5rem;
+    }
+    .yk-card-body {
+        padding: 0.9rem;
+    }
+    .btn {
+        font-size: 0.875rem;
+    }
+    .ld-img-wrap {
+        max-width: 100%;
+    }
+}
+
+/* ============================================================
+   KAN-94 — Seller Inbox
+   ============================================================ */
+
+.inbox-layout {
+    max-width: 720px;
+    display:   flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Each message is a yk-card — no extra wrapper needed */
+.inbox-item { }
+
+/* Listing reference row: badges + title + date pushed right */
+.inbox-listing-row {
+    display:       flex;
+    align-items:   center;
+    gap:           0.45rem;
+    flex-wrap:     wrap;
+    margin-bottom: 0.4rem;
+}
+
+.inbox-listing-title {
+    font-size:       0.88rem;
+    font-weight:     600;
+    color:           var(--yk-dark-red);
+    text-decoration: none;
+    transition:      color 0.15s ease;
+}
+.inbox-listing-title:hover {
+    color:           var(--yk-red);
+    text-decoration: underline;
+}
+
+.inbox-listing-title-gone {
+    font-size:  0.88rem;
+    color:      var(--yk-text-muted);
+    font-style: italic;
+}
+
+.inbox-date {
+    font-size:   0.78rem;
+    color:       var(--yk-text-muted);
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+.inbox-from {
+    font-size:     0.82rem;
+    color:         var(--yk-text-muted);
+    margin-bottom: 0.7rem;
+}
+.inbox-from strong {
+    color: var(--yk-text-dark);
+}
+
+.inbox-subject {
+    font-size:     0.95rem;
+    font-weight:   700;
+    color:         var(--yk-text-dark);
+    margin-bottom: 0.4rem;
+}
+
+.inbox-body {
+    font-size:   0.88rem;
+    color:       var(--yk-text-dark);
+    line-height: 1.6;
+    margin:      0;
+    white-space: pre-wrap;
 }

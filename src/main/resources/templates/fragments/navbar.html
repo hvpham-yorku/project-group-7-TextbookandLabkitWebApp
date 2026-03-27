@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+    Two-row YorkU-style header fragment.
+    Include with:
+        <div th:replace="~{fragments/navbar :: navbar('browse')}"></div>
+
+    Valid currentPage values:
+        'browse'           → highlights Browse
+        'course-materials' → highlights Course Materials
+        'my-listings'      → highlights My Listings
+        'inbox'            → highlights Inbox
+        (any other)        → no nav item highlighted
+-->
+<div th:fragment="navbar(currentPage)">
+
+    <!-- ============================================================
+         Row 1 — Top header: brand on left, Profile + Logout on right
+         ============================================================ -->
+    <header class="yk-header-top">
+        <div class="yk-header-inner">
+
+            <!-- Brand -->
+            <a class="yk-header-brand" th:href="@{/browse}">
+                <span class="yk-brand-name">YorkU Circle</span>
+                <span class="yk-brand-tagline">Student Marketplace</span>
+            </a>
+
+            <!-- Right side actions -->
+            <div class="yk-header-actions">
+                <a th:href="@{/profile}" class="yk-header-link">Profile</a>
+                <form th:action="@{/logout}" method="post" class="m-0">
+                    <button type="submit" class="yk-header-logout">Logout</button>
+                </form>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- ============================================================
+         Row 2 — Red nav bar: main navigation links
+         ============================================================ -->
+    <nav class="yk-nav-bar" aria-label="Main navigation">
+        <div class="yk-nav-inner">
+
+            <a th:href="@{/browse}"
+               th:class="${currentPage == 'browse'} ? 'yk-nav-link yk-nav-active' : 'yk-nav-link'">
+                Browse
+            </a>
+
+            <a th:href="@{/course-materials}"
+               th:class="${currentPage == 'course-materials'} ? 'yk-nav-link yk-nav-active' : 'yk-nav-link'">
+                Course Materials
+            </a>
+
+            <a th:href="@{/my-listings}"
+               th:class="${currentPage == 'my-listings'} ? 'yk-nav-link yk-nav-active' : 'yk-nav-link'">
+                My Listings
+            </a>
+
+            <a th:href="@{/inbox}"
+               th:class="${currentPage == 'inbox'} ? 'yk-nav-link yk-nav-active' : 'yk-nav-link'">
+                Inbox
+            </a>
+
+        </div>
+    </nav>
+
+    <!-- Bootstrap JS (mobile toggle) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</div>
+
+</body>
+</html>

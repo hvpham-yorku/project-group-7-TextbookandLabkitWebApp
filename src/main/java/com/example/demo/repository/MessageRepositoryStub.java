@@ -1,12 +1,14 @@
 package com.example.demo.repository;
 
 import com.example.demo.domain.Message;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
+@Profile("stub")
 public class MessageRepositoryStub implements MessageRepository {
 
     private final Map<Long, Message> messages = new HashMap<>();

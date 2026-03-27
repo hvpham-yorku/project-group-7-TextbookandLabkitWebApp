@@ -7,15 +7,33 @@ import java.util.List;
 
 public interface ListingRepository {
 
-    List<Listing> findBySellerEmail(String sellerEmail);
+    // Create listing (simple version) — delegates to full version with empty optional fields.
+    // Declared as a default so implementations only need to override the full version.
+    default Listing create(String sellerEmail, String title, String description, BigDecimal price) {
+        return create(sellerEmail, title, description, price, "", "", "", "", "", "", null);
+    }
 
-    Listing findById(long id);
+    // Create listing (full version used in main)
+    Listing create(String sellerEmail, String title, String description, BigDecimal price,
+                   String courseCode, String semester, String materialType,
+                   String condition, String exchangeType,
+                   String isbn, BigDecimal bookstorePrice);
 
+    // Save updates to an existing listing
     void save(Listing listing);
 
-    Listing create(String sellerEmail, String title, String description, BigDecimal price);
+    // Find listing by ID
+    Listing findById(long id);
 
+    // Delete listing
     boolean deleteById(long id);
 
+    // Find listings for a specific seller
+    List<Listing> findBySellerEmail(String sellerEmail);
+
+    // Update seller email for all listings
     void updateSellerEmail(String oldEmail, String newEmail);
+
+    // Browse all listings
+    List<Listing> findAll();
 }

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listing Details - YorkU Circle</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=9)}">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar('browse')}"></div>
+
+<div class="container yk-page-wrap">
+
+    <!-- Back link -->
+    <a href="/browse" class="yk-back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+        Back to Course Materials
+    </a>
+
+    <!-- Listing image -->
+    <div class="ld-img-wrap mb-4">
+        <img th:if="${listing.imagePath != null and !#strings.isEmpty(listing.imagePath)}"
+             th:src="${listing.imagePath}"
+             alt="Listing image"
+             class="ld-img">
+        <div th:unless="${listing.imagePath != null and !#strings.isEmpty(listing.imagePath)}"
+             class="ld-img-placeholder">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="ld-placeholder-icon" aria-hidden="true">
+                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+            </svg>
+            <span class="ld-placeholder-text">No photo</span>
+        </div>
+    </div>
+
+    <!-- Listing card -->
+    <div class="yk-card">
+        <div class="yk-card-body">
+
+            <!-- Title + status badge -->
+            <div class="yk-detail-header">
+                <h2 class="yk-detail-title" th:text="${listing.title}"></h2>
+                <div>
+                    <span class="yk-status yk-status-lg yk-status-available"
+                          th:if="${listing.status == T(com.example.demo.domain.ListingStatus).AVAILABLE}">Available</span>
+                    <span class="yk-status yk-status-lg yk-status-unavailable"
+                          th:if="${listing.status == T(com.example.demo.domain.ListingStatus).UNAVAILABLE}">Unavailable</span>
+                    <span class="yk-status yk-status-lg yk-status-sold"
+                          th:if="${listing.status == T(com.example.demo.domain.ListingStatus).SOLD}">Sold</span>
+                </div>
+            </div>
+
+            <hr class="yk-divider">
+
+            <!-- Details -->
+            <dl class="row yk-dl">
+                <dt class="col-sm-3">Description</dt>
+                <dd class="col-sm-9" th:text="${listing.description}"></dd>
+
+                <dt class="col-sm-3">Course Code</dt>
+                <dd class="col-sm-9" th:text="${listing.courseCode}"></dd>
+
+                <dt class="col-sm-3">Semester</dt>
+                <dd class="col-sm-9" th:text="${listing.semester}"></dd>
+
+                <dt class="col-sm-3">Material Type</dt>
+                <dd class="col-sm-9" th:text="${listing.materialType}"></dd>
+
+                <dt class="col-sm-3">Condition</dt>
+                <dd class="col-sm-9" th:text="${listing.condition}"></dd>
+
+                <dt class="col-sm-3">Exchange Type</dt>
+                <dd class="col-sm-9" th:text="${listing.exchangeType}"></dd>
+
+                <dt class="col-sm-3">Price</dt>
+                <dd class="col-sm-9" th:text="'$' + ${listing.price}"></dd>
+
+                <dt class="col-sm-3">ISBN</dt>
+                <dd class="col-sm-9">
+                    <span th:if="${listing.isbn != null and !#strings.isEmpty(listing.isbn)}"
+                          th:text="${listing.isbn}"></span>
+                    <span th:unless="${listing.isbn != null and !#strings.isEmpty(listing.isbn)}"
+                          class="text-muted">—</span>
+                </dd>
+
+                <dt class="col-sm-3">Bookstore Price</dt>
+                <dd class="col-sm-9">
+                    <span th:if="${listing.bookstorePrice != null}"
+                          th:text="'$' + ${listing.bookstorePrice}"></span>
+                    <span th:unless="${listing.bookstorePrice != null}"
+                          class="text-muted">—</span>
+                    <span th:if="${listing.savingsPercent != null}"
+                          class="yk-savings ms-2"
+                          th:text="'Save ' + ${listing.savingsPercent} + '%'"></span>
+                </dd>
+
+                <dt class="col-sm-3">Posted by</dt>
+                <dd class="col-sm-9" th:text="${listing.sellerEmail}"></dd>
+            </dl>
+
+            <!-- Contact Seller action — hidden for the seller's own listing -->
+            <div th:unless="${isSeller}" class="ld-contact-row">
+
+                <!-- Success state: shown right after the form is submitted -->
+                <div th:if="${param.contacted}" class="ld-contact-success">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                         viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5l-4.5-4.5 1.41-1.41L10 13.67l7.09-7.09 1.41 1.41L10 16.5z"/>
+                    </svg>
+                    <div>
+                        <p class="ld-success-title">Message sent!</p>
+                        <p class="ld-success-sub">The seller will get back to you shortly.</p>
+                    </div>
+                </div>
+
+                <!-- Normal state: Contact Seller button -->
+                <a th:unless="${param.contacted}"
+                   th:href="@{/listings/{id}/contact(id=${listing.id})}"
+                   class="btn btn-primary">
+                    Contact Seller
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

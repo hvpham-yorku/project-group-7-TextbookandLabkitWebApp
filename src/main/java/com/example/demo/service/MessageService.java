@@ -1,10 +1,7 @@
 package com.example.demo.service;
 
-import com.example.demo.domain.Message;
-import com.example.demo.repository.MessageRepository;
+import com.example.demo.repository.MessageRepository; // your existing repo
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class MessageService {
