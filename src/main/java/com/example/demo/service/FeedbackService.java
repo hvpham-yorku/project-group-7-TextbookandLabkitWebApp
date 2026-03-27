@@ -1,10 +1,13 @@
 package com.example.demo.service;
 
+import org.springframework.stereotype.Service;
+
 import com.example.demo.domain.Feedback;
 import com.example.demo.repository.FeedbackRepository;
 
 import java.util.List;
 
+@Service
 public class FeedbackService {
 
     private final FeedbackRepository repo;

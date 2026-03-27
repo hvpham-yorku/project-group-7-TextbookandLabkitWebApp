@@ -6,6 +6,7 @@ import com.example.demo.domain.ListingStatus;
 import com.example.demo.domain.User;
 import com.example.demo.service.ContactMessageService;
 import com.example.demo.service.ListingService;
+import com.example.demo.service.TransactionService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,11 +28,14 @@ public class ListingController {
 
 private final ListingService listingService;
 private final ContactMessageService contactMessageService;
+private final TransactionService transactionService;
 
 public ListingController(ListingService listingService,
-                         ContactMessageService contactMessageService) {
+                         ContactMessageService contactMessageService,
+                         TransactionService transactionService) {
     this.listingService = listingService;
     this.contactMessageService = contactMessageService;
+    this.transactionService = transactionService;
 }
 
 @GetMapping("/my-listings")
@@ -56,16 +60,22 @@ public String inbox(HttpSession session, Model model) {
 
     // Build listingId → Listing map so the template can show listing context per message
     Map<Long, Listing> listingMap = new HashMap<>();
+    Map<Long, com.example.demo.domain.Transaction> messageTransactionMap = new HashMap<>();
     for (ContactMessage m : messages) {
         if (!listingMap.containsKey(m.getListingId())) {
             Listing l = listingService.findById(m.getListingId());
             if (l != null) listingMap.put(m.getListingId(), l);
+        }
+        com.example.demo.domain.Transaction transaction = transactionService.findBySourceMessageId(m.getId());
+        if (transaction != null) {
+            messageTransactionMap.put(m.getId(), transaction);
         }
     }
 
     model.addAttribute("user", user);
     model.addAttribute("messages", messages);
     model.addAttribute("listingMap", listingMap);
+    model.addAttribute("messageTransactionMap", messageTransactionMap);
     return "inbox";
 }
 

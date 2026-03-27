@@ -6,7 +6,7 @@
     <title>Browse Materials - YorkU Circle</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/style.css(v=9)}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=10)}">
 </head>
 <body>
 
@@ -16,45 +16,116 @@
 
     <div class="mb-4">
         <h2 class="mb-1">Browse Materials</h2>
-        <p class="text-muted mb-0">Search a course code to see required materials and matching student listings.</p>
+        <p class="text-muted mb-0">Search a course code to see required materials, matching listings, and what other students are actively requesting.</p>
     </div>
 
     <form method="get" action="/course-materials" class="row g-2 mb-4">
-  <div class="col-12 col-md-8">
-    <input type="text" name="courseCode" class="form-control"
-           placeholder="e.g. EECS 2101" th:value="${courseCode}">
-  </div>
+        <div class="col-12 col-md-8">
+            <input type="text" name="courseCode" class="form-control"
+                   placeholder="e.g. EECS 2101" th:value="${courseCode}">
+        </div>
 
-  <div class="col-6 col-md-2 d-grid">
-    <button type="submit" class="btn btn-primary">Search</button>
-  </div>
+        <div class="col-6 col-md-2 d-grid">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
 
-  <div class="col-6 col-md-2 d-grid">
-    <a href="/course-materials" class="btn btn-outline-secondary">Reset</a>
-  </div>
+        <div class="col-6 col-md-2 d-grid">
+            <a href="/course-materials" class="btn btn-outline-secondary">Reset</a>
+        </div>
 
-  <!-- helper text spans full width so it doesn't mess with alignment -->
-  <div class="col-12">
-    <div class="form-text">
-      Demo-ready course codes: <span th:text="${#strings.listJoin(seededCourseCodes, ', ')}"></span>
+        <div class="col-12">
+            <div class="form-text">
+                Demo-ready course codes: <span th:text="${#strings.listJoin(seededCourseCodes, ', ')}"></span>
+            </div>
+        </div>
+    </form>
+
+    <div th:if="${param.requestSubmitted}" class="alert alert-success">
+        Material request submitted. It now appears in the demand board for this course.
     </div>
-  </div>
-</form>
 
     <div th:if="${courseCode != null and !#strings.isEmpty(courseCode)}">
 
-        <div class="row g-4">
+        <div class="row g-4 mb-4">
+            <div class="col-lg-8">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                            <div>
+                                <h5 class="card-title mb-1">Request Materials</h5>
+                                <p class="text-muted mb-0">Didn’t find the exact item you need? Add it to the live demand board.</p>
+                            </div>
+                            <span class="txn-chip txn-chip-soft"
+                                  th:text="${requestDemandCount} + ' open request' + (${requestDemandCount} == 1 ? '' : 's')"></span>
+                        </div>
 
+                        <form method="post" action="/course-materials/request" class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label" for="requestCourseCode">Course Code</label>
+                                <input id="requestCourseCode" type="text" name="courseCode" class="form-control"
+                                       th:value="${courseCode}" readonly>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="materialTitle">Material Title</label>
+                                <input id="materialTitle" type="text" name="materialTitle" class="form-control"
+                                       placeholder="e.g. Lab kit or specific textbook" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="materialType">Type</label>
+                                <select id="materialType" name="materialType" class="form-select">
+                                    <option value="Textbook">Textbook</option>
+                                    <option value="Lab Kit">Lab Kit</option>
+                                    <option value="Notes">Notes</option>
+                                    <option value="Lab Manual">Lab Manual</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label" for="note">What matters most?</label>
+                                <textarea id="note" name="note" class="form-control" rows="3"
+                                          placeholder="Example: used copy under $50, latest edition, must include all components"></textarea>
+                            </div>
+                            <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <span class="txn-side-note">This is a lightweight student demand signal for the marketplace.</span>
+                                <button type="submit" class="btn btn-primary">Add Request</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Demand Board</h5>
+
+                        <div th:if="${requestInsights == null or #lists.isEmpty(requestInsights)}" class="alert alert-info mb-0">
+                            No requests for this course yet. Be the first to post one.
+                        </div>
+
+                        <div th:unless="${requestInsights == null or #lists.isEmpty(requestInsights)}" class="d-grid gap-2">
+                            <div th:each="insight : ${requestInsights}" class="demand-item">
+                                <div>
+                                    <div class="demand-label" th:text="${insight.label}"></div>
+                                    <div class="demand-sub">Students currently looking for this type of material</div>
+                                </div>
+                                <span class="demand-count" th:text="${insight.count}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
             <div class="col-lg-6">
-                <div class="card shadow-sm">
+                <div class="card shadow-sm h-100">
                     <div class="card-body">
                         <h5 class="card-title mb-3">Required / Suggested Materials</h5>
 
                         <div th:if="${materials == null or #lists.isEmpty(materials)}" class="alert alert-info mb-0">
                             No seeded materials found for this course yet.
-                            <div class="mt-2">
-                                Tip: Add it in <code>CourseMaterialService</code> to expand coverage.
-                            </div>
+                            <div class="mt-2">Tip: students can still use the request board to signal demand.</div>
                         </div>
 
                         <div th:unless="${materials == null or #lists.isEmpty(materials)}" class="table-responsive">
@@ -68,10 +139,10 @@
                                 <tbody>
                                 <tr th:each="m : ${materials}">
                                     <td th:text="${m.title}"></td>
-                                        <td>
-                                            <span class="badge bg-danger" th:if="${m.required}">REQUIRED</span>
-                                            <span class="badge bg-secondary" th:unless="${m.required}">OPTIONAL</span>
-                                        </td>
+                                    <td>
+                                        <span class="badge bg-danger" th:if="${m.required}">REQUIRED</span>
+                                        <span class="badge bg-secondary" th:unless="${m.required}">OPTIONAL</span>
+                                    </td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -81,7 +152,7 @@
             </div>
 
             <div class="col-lg-6">
-                <div class="card shadow-sm">
+                <div class="card shadow-sm h-100">
                     <div class="card-body">
                         <h5 class="card-title mb-3">Marketplace Listings</h5>
 
@@ -114,7 +185,40 @@
                     </div>
                 </div>
             </div>
+        </div>
 
+        <div class="card shadow-sm mb-5">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                    <div>
+                        <h5 class="card-title mb-1">Recent Student Requests</h5>
+                        <p class="text-muted mb-0">This makes demand visible instead of forcing students to wait silently.</p>
+                    </div>
+                </div>
+
+                <div th:if="${recentRequests == null or #lists.isEmpty(recentRequests)}" class="alert alert-info mb-0">
+                    No recent requests for this course yet.
+                </div>
+
+                <div th:unless="${recentRequests == null or #lists.isEmpty(recentRequests)}" class="row g-3">
+                    <div class="col-md-6" th:each="request : ${recentRequests}">
+                        <div class="request-card">
+                            <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                                <div>
+                                    <div class="request-title" th:text="${request.displayTitle}"></div>
+                                    <div class="request-meta">
+                                        <span th:text="${request.materialType}"></span>
+                                        <span class="mx-1">•</span>
+                                        <span th:text="${#temporals.format(request.createdAt, 'MMM d, h:mm a')}"></span>
+                                    </div>
+                                </div>
+                                <span class="txn-chip txn-chip-soft">Open</span>
+                            </div>
+                            <p class="mb-0 text-muted" th:text="${request.note}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>

@@ -1,10 +1,13 @@
 package com.example.demo.repository;
 
+import org.springframework.stereotype.Repository;
+
 import com.example.demo.domain.Feedback;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Repository
 public class FeedbackRepository {
 
     private final List<Feedback> feedbacks = new ArrayList<>();

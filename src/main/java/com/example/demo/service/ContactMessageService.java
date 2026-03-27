@@ -52,6 +52,11 @@ public class ContactMessageService {
         return contactMessageRepository.findBySellerEmail(sellerEmail);
     }
 
+    public ContactMessage findById(long id) {
+        if (id <= 0) return null;
+        return contactMessageRepository.findById(id);
+    }
+
     /**
      * Returns all messages sent by a buyer.
      * Available for a sent-messages view if needed later.

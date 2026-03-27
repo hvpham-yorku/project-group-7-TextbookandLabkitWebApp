@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions - YorkU Circle</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=10)}">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar('transactions')}"></div>
+
+<div class="container yk-page-wrap">
+
+    <div class="yk-page-head">
+        <h2 class="yk-page-title">Transactions</h2>
+        <p class="yk-page-sub">Track each exchange from first agreement to final confirmation.</p>
+    </div>
+
+    <div th:if="${param.started}" class="alert alert-success">Exchange started. The listing has been moved into an active transaction state.</div>
+    <div th:if="${param.confirmed}" class="alert alert-success">Your confirmation was saved.</div>
+    <div th:if="${param.cancelled}" class="alert alert-warning">Transaction cancelled. The listing has been reopened.</div>
+    <div th:if="${param.issueReported}" class="alert alert-danger">Issue reported. The transaction is now paused.</div>
+
+    <div th:if="${#lists.isEmpty(transactions)}" class="bm-empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H7v-2h5v2zm5-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        <p>No active transactions yet. Start one from the seller inbox after a buyer message comes in.</p>
+    </div>
+
+    <div th:unless="${#lists.isEmpty(transactions)}" class="d-grid gap-4">
+        <div th:each="txn : ${transactions}" class="transaction-card yk-card">
+            <div class="yk-card-body">
+
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+                    <div>
+                        <div class="transaction-topline">
+                            <span class="bm-badge-course" th:if="${txn.courseCode != null and !#strings.isEmpty(txn.courseCode)}" th:text="${txn.courseCode}"></span>
+                            <span class="txn-chip" th:text="${txn.statusLabel}"></span>
+                        </div>
+                        <h4 class="transaction-title mb-1" th:text="${txn.listingTitle}"></h4>
+                        <div class="transaction-meta">
+                            <span>Buyer: <strong th:text="${txn.buyerEmail}"></strong></span>
+                            <span class="mx-2">•</span>
+                            <span>Seller: <strong th:text="${txn.sellerEmail}"></strong></span>
+                        </div>
+                    </div>
+                    <div class="text-end text-muted small">
+                        <div>Started <span th:text="${#temporals.format(txn.createdAt, 'MMM d, yyyy h:mm a')}"></span></div>
+                        <div>Updated <span th:text="${#temporals.format(txn.updatedAt, 'MMM d, yyyy h:mm a')}"></span></div>
+                    </div>
+                </div>
+
+                <div class="progress txn-progress mb-3" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                     th:attr="aria-valuenow=${txn.progressPercent}">
+                    <div class="progress-bar" th:style="'width:' + ${txn.progressPercent} + '%' "></div>
+                </div>
+
+                <div class="timeline-grid mb-3">
+                    <div class="timeline-node timeline-node-active">Started</div>
+                    <div class="timeline-node"
+                         th:classappend="${txn.progressPercent >= 25} ? ' timeline-node-active' : ''">Meetup</div>
+                    <div class="timeline-node"
+                         th:classappend="${txn.progressPercent >= 65} ? ' timeline-node-active' : ''">Confirmations</div>
+                    <div class="timeline-node"
+                         th:classappend="${txn.status.name() == 'COMPLETED'} ? ' timeline-node-active' : ''">Completed</div>
+                </div>
+
+                <div class="transaction-callout mb-4" th:text="${txn.nextStepText}"></div>
+
+                <div class="row g-4">
+                    <div class="col-lg-7">
+                        <div class="d-flex flex-wrap gap-2 mb-2" th:if="${txn.status.name() != 'COMPLETED' and txn.status.name() != 'CANCELLED' and txn.status.name() != 'ISSUE_OPEN'}">
+                            <form th:action="@{/transactions/{id}/confirm(id=${txn.id})}" method="post">
+                                <button type="submit" class="btn btn-primary"
+                                        th:text="${txn.sellerEmail == user.email} ? 'Confirm Handoff' : 'Confirm Receipt'"></button>
+                            </form>
+                            <form th:action="@{/transactions/{id}/cancel(id=${txn.id})}" method="post">
+                                <button type="submit" class="btn btn-outline-secondary">Cancel Transaction</button>
+                            </form>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 small text-muted mb-3">
+                            <span class="txn-confirm-flag" th:classappend="${txn.sellerConfirmed} ? ' txn-confirm-flag-on' : ''">
+                                Seller confirmed: <strong th:text="${txn.sellerConfirmed ? 'Yes' : 'No'}"></strong>
+                            </span>
+                            <span class="txn-confirm-flag" th:classappend="${txn.buyerConfirmed} ? ' txn-confirm-flag-on' : ''">
+                                Buyer confirmed: <strong th:text="${txn.buyerConfirmed ? 'Yes' : 'No'}"></strong>
+                            </span>
+                        </div>
+
+                        <div class="issue-feed" th:with="reports=${issueMap.get(txn.id)}">
+                            <h6 class="mb-3">Reported Issues</h6>
+
+                            <div th:if="${reports == null or #lists.isEmpty(reports)}" class="text-muted">
+                                No issues reported for this exchange.
+                            </div>
+
+                            <div th:unless="${reports == null or #lists.isEmpty(reports)}" class="d-grid gap-2">
+                                <div th:each="report : ${reports}" class="issue-item">
+                                    <div class="d-flex justify-content-between gap-3 flex-wrap">
+                                        <div>
+                                            <div class="issue-title">
+                                                <span th:text="${report.categoryLabel}"></span>
+                                                <span class="issue-severity ms-2" th:text="${report.severity}"></span>
+                                            </div>
+                                            <div class="issue-meta">Reported by <span th:text="${report.reporterEmail}"></span></div>
+                                        </div>
+                                        <div class="text-muted small" th:text="${#temporals.format(report.createdAt, 'MMM d, h:mm a')}"></div>
+                                    </div>
+                                    <p class="mb-0 mt-2" th:text="${report.description}"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="txn-side-panel h-100">
+                            <h6 class="txn-panel-title">Report an issue</h6>
+                            <p class="txn-panel-copy">Use this only when the exchange has a real problem. Reporting pauses completion.</p>
+
+                            <form th:if="${txn.status.name() != 'COMPLETED' and txn.status.name() != 'CANCELLED' and txn.status.name() != 'ISSUE_OPEN'}"
+                                  th:action="@{/transactions/{id}/report-issue(id=${txn.id})}" method="post" class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">Category</label>
+                                    <select name="category" class="form-select" required>
+                                        <option th:each="category : ${issueCategories}" th:value="${category}" th:text="${category}"></option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Severity</label>
+                                    <select name="severity" class="form-select" required>
+                                        <option th:each="severity : ${issueSeverities}" th:value="${severity}" th:text="${severity}"></option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Description</label>
+                                    <textarea name="description" class="form-control" rows="4"
+                                              placeholder="Describe what went wrong" required></textarea>
+                                </div>
+                                <div class="col-12 d-grid">
+                                    <button type="submit" class="btn btn-outline-danger">Submit Issue Report</button>
+                                </div>
+                            </form>
+
+                            <div th:if="${txn.status.name() == 'ISSUE_OPEN'}" class="alert alert-danger mb-0">
+                                This transaction is frozen because an issue was reported.
+                            </div>
+                            <div th:if="${txn.status.name() == 'COMPLETED'}" class="alert alert-success mb-0">
+                                This transaction is already complete.
+                            </div>
+                            <div th:if="${txn.status.name() == 'CANCELLED'}" class="alert alert-secondary mb-0">
+                                This transaction was cancelled and cannot be changed.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
