@@ -81,11 +81,6 @@
             <div class="yk-card-body">
                 <h5 class="yk-card-section-title">Your Message</h5>
 
-                <!--
-                    Form is wired up for KAN-92.
-                    POST /listings/{id}/contact handler not yet implemented.
-                    Submit has no effect until KAN-92 adds the backend.
-                -->
                 <form th:action="@{/listings/{id}/contact(id=${listing.id})}" method="post">
 
                     <div class="mb-3">
@@ -108,10 +103,11 @@
                                   required></textarea>
                     </div>
 
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-2 align-items-center flex-wrap">
                         <button type="submit" class="btn btn-primary">Send Message</button>
                         <a th:href="@{/listings/{id}(id=${listing.id})}"
                            class="btn btn-outline-secondary">Cancel</a>
+                        <span class="cs-send-note">The seller will receive your message directly.</span>
                     </div>
 
                 </form>

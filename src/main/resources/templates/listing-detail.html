@@ -13,11 +13,6 @@
 
 <div class="container yk-page-wrap">
 
-    <!-- Success notice after contact form submit -->
-    <div th:if="${param.contacted}" class="alert alert-success" role="alert">
-        Your message was sent. The seller will get back to you.
-    </div>
-
     <!-- Back link -->
     <a href="/browse" class="yk-back-link">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -108,10 +103,26 @@
 
             <!-- Contact Seller action — hidden for the seller's own listing -->
             <div th:unless="${isSeller}" class="ld-contact-row">
-                <a th:href="@{/listings/{id}/contact(id=${listing.id})}"
+
+                <!-- Success state: shown right after the form is submitted -->
+                <div th:if="${param.contacted}" class="ld-contact-success">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                         viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5l-4.5-4.5 1.41-1.41L10 13.67l7.09-7.09 1.41 1.41L10 16.5z"/>
+                    </svg>
+                    <div>
+                        <p class="ld-success-title">Message sent!</p>
+                        <p class="ld-success-sub">The seller will get back to you shortly.</p>
+                    </div>
+                </div>
+
+                <!-- Normal state: Contact Seller button -->
+                <a th:unless="${param.contacted}"
+                   th:href="@{/listings/{id}/contact(id=${listing.id})}"
                    class="btn btn-primary">
                     Contact Seller
                 </a>
+
             </div>
 
         </div>
