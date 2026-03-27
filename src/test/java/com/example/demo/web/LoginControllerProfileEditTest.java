@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.example.demo.domain.User;
 import com.example.demo.service.AuthService;
 import com.example.demo.service.ListingService;
+import com.example.demo.service.NotificationService;
 
 @WebMvcTest(LoginController.class)
 public class LoginControllerProfileEditTest {
@@ -32,6 +33,11 @@ public class LoginControllerProfileEditTest {
 
     @MockBean
     private ListingService listingService;
+
+    // Required because GlobalModelAdvice (KAN-103) is a @ControllerAdvice
+    // included in the @WebMvcTest slice and depends on NotificationService.
+    @MockBean
+    private NotificationService notificationService;
 
     @Test
     void postProfileEdit_withoutSessionUser_redirectsToLogin() throws Exception {
