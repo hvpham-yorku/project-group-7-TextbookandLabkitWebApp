@@ -1,8 +1,10 @@
 package com.example.demo.web;
 
+import com.example.demo.domain.ContactMessage;
 import com.example.demo.domain.Listing;
 import com.example.demo.domain.ListingStatus;
 import com.example.demo.domain.User;
+import com.example.demo.service.ContactMessageService;
 import com.example.demo.service.ListingService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -15,16 +17,21 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Controller
 public class ListingController {
 
 private final ListingService listingService;
+private final ContactMessageService contactMessageService;
 
-public ListingController(ListingService listingService) {
+public ListingController(ListingService listingService,
+                         ContactMessageService contactMessageService) {
     this.listingService = listingService;
+    this.contactMessageService = contactMessageService;
 }
 
 @GetMapping("/my-listings")
@@ -35,6 +42,31 @@ public String myListings(HttpSession session, Model model) {
     model.addAttribute("user", user);
     model.addAttribute("listings", listingService.getListingsForSeller(user.getEmail()));
     return "my-listings";
+}
+
+@GetMapping("/inbox")
+public String inbox(HttpSession session, Model model) {
+
+    Object u = session.getAttribute("user");
+    if (u == null) return "redirect:/login";
+
+    User user = (User) u;
+
+    List<ContactMessage> messages = contactMessageService.getMessagesForSeller(user.getEmail());
+
+    // Build listingId → Listing map so the template can show listing context per message
+    Map<Long, Listing> listingMap = new HashMap<>();
+    for (ContactMessage m : messages) {
+        if (!listingMap.containsKey(m.getListingId())) {
+            Listing l = listingService.findById(m.getListingId());
+            if (l != null) listingMap.put(m.getListingId(), l);
+        }
+    }
+
+    model.addAttribute("user", user);
+    model.addAttribute("messages", messages);
+    model.addAttribute("listingMap", listingMap);
+    return "inbox";
 }
 
 @GetMapping("/listings/{id}")
@@ -48,8 +80,77 @@ public String listingDetail(@PathVariable("id") long id,
     Listing listing = listingService.findById(id);
     if (listing == null) return "redirect:/browse";
 
+    User user = (User) u;
+    boolean isSeller = user.getEmail().equalsIgnoreCase(listing.getSellerEmail());
+
     model.addAttribute("listing", listing);
+    model.addAttribute("isSeller", isSeller);
     return "listing-detail";
+}
+
+@GetMapping("/listings/{id}/contact")
+public String contactSellerPlaceholder(@PathVariable("id") long id,
+                                       HttpSession session,
+                                       Model model) {
+
+    Object u = session.getAttribute("user");
+    if (u == null) return "redirect:/login";
+
+    Listing listing = listingService.findById(id);
+    if (listing == null) return "redirect:/browse";
+
+    // Sellers cannot contact themselves
+    User user = (User) u;
+    if (user.getEmail().equalsIgnoreCase(listing.getSellerEmail())) {
+        return "redirect:/listings/" + id;
+    }
+
+    model.addAttribute("listing", listing);
+    return "contact-seller";
+}
+
+@PostMapping("/listings/{id}/contact")
+public String contactSellerSubmit(@PathVariable("id") long id,
+                                  @RequestParam(value = "subject", defaultValue = "") String subject,
+                                  @RequestParam(value = "message", defaultValue = "") String message,
+                                  HttpSession session,
+                                  Model model) {
+
+    Object u = session.getAttribute("user");
+    if (u == null) return "redirect:/login";
+
+    Listing listing = listingService.findById(id);
+    if (listing == null) return "redirect:/browse";
+
+    User user = (User) u;
+
+    // Sellers cannot message themselves
+    if (user.getEmail().equalsIgnoreCase(listing.getSellerEmail())) {
+        return "redirect:/listings/" + id;
+    }
+
+    // Validate required fields — return to form with errors and preserved values
+    boolean subjectBlank = subject.isBlank();
+    boolean messageBlank = message.isBlank();
+
+    if (subjectBlank || messageBlank) {
+        model.addAttribute("listing", listing);
+        model.addAttribute("subject", subject);
+        model.addAttribute("message", message);
+        if (subjectBlank) model.addAttribute("subjectError", "Subject is required.");
+        if (messageBlank) model.addAttribute("messageError", "Message is required.");
+        return "contact-seller";
+    }
+
+    contactMessageService.sendMessage(
+            id,
+            user.getEmail(),
+            listing.getSellerEmail(),
+            subject,
+            message
+    );
+
+    return "redirect:/listings/" + id + "?contacted=true";
 }
 
 @GetMapping("/browse")
