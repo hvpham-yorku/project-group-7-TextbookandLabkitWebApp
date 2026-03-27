@@ -3,9 +3,11 @@ package com.example.demo.web;
 import com.example.demo.domain.ContactMessage;
 import com.example.demo.domain.Listing;
 import com.example.demo.domain.ListingStatus;
+import com.example.demo.domain.NotificationType;
 import com.example.demo.domain.User;
 import com.example.demo.service.ContactMessageService;
 import com.example.demo.service.ListingService;
+import com.example.demo.service.NotificationService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,11 +29,14 @@ public class ListingController {
 
 private final ListingService listingService;
 private final ContactMessageService contactMessageService;
+private final NotificationService notificationService;
 
 public ListingController(ListingService listingService,
-                         ContactMessageService contactMessageService) {
+                         ContactMessageService contactMessageService,
+                         NotificationService notificationService) {
     this.listingService = listingService;
     this.contactMessageService = contactMessageService;
+    this.notificationService = notificationService;
 }
 
 @GetMapping("/my-listings")
@@ -142,13 +147,21 @@ public String contactSellerSubmit(@PathVariable("id") long id,
         return "contact-seller";
     }
 
-    contactMessageService.sendMessage(
+    ContactMessage sent = contactMessageService.sendMessage(
             id,
             user.getEmail(),
             listing.getSellerEmail(),
             subject,
             message
     );
+
+    if (sent != null) {
+        notificationService.createNotification(
+                listing.getSellerEmail(),
+                user.getEmail() + " contacted you about \"" + listing.getTitle() + "\"",
+                NotificationType.MESSAGE
+        );
+    }
 
     return "redirect:/listings/" + id + "?contacted=true";
 }
