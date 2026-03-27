@@ -1,5 +1,6 @@
 package com.example.demo.web;
 
+import com.example.demo.domain.ContactMessage;
 import com.example.demo.domain.Listing;
 import com.example.demo.domain.ListingStatus;
 import com.example.demo.domain.User;
@@ -16,7 +17,9 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Controller
@@ -39,6 +42,31 @@ public String myListings(HttpSession session, Model model) {
     model.addAttribute("user", user);
     model.addAttribute("listings", listingService.getListingsForSeller(user.getEmail()));
     return "my-listings";
+}
+
+@GetMapping("/inbox")
+public String inbox(HttpSession session, Model model) {
+
+    Object u = session.getAttribute("user");
+    if (u == null) return "redirect:/login";
+
+    User user = (User) u;
+
+    List<ContactMessage> messages = contactMessageService.getMessagesForSeller(user.getEmail());
+
+    // Build listingId → Listing map so the template can show listing context per message
+    Map<Long, Listing> listingMap = new HashMap<>();
+    for (ContactMessage m : messages) {
+        if (!listingMap.containsKey(m.getListingId())) {
+            Listing l = listingService.findById(m.getListingId());
+            if (l != null) listingMap.put(m.getListingId(), l);
+        }
+    }
+
+    model.addAttribute("user", user);
+    model.addAttribute("messages", messages);
+    model.addAttribute("listingMap", listingMap);
+    return "inbox";
 }
 
 @GetMapping("/listings/{id}")
@@ -83,8 +111,8 @@ public String contactSellerPlaceholder(@PathVariable("id") long id,
 
 @PostMapping("/listings/{id}/contact")
 public String contactSellerSubmit(@PathVariable("id") long id,
-                                  @RequestParam("subject") String subject,
-                                  @RequestParam("message") String message,
+                                  @RequestParam(value = "subject", defaultValue = "") String subject,
+                                  @RequestParam(value = "message", defaultValue = "") String message,
                                   HttpSession session,
                                   Model model) {
 
@@ -99,6 +127,19 @@ public String contactSellerSubmit(@PathVariable("id") long id,
     // Sellers cannot message themselves
     if (user.getEmail().equalsIgnoreCase(listing.getSellerEmail())) {
         return "redirect:/listings/" + id;
+    }
+
+    // Validate required fields — return to form with errors and preserved values
+    boolean subjectBlank = subject.isBlank();
+    boolean messageBlank = message.isBlank();
+
+    if (subjectBlank || messageBlank) {
+        model.addAttribute("listing", listing);
+        model.addAttribute("subject", subject);
+        model.addAttribute("message", message);
+        if (subjectBlank) model.addAttribute("subjectError", "Subject is required.");
+        if (messageBlank) model.addAttribute("messageError", "Message is required.");
+        return "contact-seller";
     }
 
     contactMessageService.sendMessage(

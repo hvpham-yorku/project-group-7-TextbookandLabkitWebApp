@@ -87,20 +87,28 @@
                         <label for="subject" class="form-label">Subject</label>
                         <input type="text"
                                class="form-control"
+                               th:classappend="${subjectError != null} ? ' is-invalid' : ''"
                                id="subject"
                                name="subject"
-                               placeholder="e.g. Is this still available?"
-                               required>
+                               th:value="${subject}"
+                               placeholder="e.g. Is this still available?">
+                        <div th:if="${subjectError != null}"
+                             class="invalid-feedback"
+                             th:text="${subjectError}"></div>
                     </div>
 
                     <div class="mb-4">
                         <label for="message" class="form-label">Message</label>
                         <textarea class="form-control"
+                                  th:classappend="${messageError != null} ? ' is-invalid' : ''"
                                   id="message"
                                   name="message"
                                   rows="5"
                                   placeholder="Write your message to the seller..."
-                                  required></textarea>
+                                  th:text="${message}"></textarea>
+                        <div th:if="${messageError != null}"
+                             class="invalid-feedback"
+                             th:text="${messageError}"></div>
                     </div>
 
                     <div class="d-flex gap-2 align-items-center flex-wrap">
