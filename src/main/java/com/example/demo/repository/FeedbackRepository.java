@@ -1,40 +1,15 @@
 package com.example.demo.repository;
 
-import org.springframework.stereotype.Repository;
-
 import com.example.demo.domain.Feedback;
-import org.springframework.stereotype.Repository;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Repository
-public class FeedbackRepository {
+public interface FeedbackRepository {
 
-    private final List<Feedback> feedbackList = new ArrayList<>();
+    void save(Feedback feedback);
 
-    public void save(Feedback feedback) {
-        feedbackList.add(feedback);
-    }
+    List<Feedback> findByTargetEmail(String targetEmail);
 
-    public List<Feedback> findByTargetEmail(String targetEmail) {
-        return feedbackList.stream()
-                .filter(f -> f.getTargetEmail().equals(targetEmail))
-                .collect(Collectors.toList());
-    }
+    boolean hasReviewed(String reviewerEmail, String targetEmail);
 
-    public boolean hasReviewed(String reviewerEmail, String targetEmail) {
-        return feedbackList.stream()
-                .anyMatch(f -> f.getReviewerEmail().equals(reviewerEmail)
-                        && f.getTargetEmail().equals(targetEmail));
-    }
-
-    public double getAverageRating(String targetEmail) {
-        return feedbackList.stream()
-                .filter(f -> f.getTargetEmail().equals(targetEmail))
-                .mapToInt(Feedback::getRating)
-                .average()
-                .orElse(0.0);
-    }
+    double getAverageRating(String targetEmail);
 }

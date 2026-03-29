@@ -50,6 +50,8 @@
             <div class="mt-4 d-flex gap-2 flex-wrap">
                 <a th:href="@{/profile/edit}" class="btn btn-primary">Edit Profile</a>
                 <a th:href="@{/blocked-users}" class="btn btn-outline-secondary">Blocked Users</a>
+                <a th:href="@{/feedback/{email}(email=${user.email})}"
+                   class="btn btn-outline-secondary">My Reviews</a>
             </div>
 
         </div>

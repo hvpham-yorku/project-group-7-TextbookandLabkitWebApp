@@ -126,6 +126,21 @@ CREATE TABLE IF NOT EXISTS blocked_users (
 );
 
 -- -------------------------------------------------------
+-- FEEDBACK
+-- User-to-user ratings and comments.
+-- One reviewer can leave at most one review per target user.
+-- -------------------------------------------------------
+CREATE TABLE IF NOT EXISTS feedback (
+    id             BIGSERIAL    PRIMARY KEY,
+    reviewer_email VARCHAR(255) NOT NULL,
+    target_email   VARCHAR(255) NOT NULL,
+    rating         INT          NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment        TEXT         NOT NULL,
+    submitted_at   TIMESTAMP    NOT NULL DEFAULT NOW(),
+    UNIQUE (reviewer_email, target_email)
+);
+
+-- -------------------------------------------------------
 -- DIRECT MESSAGES
 -- Email-based direct chat messages between two users.
 -- Replaces the legacy messages table (which used BIGINT IDs).
