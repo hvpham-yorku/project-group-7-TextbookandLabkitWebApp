@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inbox - YorkU Circle</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/style.css(v=9)}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=10)}">
 </head>
 <body>
 
@@ -13,29 +14,33 @@
 
 <div class="container yk-page-wrap">
 
-    <!-- Page heading -->
     <div class="yk-page-head">
-        <h2 class="yk-page-title">Inbox</h2>
-        <p class="yk-page-sub">Messages received about your listings — <span th:text="${user.email}"></span></p>
+        <h2 class="yk-page-title">Seller Inbox</h2>
+        <p class="yk-page-sub">Review buyer messages and turn serious interest into a tracked exchange.</p>
     </div>
 
-    <!-- Empty state -->
+    <div class="txn-banner mb-4">
+        <div>
+            <h5 class="mb-1">Creative workflow added</h5>
+            <p class="mb-0">Each message can be converted into a transaction, then tracked until both sides confirm completion.</p>
+        </div>
+        <a href="/transactions" class="btn btn-light btn-sm">Open Transactions</a>
+    </div>
+
     <div th:if="${#lists.isEmpty(messages)}" class="bm-empty-state">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+            <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/>
         </svg>
-        <p>No inquiries yet. When buyers contact you about a listing, their messages will appear here.</p>
+        <p>No buyer messages yet. Once students contact your listings, they’ll appear here.</p>
     </div>
 
-    <!-- Message list -->
     <div th:unless="${#lists.isEmpty(messages)}" class="inbox-layout">
 
         <div th:each="msg : ${messages}"
              class="inbox-item yk-card"
-             th:with="l=${listingMap.get(msg.listingId)}">
+             th:with="l=${listingMap.get(msg.listingId)}, txn=${messageTransactionMap.get(msg.id)}">
             <div class="yk-card-body">
 
-                <!-- Listing reference row + date -->
                 <div class="inbox-listing-row">
                     <span class="bm-badge-course"
                           th:if="${l != null and l.courseCode != null and !#strings.isEmpty(l.courseCode)}"
@@ -51,16 +56,40 @@
                           th:text="${#temporals.format(msg.createdAt, 'MMM d, yyyy')}"></span>
                 </div>
 
-                <!-- From -->
-                <p class="inbox-from">
-                    From: <strong th:text="${msg.senderEmail}"></strong>
-                </p>
+                <div class="row g-4 align-items-start mt-1">
+                    <div class="col-lg-8">
+                        <p class="inbox-from mb-2">
+                            From: <strong th:text="${msg.senderEmail}"></strong>
+                        </p>
+                        <p class="inbox-subject" th:text="${msg.subject}"></p>
+                        <p class="inbox-body mb-3" th:text="${msg.message}"></p>
+                    </div>
 
-                <!-- Subject -->
-                <p class="inbox-subject" th:text="${msg.subject}"></p>
+                    <div class="col-lg-4">
+                        <div class="txn-side-panel">
+                            <div th:if="${txn == null}">
+                                <h6 class="txn-panel-title">Ready to move forward?</h6>
+                                <p class="txn-panel-copy">Start an exchange to lock this interaction into a tracked workflow.</p>
+                                <form th:action="@{/transactions/start}" method="post" class="d-grid gap-2">
+                                    <input type="hidden" name="messageId" th:value="${msg.id}">
+                                    <button type="submit" class="btn btn-primary">Start Exchange</button>
+                                    <span class="txn-side-note">This will move the listing into an active transaction state.</span>
+                                </form>
+                            </div>
 
-                <!-- Message body -->
-                <p class="inbox-body" th:text="${msg.message}"></p>
+                            <div th:if="${txn != null}">
+                                <span class="txn-chip"
+                                      th:text="${txn.statusLabel}"></span>
+                                <p class="txn-panel-copy mt-2 mb-2" th:text="${txn.nextStepText}"></p>
+                                <div class="progress txn-mini-progress mb-3" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                                     th:attr="aria-valuenow=${txn.progressPercent}">
+                                    <div class="progress-bar" th:style="'width:' + ${txn.progressPercent} + '%' "></div>
+                                </div>
+                                <a href="/transactions" class="btn btn-outline-primary btn-sm">View Transaction</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>

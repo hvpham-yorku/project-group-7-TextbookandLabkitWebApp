@@ -65,6 +65,14 @@ public class JdbcContactMessageRepository implements ContactMessageRepository {
         return message;
     }
 
+
+    @Override
+    public ContactMessage findById(long id) {
+        String sql = "SELECT * FROM contact_messages WHERE id = ?";
+        List<ContactMessage> results = jdbcTemplate.query(sql, ROW_MAPPER, id);
+        return results.isEmpty() ? null : results.get(0);
+    }
+
     @Override
     public List<ContactMessage> findBySellerEmail(String sellerEmail) {
         String sql = """

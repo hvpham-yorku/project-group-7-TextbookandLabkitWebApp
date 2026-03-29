@@ -62,3 +62,52 @@ CREATE TABLE IF NOT EXISTS contact_messages (
     message      TEXT         NOT NULL,
     created_at   TIMESTAMP    NOT NULL DEFAULT NOW()
 );
+
+-- -------------------------------------------------------
+-- TRANSACTIONS
+-- Tracks the exchange lifecycle between a buyer and seller
+-- for a specific listing.
+-- -------------------------------------------------------
+CREATE TABLE IF NOT EXISTS transactions (
+    id                BIGSERIAL    PRIMARY KEY,
+    listing_id        BIGINT       NOT NULL,
+    listing_title     VARCHAR(500),
+    course_code       VARCHAR(100),
+    source_message_id BIGINT       NOT NULL DEFAULT 0,
+    buyer_email       VARCHAR(255) NOT NULL,
+    seller_email      VARCHAR(255) NOT NULL,
+    status            VARCHAR(50)  NOT NULL DEFAULT 'MEETUP_PENDING',
+    buyer_confirmed   BOOLEAN      NOT NULL DEFAULT FALSE,
+    seller_confirmed  BOOLEAN      NOT NULL DEFAULT FALSE,
+    created_at        TIMESTAMP    NOT NULL DEFAULT NOW(),
+    updated_at        TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
+-- -------------------------------------------------------
+-- ISSUE REPORTS
+-- Stores issue reports filed against a transaction.
+-- -------------------------------------------------------
+CREATE TABLE IF NOT EXISTS issue_reports (
+    id             BIGSERIAL    PRIMARY KEY,
+    transaction_id BIGINT       NOT NULL,
+    reporter_email VARCHAR(255) NOT NULL,
+    category       VARCHAR(50)  NOT NULL,
+    severity       VARCHAR(50)  NOT NULL,
+    description    TEXT         NOT NULL,
+    created_at     TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
+-- -------------------------------------------------------
+-- MATERIAL REQUESTS
+-- Stores buyer requests for specific textbooks or lab kits.
+-- -------------------------------------------------------
+CREATE TABLE IF NOT EXISTS material_requests (
+    id               BIGSERIAL    PRIMARY KEY,
+    requester_email  VARCHAR(255) NOT NULL,
+    course_code      VARCHAR(100),
+    material_title   VARCHAR(500),
+    material_type    VARCHAR(100),
+    note             TEXT,
+    status           VARCHAR(50)  NOT NULL DEFAULT 'OPEN',
+    created_at       TIMESTAMP    NOT NULL DEFAULT NOW()
+);

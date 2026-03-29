@@ -1087,3 +1087,202 @@ body.browse-page {
     margin:      0;
     white-space: pre-wrap;
 }
+
+/* ============================================================
+   Exchange lifecycle additions (Material Requests + Transactions)
+   ============================================================ */
+
+.txn-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #8c1d40, #b11f49);
+  color: #fff;
+}
+
+.txn-banner h5,
+.txn-banner p {
+  color: #fff;
+}
+
+.txn-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  background: rgba(140, 29, 64, 0.12);
+  color: #8c1d40;
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.txn-chip-soft {
+  background: #f7ecef;
+}
+
+.txn-side-panel {
+  padding: 1rem;
+  border-radius: 16px;
+  background: #faf7f8;
+  border: 1px solid #eee3e8;
+}
+
+.txn-panel-title {
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.txn-panel-copy,
+.txn-side-note {
+  color: #6a6a6a;
+  font-size: 0.94rem;
+}
+
+.txn-mini-progress,
+.txn-progress {
+  height: 0.8rem;
+  border-radius: 999px;
+  background: #efe7ea;
+}
+
+.txn-mini-progress .progress-bar,
+.txn-progress .progress-bar {
+  background: linear-gradient(90deg, #8c1d40, #d24d71);
+}
+
+.transaction-card {
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+.transaction-topline {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.transaction-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.transaction-meta {
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.timeline-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.timeline-node {
+  text-align: center;
+  padding: 0.65rem 0.5rem;
+  border-radius: 14px;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.timeline-node-active {
+  background: #f7ecef;
+  color: #8c1d40;
+}
+
+.transaction-callout {
+  border-left: 4px solid #8c1d40;
+  padding: 0.85rem 1rem;
+  background: #fcf7f9;
+  border-radius: 12px;
+  color: #4b5563;
+}
+
+.txn-confirm-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  background: #f3f4f6;
+}
+
+.txn-confirm-flag-on {
+  background: #edf7ef;
+  color: #166534;
+}
+
+.issue-feed h6 {
+  font-weight: 700;
+}
+
+.issue-item,
+.request-card,
+.demand-item {
+  border: 1px solid #ebe5e8;
+  border-radius: 16px;
+  background: #fff;
+  padding: 1rem;
+}
+
+.issue-title,
+.request-title,
+.demand-label {
+  font-weight: 700;
+  color: #111827;
+}
+
+.issue-meta,
+.request-meta,
+.demand-sub {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.issue-severity {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.demand-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.demand-count {
+  min-width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #8c1d40;
+  color: #fff;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .txn-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .timeline-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
