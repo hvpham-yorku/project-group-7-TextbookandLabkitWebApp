@@ -9,81 +9,137 @@
 </head>
 <body class="login-page">
 
-<div class="container d-flex justify-content-center align-items-center min-vh-100 py-5">
-    <div class="card shadow p-4 login-card">
+<div class="auth-split">
 
-        <!-- Branding header -->
-        <div class="text-center mb-4">
-            <h2 class="fw-bold">YorkU Circle</h2>
-            <p class="text-muted">Create your student account</p>
+    <!-- ══════════════════════════════════════════
+         Left: branded hero panel  (identical to login)
+         ══════════════════════════════════════════ -->
+    <div class="auth-hero">
+        <div class="auth-hero-inner">
+
+            <!-- Wordmark -->
+            <span class="auth-brand-name">YorkU Circle</span>
+            <span class="auth-brand-tag">Student Marketplace</span>
+
+            <!-- Tagline -->
+            <p class="auth-tagline">
+                Buy, sell, and exchange textbooks, notes, and lab kits
+                with fellow YorkU students.
+            </p>
+
+            <!-- Feature bullets -->
+            <div class="auth-features">
+
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+                            <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h10v2H4z"/>
+                        </svg>
+                    </div>
+                    <span>Browse course materials</span>
+                </div>
+
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+                            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                        </svg>
+                    </div>
+                    <span>Connect with students</span>
+                </div>
+
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+                            <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+                        </svg>
+                    </div>
+                    <span>Track exchanges safely</span>
+                </div>
+
+            </div>
         </div>
-
-        <!-- Sign-up form -->
-        <form th:action="@{/signup}" method="post">
-
-            <!-- Full Name -->
-            <div class="mb-3">
-                <label for="name" class="form-label">Full Name</label>
-                <input type="text"
-                       class="form-control"
-                       th:classappend="${nameError != null} ? ' is-invalid' : ''"
-                       id="name"
-                       name="name"
-                       placeholder="e.g. Jane Smith"
-                       th:value="${name}">
-                <div th:if="${nameError != null}" class="invalid-feedback" th:text="${nameError}"></div>
-            </div>
-
-            <!-- Email -->
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email"
-                       class="form-control"
-                       th:classappend="${emailError != null} ? ' is-invalid' : ''"
-                       id="email"
-                       name="email"
-                       placeholder="yourname@my.yorku.ca"
-                       th:value="${email}">
-                <div th:if="${emailError != null}" class="invalid-feedback" th:text="${emailError}"></div>
-            </div>
-
-            <!-- Password -->
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password"
-                       class="form-control"
-                       th:classappend="${passwordError != null} ? ' is-invalid' : ''"
-                       id="password"
-                       name="password"
-                       placeholder="Create a password">
-                <div th:if="${passwordError != null}" class="invalid-feedback" th:text="${passwordError}"></div>
-            </div>
-
-            <!-- Confirm Password -->
-            <div class="mb-4">
-                <label for="confirmPassword" class="form-label">Confirm Password</label>
-                <input type="password"
-                       class="form-control"
-                       th:classappend="${confirmPasswordError != null} ? ' is-invalid' : ''"
-                       id="confirmPassword"
-                       name="confirmPassword"
-                       placeholder="Re-enter your password">
-                <div th:if="${confirmPasswordError != null}" class="invalid-feedback" th:text="${confirmPasswordError}"></div>
-            </div>
-
-            <div class="d-grid">
-                <button type="submit" class="btn btn-primary">Sign Up</button>
-            </div>
-
-        </form>
-
-        <!-- Back to login -->
-        <p class="text-center mt-3 mb-0" style="font-size:0.875rem; color:#6b6b6b;">
-            Already have an account?
-            <a th:href="@{/login}" href="/login" style="color:#8c1d40; font-weight:600;">Log in</a>
-        </p>
-
     </div>
+
+    <!-- ══════════════════════════════════════════
+         Right: sign-up form
+         ══════════════════════════════════════════ -->
+    <div class="auth-panel">
+        <div class="auth-form-wrap">
+
+            <h1>Create an account</h1>
+            <p class="auth-panel-sub">Join YorkU Circle with your York University email</p>
+
+            <form th:action="@{/signup}" method="post">
+
+                <!-- Full Name -->
+                <div class="mb-3">
+                    <label for="name" class="form-label">Full Name</label>
+                    <input type="text"
+                           class="form-control"
+                           th:classappend="${nameError != null} ? ' is-invalid' : ''"
+                           id="name"
+                           name="name"
+                           placeholder="e.g. Jane Smith"
+                           th:value="${name}"
+                           autocomplete="name">
+                    <div th:if="${nameError != null}" class="invalid-feedback" th:text="${nameError}"></div>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email"
+                           class="form-control"
+                           th:classappend="${emailError != null} ? ' is-invalid' : ''"
+                           id="email"
+                           name="email"
+                           placeholder="yourname@my.yorku.ca"
+                           th:value="${email}"
+                           autocomplete="email">
+                    <div th:if="${emailError != null}" class="invalid-feedback" th:text="${emailError}"></div>
+                </div>
+
+                <!-- Password -->
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password"
+                           class="form-control"
+                           th:classappend="${passwordError != null} ? ' is-invalid' : ''"
+                           id="password"
+                           name="password"
+                           placeholder="Create a password"
+                           autocomplete="new-password">
+                    <div th:if="${passwordError != null}" class="invalid-feedback" th:text="${passwordError}"></div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="mb-4">
+                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                    <input type="password"
+                           class="form-control"
+                           th:classappend="${confirmPasswordError != null} ? ' is-invalid' : ''"
+                           id="confirmPassword"
+                           name="confirmPassword"
+                           placeholder="Re-enter your password"
+                           autocomplete="new-password">
+                    <div th:if="${confirmPasswordError != null}" class="invalid-feedback" th:text="${confirmPasswordError}"></div>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Sign Up</button>
+                </div>
+
+            </form>
+
+            <p class="auth-switch-text">
+                Already have an account?
+                <a th:href="@{/login}" href="/login">Log in</a>
+            </p>
+
+        </div>
+    </div>
+
 </div>
 
 </body>
