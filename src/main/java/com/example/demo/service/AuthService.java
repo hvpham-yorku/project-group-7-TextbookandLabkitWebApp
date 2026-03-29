@@ -15,6 +15,29 @@ public class AuthService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Returns true if an account already exists for this email (case-insensitive).
+     * Used by the signup controller to place a per-field duplicate-email error.
+     */
+    public boolean emailExists(String email) {
+        return userRepository.findByEmail(email) != null;
+    }
+
+    /**
+     * Registers a new user account.
+     * Throws IllegalArgumentException for a non-York email.
+     * Throws IllegalStateException if the email is already registered.
+     */
+    public void register(String name, String email, String password) {
+        if (email == null || !email.endsWith("@my.yorku.ca")) {
+            throw new IllegalArgumentException("Email must be a York University address (@my.yorku.ca).");
+        }
+        if (userRepository.findByEmail(email) != null) {
+            throw new IllegalStateException("An account with this email already exists.");
+        }
+        userRepository.save(new User(email, password, name));
+    }
+
     public User login(String email, String password) {
 
         // 1. Validate York email
