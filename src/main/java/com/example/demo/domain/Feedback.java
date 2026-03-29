@@ -1,20 +1,26 @@
 package com.example.demo.domain;
 
-public class Feedback {
-    private String reviewerEmail;
-    private String targetUserEmail;
-    private int rating;
-    private String comment;
+import java.time.LocalDateTime;
 
-    public Feedback(String reviewerEmail, String targetUserEmail, int rating, String comment) {
+public class Feedback {
+
+    private final String reviewerEmail;
+    private final String targetEmail;
+    private final int rating;
+    private final String comment;
+    private final LocalDateTime submittedAt;
+
+    public Feedback(String reviewerEmail, String targetEmail, int rating, String comment) {
         this.reviewerEmail = reviewerEmail;
-        this.targetUserEmail = targetUserEmail;
+        this.targetEmail = targetEmail;
         this.rating = rating;
         this.comment = comment;
+        this.submittedAt = LocalDateTime.now();
     }
 
     public String getReviewerEmail() { return reviewerEmail; }
-    public String getTargetUserEmail() { return targetUserEmail; }
+    public String getTargetEmail() { return targetEmail; }
     public int getRating() { return rating; }
     public String getComment() { return comment; }
+    public LocalDateTime getSubmittedAt() { return submittedAt; }
 }
