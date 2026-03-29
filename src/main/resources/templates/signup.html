@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - YorkU Circle</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="login-page">
+
+<div class="container d-flex justify-content-center align-items-center min-vh-100 py-5">
+    <div class="card shadow p-4 login-card">
+
+        <!-- Branding header -->
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">YorkU Circle</h2>
+            <p class="text-muted">Create your student account</p>
+        </div>
+
+        <!-- Flash messages (populated by backend when ready) -->
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+        <!-- Sign-up form -->
+        <form th:action="@{/signup}" method="post">
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Full Name</label>
+                <input type="text"
+                       class="form-control"
+                       id="name"
+                       name="name"
+                       placeholder="e.g. Jane Smith"
+                       th:value="${name}"
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email"
+                       class="form-control"
+                       id="email"
+                       name="email"
+                       placeholder="yourname@my.yorku.ca"
+                       th:value="${email}"
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password"
+                       class="form-control"
+                       id="password"
+                       name="password"
+                       placeholder="Create a password"
+                       required>
+            </div>
+
+            <div class="mb-4">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <input type="password"
+                       class="form-control"
+                       id="confirmPassword"
+                       name="confirmPassword"
+                       placeholder="Re-enter your password"
+                       required>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Sign Up</button>
+            </div>
+
+        </form>
+
+        <!-- Back to login -->
+        <p class="text-center mt-3 mb-0" style="font-size:0.875rem; color:#6b6b6b;">
+            Already have an account?
+            <a th:href="@{/login}" href="/login" style="color:#8c1d40; font-weight:600;">Log in</a>
+        </p>
+
+    </div>
+</div>
+
+</body>
+</html>

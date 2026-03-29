@@ -26,6 +26,11 @@ public class LoginController {
         return "login";
     }
 
+    @GetMapping("/signup")
+    public String signupPage() {
+        return "signup";
+    }
+
     @PostMapping("/login")
     public String doLogin(@RequestParam("email") String email,
                           @RequestParam("password") String password,

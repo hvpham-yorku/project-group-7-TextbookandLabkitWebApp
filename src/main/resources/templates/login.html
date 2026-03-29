@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,6 +34,11 @@
 
             <p class="text-danger text-center mt-3" th:text="${error}"></p>
         </form>
+
+        <p class="text-center mt-3 mb-0" style="font-size:0.875rem; color:#6b6b6b;">
+            Don't have an account?
+            <a th:href="@{/signup}" href="/signup" style="color:#8c1d40; font-weight:600;">Sign up</a>
+        </p>
     </div>
 </div>
 
