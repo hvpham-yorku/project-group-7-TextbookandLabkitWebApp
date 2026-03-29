@@ -35,7 +35,7 @@
                 <button type="submit" class="btn btn-primary">Login</button>
             </div>
 
-            <p class="text-danger text-center mt-3" th:text="${error}"></p>
+            <p th:if="${error}" class="text-danger text-center mt-3" th:text="${error}"></p>
         </form>
 
         <p class="text-center mt-3 mb-0" style="font-size:0.875rem; color:#6b6b6b;">
