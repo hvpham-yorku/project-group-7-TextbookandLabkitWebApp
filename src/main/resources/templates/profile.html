@@ -47,8 +47,9 @@
                     th:text="${user.aboutMe != null and !#strings.isEmpty(user.aboutMe)} ? ${user.aboutMe} : '—'">—</dd>
             </dl>
 
-            <div class="mt-4">
+            <div class="mt-4 d-flex gap-2 flex-wrap">
                 <a th:href="@{/profile/edit}" class="btn btn-primary">Edit Profile</a>
+                <a th:href="@{/blocked-users}" class="btn btn-outline-secondary">Blocked Users</a>
             </div>
 
         </div>

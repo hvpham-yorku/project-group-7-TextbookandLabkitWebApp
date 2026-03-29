@@ -30,11 +30,13 @@ public class BlockController {
     }
 
     /**
-     * POST /block/{email} — block a user from the chat page.
-     * Redirects back to the messages inbox.
+     * POST /block/{email} — block a user.
+     * Accepts an optional {@code redirectAfter} form param so callers can control
+     * where the user lands after blocking (defaults to /chat).
      */
     @PostMapping("/block/{email}")
     public String blockUser(@PathVariable("email") String emailToBlock,
+                            @RequestParam(value = "redirectAfter", defaultValue = "/chat") String redirectAfter,
                             HttpSession session,
                             RedirectAttributes redirectAttributes) {
         Object u = session.getAttribute("user");
@@ -46,14 +48,19 @@ public class BlockController {
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
-        return "redirect:/chat";
+        // Only allow relative paths starting with / to prevent open-redirect
+        String target = (redirectAfter != null && redirectAfter.startsWith("/")) ? redirectAfter : "/chat";
+        return "redirect:" + target;
     }
 
     /**
-     * POST /unblock/{email} — unblock a user from the blocked-users page.
+     * POST /unblock/{email} — unblock a user.
+     * Accepts an optional {@code redirectAfter} form param so callers can control
+     * where the user lands after unblocking (defaults to /blocked-users).
      */
     @PostMapping("/unblock/{email}")
     public String unblockUser(@PathVariable("email") String emailToUnblock,
+                              @RequestParam(value = "redirectAfter", defaultValue = "/blocked-users") String redirectAfter,
                               HttpSession session,
                               RedirectAttributes redirectAttributes) {
         Object u = session.getAttribute("user");
@@ -62,6 +69,8 @@ public class BlockController {
 
         blockService.unblockUser(user.getEmail(), emailToUnblock);
         redirectAttributes.addFlashAttribute("successMessage", emailToUnblock + " has been unblocked.");
-        return "redirect:/blocked-users";
+        // Only allow relative paths starting with / to prevent open-redirect
+        String target = (redirectAfter != null && redirectAfter.startsWith("/")) ? redirectAfter : "/blocked-users";
+        return "redirect:" + target;
     }
 }

@@ -4,6 +4,7 @@ import com.example.demo.domain.ContactMessage;
 import com.example.demo.domain.Listing;
 import com.example.demo.domain.ListingStatus;
 import com.example.demo.domain.User;
+import com.example.demo.service.BlockService;
 import com.example.demo.service.ContactMessageService;
 import com.example.demo.service.ListingService;
 import com.example.demo.service.TransactionService;
@@ -29,13 +30,16 @@ public class ListingController {
 private final ListingService listingService;
 private final ContactMessageService contactMessageService;
 private final TransactionService transactionService;
+private final BlockService blockService;
 
 public ListingController(ListingService listingService,
                          ContactMessageService contactMessageService,
-                         TransactionService transactionService) {
+                         TransactionService transactionService,
+                         BlockService blockService) {
     this.listingService = listingService;
     this.contactMessageService = contactMessageService;
     this.transactionService = transactionService;
+    this.blockService = blockService;
 }
 
 @GetMapping("/my-listings")
@@ -72,10 +76,18 @@ public String inbox(HttpSession session, Model model) {
         }
     }
 
+    // Build senderEmail → blocked boolean map so the template can toggle the button
+    Map<String, Boolean> blockedSenders = new HashMap<>();
+    for (ContactMessage m : messages) {
+        blockedSenders.put(m.getSenderEmail(),
+                blockService.hasBlocked(user.getEmail(), m.getSenderEmail()));
+    }
+
     model.addAttribute("user", user);
     model.addAttribute("messages", messages);
     model.addAttribute("listingMap", listingMap);
     model.addAttribute("messageTransactionMap", messageTransactionMap);
+    model.addAttribute("blockedSenders", blockedSenders);
     return "inbox";
 }
 
@@ -115,6 +127,14 @@ public String contactSellerPlaceholder(@PathVariable("id") long id,
         return "redirect:/listings/" + id;
     }
 
+    // If the seller has blocked the buyer (or vice-versa), show error on the form
+    if (blockService.isBlocked(user.getEmail(), listing.getSellerEmail())) {
+        model.addAttribute("listing", listing);
+        model.addAttribute("errorMessage",
+                "You cannot contact this seller because they have blocked you.");
+        return "contact-seller";
+    }
+
     model.addAttribute("listing", listing);
     return "contact-seller";
 }
@@ -137,6 +157,16 @@ public String contactSellerSubmit(@PathVariable("id") long id,
     // Sellers cannot message themselves
     if (user.getEmail().equalsIgnoreCase(listing.getSellerEmail())) {
         return "redirect:/listings/" + id;
+    }
+
+    // Block check — if either party has blocked the other, deny the send
+    if (blockService.isBlocked(user.getEmail(), listing.getSellerEmail())) {
+        model.addAttribute("listing", listing);
+        model.addAttribute("subject", subject);
+        model.addAttribute("message", message);
+        model.addAttribute("errorMessage",
+                "You cannot contact this seller because they have blocked you.");
+        return "contact-seller";
     }
 
     // Validate required fields — return to form with errors and preserved values

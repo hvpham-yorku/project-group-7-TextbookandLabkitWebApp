@@ -58,9 +58,36 @@
 
                 <div class="row g-4 align-items-start mt-1">
                     <div class="col-lg-8">
-                        <p class="inbox-from mb-2">
-                            From: <strong th:text="${msg.senderEmail}"></strong>
-                        </p>
+                        <div class="d-flex align-items-center gap-2 mb-2 flex-wrap"
+                             th:with="senderBlocked=${blockedSenders.get(msg.senderEmail)}">
+                            <p class="inbox-from mb-0">
+                                From: <strong th:text="${msg.senderEmail}"></strong>
+                            </p>
+
+                            <!-- Block button — shown when sender is NOT yet blocked -->
+                            <form th:unless="${senderBlocked}"
+                                  th:action="@{/block/{email}(email=${msg.senderEmail})}" method="post"
+                                  class="ms-auto">
+                                <input type="hidden" name="redirectAfter" value="/inbox"/>
+                                <button type="submit"
+                                        class="btn btn-outline-secondary btn-sm"
+                                        onclick="return confirm('Block this user? They will no longer be able to contact you.')">
+                                    Block User
+                                </button>
+                            </form>
+
+                            <!-- Unblock button — shown when sender IS already blocked -->
+                            <form th:if="${senderBlocked}"
+                                  th:action="@{/unblock/{email}(email=${msg.senderEmail})}" method="post"
+                                  class="ms-auto">
+                                <input type="hidden" name="redirectAfter" value="/inbox"/>
+                                <button type="submit"
+                                        class="btn btn-outline-danger btn-sm"
+                                        onclick="return confirm('Unblock this user?')">
+                                    Unblock User
+                                </button>
+                            </form>
+                        </div>
                         <p class="inbox-subject" th:text="${msg.subject}"></p>
                         <p class="inbox-body mb-3" th:text="${msg.message}"></p>
                     </div>

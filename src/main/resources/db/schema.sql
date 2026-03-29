@@ -113,6 +113,19 @@ CREATE TABLE IF NOT EXISTS material_requests (
 );
 
 -- -------------------------------------------------------
+-- BLOCKED USERS
+-- Records which user blocked whom, keyed by email.
+-- The UNIQUE constraint prevents duplicate block rows.
+-- -------------------------------------------------------
+CREATE TABLE IF NOT EXISTS blocked_users (
+    id            BIGSERIAL    PRIMARY KEY,
+    blocker_email VARCHAR(255) NOT NULL,
+    blocked_email VARCHAR(255) NOT NULL,
+    blocked_at    TIMESTAMP    NOT NULL DEFAULT NOW(),
+    UNIQUE (blocker_email, blocked_email)
+);
+
+-- -------------------------------------------------------
 -- DIRECT MESSAGES
 -- Email-based direct chat messages between two users.
 -- Replaces the legacy messages table (which used BIGINT IDs).

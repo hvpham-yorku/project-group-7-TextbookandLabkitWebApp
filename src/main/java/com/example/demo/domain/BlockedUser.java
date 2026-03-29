@@ -14,6 +14,13 @@ public class BlockedUser {
         this.blockedAt = LocalDateTime.now();
     }
 
+    /** Used by JDBC row mapper to preserve the actual DB timestamp. */
+    public BlockedUser(String blockerEmail, String blockedEmail, LocalDateTime blockedAt) {
+        this.blockerEmail = blockerEmail;
+        this.blockedEmail = blockedEmail;
+        this.blockedAt = blockedAt;
+    }
+
     public String getBlockerEmail() { return blockerEmail; }
     public String getBlockedEmail() { return blockedEmail; }
     public LocalDateTime getBlockedAt() { return blockedAt; }
