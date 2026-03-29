@@ -1,9 +1,11 @@
 package com.example.demo.service;
 
+import com.example.demo.domain.Conversation;
 import com.example.demo.domain.Message;
 import com.example.demo.repository.MessageRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,57 +20,89 @@ public class MessageService {
     }
 
     /**
-     * Send a message. Validates content and checks block status.
+     * Send a direct message from senderEmail to receiverEmail.
+     * Validates content and checks block status using emails.
      */
-    public Message sendMessage(Message message) {
-
-        if (message.getSenderId() == null || message.getReceiverId() == null) {
+    public Message sendMessage(String senderEmail, String receiverEmail, String content) {
+        if (senderEmail == null || receiverEmail == null) {
             throw new IllegalArgumentException("Sender and receiver are required.");
         }
-
-        if (message.getSenderId().equals(message.getReceiverId())) {
+        if (senderEmail.equalsIgnoreCase(receiverEmail)) {
             throw new IllegalArgumentException("You cannot send a message to yourself.");
         }
-
-        if (message.getContent() == null || message.getContent().trim().isEmpty()) {
+        if (content == null || content.trim().isEmpty()) {
             throw new IllegalArgumentException("Message content cannot be empty.");
         }
-
-        if (message.getContent().trim().length() > 1000) {
+        if (content.trim().length() > 1000) {
             throw new IllegalArgumentException("Message cannot exceed 1000 characters.");
         }
-
-        // Block check — uses sender/receiver IDs converted to string for compatibility
-        String senderKey = String.valueOf(message.getSenderId());
-        String receiverKey = String.valueOf(message.getReceiverId());
-
-        if (blockService.isBlocked(senderKey, receiverKey)) {
+        if (blockService.isBlocked(senderEmail, receiverEmail)) {
             throw new IllegalStateException("Cannot send message. This user is blocked.");
         }
 
-        message.setContent(message.getContent().trim());
+        Message message = new Message();
+        message.setSenderEmail(senderEmail);
+        message.setReceiverEmail(receiverEmail);
+        message.setContent(content.trim());
         return repository.save(message);
     }
 
     /**
-     * Get all messages for a listing (original functionality kept).
+     * Return all conversations for the given user, one per unique partner.
      */
-    public List<Message> getConversation(Long listingId) {
-        return repository.findByListingId(listingId);
+    public List<Conversation> getConversations(String email) {
+        List<String> partners = repository.findConversationPartners(email);
+        List<Conversation> conversations = new ArrayList<>();
+        for (String partner : partners) {
+            List<Message> msgs = repository.findConversation(email, partner);
+            conversations.add(new Conversation(email, partner, msgs));
+        }
+        return conversations;
     }
 
     /**
-     * Get direct conversation between two users.
+     * Return the conversation between currentEmail and otherEmail,
+     * marking all incoming messages as read.
      */
-    public List<Message> getDirectConversation(Long senderId, Long receiverId) {
-        repository.markAsRead(receiverId, senderId);
-        return repository.findBySenderAndReceiver(senderId, receiverId);
+    public Conversation getConversationWith(String currentEmail, String otherEmail) {
+        repository.markAsRead(currentEmail, otherEmail);
+        List<Message> msgs = repository.findConversation(currentEmail, otherEmail);
+        return new Conversation(currentEmail, otherEmail, msgs);
     }
 
     /**
-     * Get unread message count for a user (for badge/notification display).
+     * Count unread messages for the given user (used for the header badge).
      */
-    public long getUnreadCount(Long receiverId) {
-        return repository.countUnread(receiverId);
+    public long countUnread(String email) {
+        return repository.countUnread(email);
+    }
+
+    /**
+     * Return all general chat room messages ordered by sent time ascending.
+     */
+    public List<Message> getGeneralChatMessages() {
+        return repository.findAllGeneralChatMessages();
+    }
+
+    /**
+     * Post a message into the general chat room from the given sender.
+     * Uses the sentinel receiver value 'GENERAL_CHAT' to distinguish
+     * general chat messages from direct messages in the same table.
+     */
+    public Message sendGeneralChatMessage(String senderEmail, String content) {
+        if (senderEmail == null) {
+            throw new IllegalArgumentException("Sender is required.");
+        }
+        if (content == null || content.trim().isEmpty()) {
+            throw new IllegalArgumentException("Message content cannot be empty.");
+        }
+        if (content.trim().length() > 1000) {
+            throw new IllegalArgumentException("Message cannot exceed 1000 characters.");
+        }
+        Message message = new Message();
+        message.setSenderEmail(senderEmail);
+        message.setReceiverEmail("GENERAL_CHAT");
+        message.setContent(content.trim());
+        return repository.save(message);
     }
 }

@@ -111,3 +111,17 @@ CREATE TABLE IF NOT EXISTS material_requests (
     status           VARCHAR(50)  NOT NULL DEFAULT 'OPEN',
     created_at       TIMESTAMP    NOT NULL DEFAULT NOW()
 );
+
+-- -------------------------------------------------------
+-- DIRECT MESSAGES
+-- Email-based direct chat messages between two users.
+-- Replaces the legacy messages table (which used BIGINT IDs).
+-- -------------------------------------------------------
+CREATE TABLE IF NOT EXISTS direct_messages (
+    id             BIGSERIAL    PRIMARY KEY,
+    sender_email   VARCHAR(255) NOT NULL,
+    receiver_email VARCHAR(255) NOT NULL,
+    content        TEXT         NOT NULL,
+    sent_at        TIMESTAMP    NOT NULL DEFAULT NOW(),
+    is_read        BOOLEAN      NOT NULL DEFAULT FALSE
+);

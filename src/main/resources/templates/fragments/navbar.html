@@ -65,6 +65,11 @@
                 Inbox
             </a>
 
+            <a th:href="@{/chat}"
+               th:class="${currentPage == 'chat'} ? 'yk-nav-link yk-nav-active' : 'yk-nav-link'">
+                Chat
+            </a>
+
             <a th:href="@{/transactions}"
                th:class="${currentPage == 'transactions'} ? 'yk-nav-link yk-nav-active' : 'yk-nav-link'">
                 Transactions
