@@ -18,40 +18,43 @@ public class FeedbackController {
     }
 
     /**
-     * Show feedback profile page for a user.
+     * GET /feedback/{email}
+     * Show the feedback page for a given user (their received reviews).
      */
     @GetMapping("/feedback/{email}")
-    public String viewFeedback(@PathVariable String email,
+    public String viewFeedback(@PathVariable("email") String email,
                                HttpSession session,
                                Model model) {
+        Object u = session.getAttribute("user");
+        if (u == null) return "redirect:/login";
+        User currentUser = (User) u;
 
-        User currentUser = (User) session.getAttribute("user");
-        if (currentUser == null) {
-            return "redirect:/login";
-        }
+        double avg = feedbackService.getAverageRating(email);
+        int rounded = (int) Math.round(avg);
+        String starDisplay = "★".repeat(rounded) + "☆".repeat(5 - rounded);
 
         model.addAttribute("targetEmail", email);
         model.addAttribute("feedbackList", feedbackService.getFeedbackForUser(email));
-        model.addAttribute("averageRating", feedbackService.getAverageRating(email));
+        model.addAttribute("averageRating", avg);
+        model.addAttribute("starDisplay", starDisplay);
         model.addAttribute("currentUserEmail", currentUser.getEmail());
 
-        return "feedback"; // Thymeleaf template: feedback.html
+        return "feedback";
     }
 
     /**
-     * Submit feedback for a user.
+     * POST /feedback
+     * Submit a rating and comment for a user.
      */
     @PostMapping("/feedback")
-    public String submitFeedback(@RequestParam String targetEmail,
-                                 @RequestParam int rating,
-                                 @RequestParam String comment,
+    public String submitFeedback(@RequestParam("targetEmail") String targetEmail,
+                                 @RequestParam("rating") int rating,
+                                 @RequestParam("comment") String comment,
                                  HttpSession session,
                                  RedirectAttributes redirectAttributes) {
-
-        User currentUser = (User) session.getAttribute("user");
-        if (currentUser == null) {
-            return "redirect:/login";
-        }
+        Object u = session.getAttribute("user");
+        if (u == null) return "redirect:/login";
+        User currentUser = (User) u;
 
         try {
             feedbackService.addFeedback(currentUser.getEmail(), targetEmail, rating, comment);

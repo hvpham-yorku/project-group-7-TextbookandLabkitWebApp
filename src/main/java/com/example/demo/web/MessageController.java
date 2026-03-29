@@ -1,66 +1,94 @@
 package com.example.demo.web;
 
-import com.example.demo.domain.Message;
+import com.example.demo.domain.User;
 import com.example.demo.service.MessageService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
-import java.util.Map;
 
-@RestController
-@RequestMapping("/messages")
+@Controller
 public class MessageController {
 
-    private final MessageService service;
+    private final MessageService messageService;
 
-    public MessageController(MessageService service) {
-        this.service = service;
+    public MessageController(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    // ── General Chat Room ─────────────────────────────────────────────
+
+    /**
+     * GET /chat
+     * Loads all general chat room messages and renders the shared chat room.
+     */
+    @GetMapping("/chat")
+    public String chatRoom(HttpSession session, Model model) {
+        Object u = session.getAttribute("user");
+        if (u == null) return "redirect:/login";
+        User user = (User) u;
+
+        model.addAttribute("messages", messageService.getGeneralChatMessages());
+        model.addAttribute("currentUserEmail", user.getEmail());
+        return "chat";
     }
 
     /**
-     * Send a message.
-     * POST /messages
+     * POST /chat/send
+     * Posts a message from the logged-in user into the general chat room,
+     * then redirects back to /chat.
      */
-    @PostMapping
-    public ResponseEntity<?> sendMessage(@RequestBody Message message) {
+    @PostMapping("/chat/send")
+    public String sendChatMessage(@RequestParam("content") String content,
+                                  HttpSession session,
+                                  RedirectAttributes redirectAttributes) {
+        Object u = session.getAttribute("user");
+        if (u == null) return "redirect:/login";
+        User user = (User) u;
+
         try {
-            Message saved = service.sendMessage(message);
-            return ResponseEntity.ok(saved);
+            messageService.sendGeneralChatMessage(user.getEmail(), content);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
+        return "redirect:/chat";
+    }
+
+    // ── DM Backward-Compatibility Redirects ───────────────────────────
+    // /messages and /messages/{email} previously served the DM inbox UI.
+    // Now that /chat is the general chat room, redirect old DM paths to /chat.
+
+    @GetMapping("/messages")
+    public String messagesRedirect() {
+        return "redirect:/chat";
+    }
+
+    @GetMapping("/messages/{email}")
+    public String messageThreadRedirect() {
+        return "redirect:/chat";
     }
 
     /**
-     * Get all messages for a listing.
-     * GET /messages/listing/{listingId}
+     * POST /messages/send — kept for backward compatibility with any DM send forms
+     * that may still be in flight. Redirects to /chat after sending.
      */
-    @GetMapping("/listing/{listingId}")
-    public ResponseEntity<List<Message>> getConversation(@PathVariable Long listingId) {
-        return ResponseEntity.ok(service.getConversation(listingId));
-    }
+    @PostMapping("/messages/send")
+    public String dmSendCompat(@RequestParam("receiverEmail") String receiverEmail,
+                               @RequestParam("content") String content,
+                               HttpSession session,
+                               RedirectAttributes redirectAttributes) {
+        Object u = session.getAttribute("user");
+        if (u == null) return "redirect:/login";
+        User user = (User) u;
 
-    /**
-     * Get direct conversation between two users.
-     * GET /messages/direct?senderId=1&receiverId=2
-     */
-    @GetMapping("/direct")
-    public ResponseEntity<List<Message>> getDirectConversation(
-            @RequestParam Long senderId,
-            @RequestParam Long receiverId) {
-        return ResponseEntity.ok(service.getDirectConversation(senderId, receiverId));
-    }
-
-    /**
-     * Get unread message count for a user.
-     * GET /messages/unread/{receiverId}
-     */
-    @GetMapping("/unread/{receiverId}")
-    public ResponseEntity<Map<String, Long>> getUnreadCount(@PathVariable Long receiverId) {
-        return ResponseEntity.ok(Map.of("unreadCount", service.getUnreadCount(receiverId)));
+        try {
+            messageService.sendMessage(user.getEmail(), receiverEmail, content);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/chat";
     }
 }

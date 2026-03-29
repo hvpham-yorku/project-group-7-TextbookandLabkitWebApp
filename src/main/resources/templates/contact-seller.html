@@ -81,7 +81,11 @@
             <div class="yk-card-body">
                 <h5 class="yk-card-section-title">Your Message</h5>
 
-                <form th:action="@{/listings/{id}/contact(id=${listing.id})}" method="post">
+                <!-- Block error: shown instead of the form when contact is blocked -->
+                <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+                <form th:unless="${errorMessage}"
+                      th:action="@{/listings/{id}/contact(id=${listing.id})}" method="post">
 
                     <div class="mb-3">
                         <label for="subject" class="form-label">Subject</label>

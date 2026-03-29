@@ -111,3 +111,45 @@ CREATE TABLE IF NOT EXISTS material_requests (
     status           VARCHAR(50)  NOT NULL DEFAULT 'OPEN',
     created_at       TIMESTAMP    NOT NULL DEFAULT NOW()
 );
+
+-- -------------------------------------------------------
+-- BLOCKED USERS
+-- Records which user blocked whom, keyed by email.
+-- The UNIQUE constraint prevents duplicate block rows.
+-- -------------------------------------------------------
+CREATE TABLE IF NOT EXISTS blocked_users (
+    id            BIGSERIAL    PRIMARY KEY,
+    blocker_email VARCHAR(255) NOT NULL,
+    blocked_email VARCHAR(255) NOT NULL,
+    blocked_at    TIMESTAMP    NOT NULL DEFAULT NOW(),
+    UNIQUE (blocker_email, blocked_email)
+);
+
+-- -------------------------------------------------------
+-- FEEDBACK
+-- User-to-user ratings and comments.
+-- One reviewer can leave at most one review per target user.
+-- -------------------------------------------------------
+CREATE TABLE IF NOT EXISTS feedback (
+    id             BIGSERIAL    PRIMARY KEY,
+    reviewer_email VARCHAR(255) NOT NULL,
+    target_email   VARCHAR(255) NOT NULL,
+    rating         INT          NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment        TEXT         NOT NULL,
+    submitted_at   TIMESTAMP    NOT NULL DEFAULT NOW(),
+    UNIQUE (reviewer_email, target_email)
+);
+
+-- -------------------------------------------------------
+-- DIRECT MESSAGES
+-- Email-based direct chat messages between two users.
+-- Replaces the legacy messages table (which used BIGINT IDs).
+-- -------------------------------------------------------
+CREATE TABLE IF NOT EXISTS direct_messages (
+    id             BIGSERIAL    PRIMARY KEY,
+    sender_email   VARCHAR(255) NOT NULL,
+    receiver_email VARCHAR(255) NOT NULL,
+    content        TEXT         NOT NULL,
+    sent_at        TIMESTAMP    NOT NULL DEFAULT NOW(),
+    is_read        BOOLEAN      NOT NULL DEFAULT FALSE
+);

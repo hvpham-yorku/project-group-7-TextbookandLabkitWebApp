@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 @Profile("stub")
 public class MessageRepositoryStub implements MessageRepository {
 
-    private final Map<Long, Message> messages = new HashMap<>();
+    private final Map<Long, Message> messages = new LinkedHashMap<>();
     private long idCounter = 1;
 
     @Override
@@ -24,37 +24,50 @@ public class MessageRepositoryStub implements MessageRepository {
     }
 
     @Override
-    public List<Message> findByListingId(Long listingId) {
-        return messages.values().stream()
-                .filter(m -> m.getListingId() != null && m.getListingId().equals(listingId))
-                .sorted(Comparator.comparing(Message::getTimestamp))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Message> findBySenderAndReceiver(Long senderId, Long receiverId) {
+    public List<Message> findConversation(String emailA, String emailB) {
         return messages.values().stream()
                 .filter(m ->
-                    (m.getSenderId().equals(senderId) && m.getReceiverId().equals(receiverId)) ||
-                    (m.getSenderId().equals(receiverId) && m.getReceiverId().equals(senderId))
+                        (m.getSenderEmail().equalsIgnoreCase(emailA) && m.getReceiverEmail().equalsIgnoreCase(emailB)) ||
+                        (m.getSenderEmail().equalsIgnoreCase(emailB) && m.getReceiverEmail().equalsIgnoreCase(emailA))
                 )
-                .sorted(Comparator.comparing(Message::getTimestamp))
+                .sorted(Comparator.comparing(Message::getSentAt))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void markAsRead(Long receiverId, Long senderId) {
+    public List<String> findConversationPartners(String email) {
+        Set<String> partners = new LinkedHashSet<>();
+        for (Message m : messages.values()) {
+            if (m.getSenderEmail().equalsIgnoreCase(email)) {
+                partners.add(m.getReceiverEmail());
+            } else if (m.getReceiverEmail().equalsIgnoreCase(email)) {
+                partners.add(m.getSenderEmail());
+            }
+        }
+        return new ArrayList<>(partners);
+    }
+
+    @Override
+    public void markAsRead(String receiverEmail, String senderEmail) {
         messages.values().stream()
-                .filter(m -> m.getReceiverId().equals(receiverId)
-                        && m.getSenderId().equals(senderId)
+                .filter(m -> m.getReceiverEmail().equalsIgnoreCase(receiverEmail)
+                        && m.getSenderEmail().equalsIgnoreCase(senderEmail)
                         && !m.isRead())
                 .forEach(Message::markAsRead);
     }
 
     @Override
-    public long countUnread(Long receiverId) {
+    public long countUnread(String receiverEmail) {
         return messages.values().stream()
-                .filter(m -> m.getReceiverId().equals(receiverId) && !m.isRead())
+                .filter(m -> m.getReceiverEmail().equalsIgnoreCase(receiverEmail) && !m.isRead())
                 .count();
+    }
+
+    @Override
+    public List<Message> findAllGeneralChatMessages() {
+        return messages.values().stream()
+                .filter(m -> "GENERAL_CHAT".equals(m.getReceiverEmail()))
+                .sorted(Comparator.comparing(Message::getSentAt))
+                .collect(Collectors.toList());
     }
 }

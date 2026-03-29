@@ -1,7 +1,5 @@
 package com.example.demo.service;
 
-import org.springframework.stereotype.Service;
-
 import com.example.demo.domain.BlockedUser;
 import com.example.demo.repository.BlockedUserRepository;
 import org.springframework.stereotype.Service;
@@ -18,10 +16,11 @@ public class BlockService {
     }
 
     /**
-     * Blocks a user. Does nothing if already blocked.
+     * Blocks blockedEmail from the perspective of blockerEmail.
+     * Does nothing if the pair is already blocked.
      */
     public void blockUser(String blockerEmail, String blockedEmail) {
-        if (blockerEmail.equals(blockedEmail)) {
+        if (blockerEmail.equalsIgnoreCase(blockedEmail)) {
             throw new IllegalArgumentException("You cannot block yourself.");
         }
         if (!blockedUserRepository.exists(blockerEmail, blockedEmail)) {
@@ -30,14 +29,23 @@ public class BlockService {
     }
 
     /**
-     * Unblocks a user.
+     * Removes a block relationship.
      */
     public void unblockUser(String blockerEmail, String blockedEmail) {
         blockedUserRepository.delete(blockerEmail, blockedEmail);
     }
 
     /**
-     * Returns true if either user has blocked the other.
+     * Returns true if blockerEmail has explicitly blocked blockedEmail (one-directional).
+     * Use this to check "has this specific user blocked the other person?"
+     */
+    public boolean hasBlocked(String blockerEmail, String blockedEmail) {
+        return blockedUserRepository.exists(blockerEmail, blockedEmail);
+    }
+
+    /**
+     * Returns true if either user has blocked the other (bidirectional).
+     * Use this to prevent any communication when either party has blocked the other.
      */
     public boolean isBlocked(String userA, String userB) {
         return blockedUserRepository.exists(userA, userB)

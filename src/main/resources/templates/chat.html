@@ -1,186 +1,182 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Messages – T&amp;L Exchange</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Chat – YorkU Circle</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=10)}"/>
     <style>
-        .chat-layout { display: grid; grid-template-columns: 300px 1fr; gap: 1.25rem; max-width: 1000px; }
-        .chat-sidebar { display: flex; flex-direction: column; gap: 0; }
-        .chat-convo-item { padding: 0.85rem 1rem; border-bottom: 1px solid #f0ece8; cursor: pointer; text-decoration: none; color: inherit; display: block; transition: background 0.1s; }
-        .chat-convo-item:hover { background: #faf9f7; color: inherit; }
-        .chat-convo-item.active { background: #fdf4f7; border-left: 3px solid #8c1d40; }
-        .chat-convo-name { font-size: 0.88rem; font-weight: 600; color: #1a1a1a; margin-bottom: 0.15rem; }
-        .chat-convo-preview { font-size: 0.78rem; color: #6b6b6b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .chat-convo-time { font-size: 0.72rem; color: #6b6b6b; white-space: nowrap; }
-        .chat-unread-dot { width: 8px; height: 8px; border-radius: 50%; background: #8c1d40; flex-shrink: 0; }
-        .chat-messages-area { display: flex; flex-direction: column; gap: 0.85rem; padding: 1.25rem; min-height: 340px; max-height: 420px; overflow-y: auto; }
-        .chat-bubble-wrap { display: flex; gap: 0.5rem; align-items: flex-end; }
-        .chat-bubble-wrap.sent { flex-direction: row-reverse; }
-        .chat-bubble { padding: 0.6rem 0.9rem; border-radius: 14px; font-size: 0.88rem; line-height: 1.5; max-width: 65%; }
-        .chat-bubble.received { background: #f5f3f0; color: #1a1a1a; border-bottom-left-radius: 4px; }
-        .chat-bubble.sent { background: #8c1d40; color: #fff; border-bottom-right-radius: 4px; }
-        .chat-bubble-time { font-size: 0.7rem; color: #6b6b6b; padding-bottom: 2px; }
-        .chat-input-row { padding: 0.85rem 1.25rem; border-top: 1px solid #ede9e4; display: flex; gap: 0.65rem; align-items: flex-end; }
-        .chat-textarea { flex: 1; border-radius: 20px; border: 1px solid #d8d7d5; padding: 0.5rem 0.9rem; font-size: 0.88rem; resize: none; background: #fafaf9; color: #1a1a1a; outline: none; }
-        .chat-textarea:focus { border-color: #8c1d40; box-shadow: 0 0 0 3px rgba(140,29,64,0.12); }
-        .chat-send-btn { width: 38px; height: 38px; border-radius: 50%; background: #8c1d40; border: none; color: white; font-size: 1rem; cursor: pointer; flex-shrink: 0; transition: background 0.15s; display: flex; align-items: center; justify-content: center; }
-        .chat-send-btn:hover { background: #6f1633; }
-        .chat-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 300px; color: #6b6b6b; gap: 0.5rem; }
-        .unread-badge { background: #8c1d40; color: #fff; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 20px; margin-left: 0.4rem; }
-        @media (max-width: 768px) { .chat-layout { grid-template-columns: 1fr; } }
+        .gc-card {
+            background: #fff;
+            border: 1px solid #ebe8e4;
+            border-radius: 12px;
+            overflow: hidden;
+            max-width: 780px;
+        }
+        .gc-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            padding: 1.25rem;
+            min-height: 320px;
+            max-height: 480px;
+            overflow-y: auto;
+            background: #fafaf9;
+        }
+        .gc-bubble-wrap {
+            display: flex;
+            flex-direction: column;
+            max-width: 68%;
+            gap: 0.2rem;
+        }
+        .gc-bubble-wrap.is-mine {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+        .gc-bubble-wrap.is-theirs {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+        .gc-meta {
+            font-size: 0.72rem;
+            color: #6b6b6b;
+        }
+        .gc-bubble {
+            padding: 0.6rem 0.9rem;
+            border-radius: 14px;
+            font-size: 0.875rem;
+            line-height: 1.55;
+            word-break: break-word;
+        }
+        .gc-bubble.mine {
+            background: #8c1d40;
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+        .gc-bubble.theirs {
+            background: #f0ece8;
+            color: #1a1a1a;
+            border-bottom-left-radius: 4px;
+        }
+        .gc-input-row {
+            display: flex;
+            gap: 0.65rem;
+            align-items: flex-end;
+            padding: 1rem 1.25rem;
+            border-top: 1px solid #ede9e4;
+            background: #fff;
+        }
+        .gc-textarea {
+            flex: 1;
+            border-radius: 20px;
+            border: 1px solid #d8d7d5;
+            padding: 0.5rem 0.9rem;
+            font-size: 0.875rem;
+            resize: none;
+            background: #fafaf9;
+            color: #1a1a1a;
+            outline: none;
+            font-family: inherit;
+        }
+        .gc-textarea:focus {
+            border-color: #8c1d40;
+            box-shadow: 0 0 0 3px rgba(140,29,64,0.12);
+        }
+        .gc-send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #8c1d40;
+            border: none;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+        .gc-send-btn:hover { background: #6f1633; }
+        .gc-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 260px;
+            color: #6b6b6b;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            text-align: center;
+        }
     </style>
 </head>
-<body>
+<body class="browse-page">
 
-<!-- ── Header (matches your existing header) ── -->
-<header class="yk-header-top">
-    <div class="yk-header-inner">
-        <a class="yk-header-brand" th:href="@{/listings}">
-            <span class="yk-brand-name">T&amp;L Exchange</span>
-            <span class="yk-brand-tagline">York University · Textbook &amp; Lab Exchange</span>
-        </a>
-        <div class="yk-header-actions">
-            <a class="yk-header-link" th:href="@{/listings}">Browse</a>
-            <a class="yk-header-link" th:href="@{/my-listings}">My Listings</a>
-            <a class="yk-header-link" th:href="@{/messages}">
-                Messages
-                <span class="unread-badge" th:if="${unreadCount > 0}" th:text="${unreadCount}">2</span>
-            </a>
-            <a class="yk-header-link" th:href="@{/profile}">Profile</a>
-            <form th:action="@{/logout}" method="post" style="margin:0;">
-                <button class="yk-header-logout" type="submit">Log out</button>
+<div th:replace="~{fragments/navbar :: navbar('chat')}"></div>
+
+<div class="container bm-page-wrap">
+
+    <!-- Page heading -->
+    <div class="bm-heading-block">
+        <h2 class="bm-page-title">Community Chat</h2>
+        <p class="bm-page-subtitle">A shared chat room for all YorkU Circle members. Say hello, ask questions, or help a fellow student.</p>
+    </div>
+
+    <!-- Flash error -->
+    <div th:if="${errorMessage}" class="alert alert-danger mb-3" th:text="${errorMessage}"></div>
+
+    <!-- Chat card -->
+    <div class="gc-card">
+
+        <!-- Message feed -->
+        <div class="gc-feed" id="gcFeed">
+
+            <!-- Empty state -->
+            <div th:if="${#lists.isEmpty(messages)}" class="gc-empty">
+                <svg width="38" height="38" fill="#ccc8c3" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                </svg>
+                <p>No messages yet — be the first to say something!</p>
+            </div>
+
+            <!-- Messages -->
+            <th:block th:each="msg : ${messages}">
+                <div class="gc-bubble-wrap"
+                     th:classappend="${msg.senderEmail == currentUserEmail} ? 'is-mine' : 'is-theirs'">
+                    <span class="gc-meta"
+                          th:text="${msg.senderEmail} + ' · ' + ${#temporals.format(msg.sentAt, 'MMM d, h:mm a')}">
+                    </span>
+                    <div class="gc-bubble"
+                         th:classappend="${msg.senderEmail == currentUserEmail} ? 'mine' : 'theirs'"
+                         th:text="${msg.content}">
+                    </div>
+                </div>
+            </th:block>
+
+        </div>
+
+        <!-- Input area -->
+        <div class="gc-input-row">
+            <form th:action="@{/chat/send}" method="post"
+                  style="display:flex; gap:0.65rem; align-items:flex-end; flex:1;">
+                <textarea class="gc-textarea" name="content" rows="1"
+                          placeholder="Type a message..."
+                          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();this.form.submit();}"></textarea>
+                <button type="submit" class="gc-send-btn" title="Send">&#9658;</button>
             </form>
         </div>
+
     </div>
-</header>
-
-<!-- ── Red nav bar ── -->
-<nav class="yk-nav-bar">
-    <div class="yk-nav-inner">
-        <a class="yk-nav-link" th:href="@{/listings}">Browse</a>
-        <a class="yk-nav-link" th:href="@{/my-listings}">My Listings</a>
-        <a class="yk-nav-link yk-nav-active" th:href="@{/messages}">Messages</a>
-        <a class="yk-nav-link" th:href="@{/profile}">Profile</a>
-    </div>
-</nav>
-
-<!-- ── Page content ── -->
-<div class="container-xl yk-page-wrap">
-
-    <div class="yk-page-head">
-        <h2 class="yk-page-title">Messages</h2>
-        <p class="yk-page-sub">Your conversations with buyers and sellers</p>
-    </div>
-
-    <!-- No conversations state -->
-    <div th:if="${#lists.isEmpty(conversations)}" class="yk-card">
-        <div class="yk-card-body text-center py-5">
-            <p style="color:#6b6b6b; font-size:0.92rem;">You have no messages yet. Browse listings and contact a seller to get started.</p>
-            <a th:href="@{/listings}" class="btn btn-primary mt-2">Browse listings</a>
-        </div>
-    </div>
-
-    <!-- Chat layout -->
-    <div th:if="${not #lists.isEmpty(conversations)}" class="chat-layout">
-
-        <!-- Sidebar: conversation list -->
-        <div class="yk-card chat-sidebar" style="padding:0; overflow:hidden;">
-            <div style="padding: 0.85rem 1rem; border-bottom: 1px solid #ede9e4;">
-                <p style="font-size:0.78rem; font-weight:600; color:#6b6b6b; text-transform:uppercase; letter-spacing:0.06em; margin:0;">Conversations</p>
-            </div>
-            <th:block th:each="convo : ${conversations}">
-                <a th:href="@{/messages/{email}(email=${convo.getOtherParticipant(currentUserEmail)})}"
-                   class="chat-convo-item"
-                   th:classappend="${activeEmail == convo.getOtherParticipant(currentUserEmail)} ? 'active' : ''">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
-                        <p class="chat-convo-name" th:text="${convo.getOtherParticipant(currentUserEmail)}">user@example.com</p>
-                        <div style="display:flex; align-items:center; gap:0.4rem;">
-                            <span class="chat-convo-time"
-                                  th:text="${convo.lastMessage != null ? #temporals.format(convo.lastMessage.sentAt, 'h:mm a') : ''}">
-                                10:02 AM
-                            </span>
-                            <div class="chat-unread-dot" th:if="${convo.getUnreadCount(currentUserEmail) > 0}"></div>
-                        </div>
-                    </div>
-                    <p class="chat-convo-preview"
-                       th:text="${convo.lastMessage != null ? convo.lastMessage.content : 'No messages yet'}">
-                        Last message preview...
-                    </p>
-                </a>
-            </th:block>
-        </div>
-
-        <!-- Main chat area -->
-        <div class="yk-card" style="padding:0; display:flex; flex-direction:column; overflow:hidden;">
-
-            <!-- No conversation selected -->
-            <div th:if="${activeConversation == null}" class="chat-empty">
-                <svg width="36" height="36" fill="#ccc8c3" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-                <p style="font-size:0.88rem;">Select a conversation to start chatting</p>
-            </div>
-
-            <!-- Active conversation -->
-            <div th:if="${activeConversation != null}" style="display:flex; flex-direction:column; height:100%;">
-                <!-- Chat header -->
-                <div style="padding: 0.85rem 1.25rem; border-bottom: 1px solid #ede9e4; display:flex; align-items:center; justify-content:space-between;">
-                    <div>
-                        <p style="font-size:0.95rem; font-weight:600; color:#1a1a1a; margin:0;" th:text="${activeEmail}">user@example.com</p>
-                        <p style="font-size:0.78rem; color:#6b6b6b; margin:0;">Direct message</p>
-                    </div>
-                    <!-- Block button -->
-                    <form th:action="@{/block/{email}(email=${activeEmail})}" method="post">
-                        <button type="submit" class="btn btn-outline-secondary btn-sm"
-                                onclick="return confirm('Block this user?')">
-                            Block user
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Messages -->
-                <div class="chat-messages-area" id="messagesArea">
-                    <th:block th:each="msg : ${activeConversation.messages}">
-                        <div class="chat-bubble-wrap" th:classappend="${msg.senderEmail == currentUserEmail} ? 'sent' : ''">
-                            <div class="chat-bubble"
-                                 th:classappend="${msg.senderEmail == currentUserEmail} ? 'sent' : 'received'"
-                                 th:text="${msg.content}">
-                                Message content here
-                            </div>
-                            <span class="chat-bubble-time"
-                                  th:text="${#temporals.format(msg.sentAt, 'h:mm a')}">
-                                10:02 AM
-                            </span>
-                        </div>
-                    </th:block>
-                </div>
-
-                <!-- Input area -->
-                <div class="chat-input-row">
-                    <form th:action="@{/messages/send}" method="post"
-                          style="display:flex; gap:0.65rem; align-items:flex-end; flex:1;">
-                        <input type="hidden" name="receiverEmail" th:value="${activeEmail}"/>
-                        <textarea class="chat-textarea" name="content" rows="1"
-                                  placeholder="Type a message..."
-                                  onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();this.form.submit();}"></textarea>
-                        <button type="submit" class="chat-send-btn" title="Send">&#9658;</button>
-                    </form>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- Flash messages -->
-    <div th:if="${errorMessage}" class="alert alert-danger mt-3" th:text="${errorMessage}"></div>
 
 </div>
 
 <script>
-    // Auto-scroll to bottom of messages
-    const area = document.getElementById('messagesArea');
-    if (area) area.scrollTop = area.scrollHeight;
+    // Scroll to the latest message on page load
+    const feed = document.getElementById('gcFeed');
+    if (feed) feed.scrollTop = feed.scrollHeight;
 </script>
 
 </body>

@@ -5,40 +5,33 @@ import java.time.LocalDateTime;
 public class Message {
 
     private Long id;
-    private Long listingId;
-    private Long senderId;
-    private Long receiverId;
+    private String senderEmail;
+    private String receiverEmail;
     private String content;
-    private LocalDateTime timestamp;
+    private LocalDateTime sentAt;
     private boolean read;
 
     public Message() {
-        this.timestamp = LocalDateTime.now();
-        this.read = false;
-    }
-
-    public Message(Long listingId, Long senderId, Long receiverId, String content) {
-        this.listingId = listingId;
-        this.senderId = senderId;
-        this.receiverId = receiverId;
-        this.content = content;
-        this.timestamp = LocalDateTime.now();
+        this.sentAt = LocalDateTime.now();
         this.read = false;
     }
 
     public Long getId() { return id; }
-    public Long getListingId() { return listingId; }
-    public Long getSenderId() { return senderId; }
-    public Long getReceiverId() { return receiverId; }
-    public String getContent() { return content; }
-    public LocalDateTime getTimestamp() { return timestamp; }
-    public boolean isRead() { return read; }
-
     public void setId(Long id) { this.id = id; }
-    public void setListingId(Long listingId) { this.listingId = listingId; }
-    public void setSenderId(Long senderId) { this.senderId = senderId; }
-    public void setReceiverId(Long receiverId) { this.receiverId = receiverId; }
+
+    public String getSenderEmail() { return senderEmail; }
+    public void setSenderEmail(String senderEmail) { this.senderEmail = senderEmail; }
+
+    public String getReceiverEmail() { return receiverEmail; }
+    public void setReceiverEmail(String receiverEmail) { this.receiverEmail = receiverEmail; }
+
+    public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
-    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+
+    public LocalDateTime getSentAt() { return sentAt; }
+    public void setSentAt(LocalDateTime sentAt) { this.sentAt = sentAt; }
+
+    public boolean isRead() { return read; }
+    public void setRead(boolean read) { this.read = read; }
     public void markAsRead() { this.read = true; }
 }

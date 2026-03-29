@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Feedback – T&amp;L Exchange</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Feedback – YorkU Circle</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=10)}"/>
     <style>
         .star-input { display:flex; gap:0.4rem; margin-bottom:0.75rem; }
         .star-input span { font-size:1.6rem; cursor:pointer; color:#d1d5db; transition:color 0.1s; }
@@ -19,36 +19,11 @@
 </head>
 <body>
 
-<!-- ── Header ── -->
-<header class="yk-header-top">
-    <div class="yk-header-inner">
-        <a class="yk-header-brand" th:href="@{/listings}">
-            <span class="yk-brand-name">T&amp;L Exchange</span>
-            <span class="yk-brand-tagline">York University · Textbook &amp; Lab Exchange</span>
-        </a>
-        <div class="yk-header-actions">
-            <a class="yk-header-link" th:href="@{/listings}">Browse</a>
-            <a class="yk-header-link" th:href="@{/my-listings}">My Listings</a>
-            <a class="yk-header-link" th:href="@{/messages}">Messages</a>
-            <a class="yk-header-link" th:href="@{/profile}">Profile</a>
-            <form th:action="@{/logout}" method="post" style="margin:0;">
-                <button class="yk-header-logout" type="submit">Log out</button>
-            </form>
-        </div>
-    </div>
-</header>
-<nav class="yk-nav-bar">
-    <div class="yk-nav-inner">
-        <a class="yk-nav-link" th:href="@{/listings}">Browse</a>
-        <a class="yk-nav-link" th:href="@{/my-listings}">My Listings</a>
-        <a class="yk-nav-link" th:href="@{/messages}">Messages</a>
-        <a class="yk-nav-link" th:href="@{/profile}">Profile</a>
-    </div>
-</nav>
+<div th:replace="~{fragments/navbar :: navbar('feedback')}"></div>
 
 <div class="container yk-page-wrap" style="max-width:680px;">
 
-    <a th:href="@{/listings}" class="yk-back-link">&#8592; Back to listings</a>
+    <a th:href="@{/browse}" class="yk-back-link">&#8592; Back to browse</a>
 
     <div class="yk-page-head">
         <h2 class="yk-page-title">Feedback</h2>
@@ -57,14 +32,15 @@
 
     <!-- Flash messages -->
     <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
-    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+    <div th:if="${errorMessage}"   class="alert alert-danger"  th:text="${errorMessage}"></div>
 
-    <!-- Average rating summary -->
+    <!-- Average rating summary — shown only when there is at least one review -->
     <div class="yk-card" th:if="${not #lists.isEmpty(feedbackList)}">
         <div class="yk-card-body" style="display:flex; align-items:center; gap:1.5rem;">
             <div>
                 <div class="avg-block">
-                    <span class="avg-num" th:text="${#numbers.formatDecimal(averageRating, 1, 1)}">4.5</span>
+                    <span class="avg-num"
+                          th:text="${#numbers.formatDecimal(averageRating, 1, 1)}">4.5</span>
                     <span style="font-size:0.88rem; color:#6b6b6b;">/ 5</span>
                 </div>
                 <div class="fb-star-display" th:utext="${starDisplay}">★★★★☆</div>
@@ -77,11 +53,11 @@
         </div>
     </div>
 
-    <!-- Leave feedback form (only shown if not reviewing yourself) -->
-    <div class="yk-card" th:if="${currentUserEmail != targetEmail}">
+    <!-- Leave feedback form — hidden when viewing your own profile -->
+    <div class="yk-card" th:if="${not #strings.equals(currentUserEmail, targetEmail)}">
         <div class="yk-card-body">
             <p class="yk-card-section-title">Leave a review</p>
-            <form th:action="@{/feedback}" method="post">
+            <form th:action="@{/feedback}" method="post" onsubmit="return validateFeedbackForm()">
                 <input type="hidden" name="targetEmail" th:value="${targetEmail}"/>
 
                 <div class="mb-3">
@@ -107,9 +83,10 @@
         </div>
     </div>
 
-    <!-- Existing feedback list -->
+    <!-- Existing feedback entries -->
     <div th:if="${not #lists.isEmpty(feedbackList)}">
-        <p style="font-size:0.78rem; font-weight:600; color:#6b6b6b; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.75rem;">
+        <p style="font-size:0.78rem; font-weight:600; color:#6b6b6b; text-transform:uppercase;
+                  letter-spacing:0.06em; margin-bottom:0.75rem;">
             All reviews
         </p>
         <div th:each="fb : ${feedbackList}" class="yk-card fb-card">
@@ -118,12 +95,16 @@
                      th:utext="${'★'.repeat(fb.rating) + '☆'.repeat(5 - fb.rating)}">★★★★☆</div>
                 <p style="font-size:0.92rem; color:#1a1a1a; margin:0.4rem 0 0.3rem;"
                    th:text="${fb.comment}">Great seller, very responsive.</p>
-                <p class="fb-reviewer" th:text="'By ' + ${fb.reviewerEmail}">By reviewer@example.com</p>
+                <p class="fb-reviewer"
+                   th:text="'By ' + ${fb.reviewerEmail}
+                            + ' · ' + ${#temporals.format(fb.submittedAt, 'MMM d, yyyy')}">
+                    By reviewer@example.com · Jan 1, 2025
+                </p>
             </div>
         </div>
     </div>
 
-    <!-- No reviews yet -->
+    <!-- Empty state -->
     <div class="yk-card" th:if="${#lists.isEmpty(feedbackList)}">
         <div class="yk-card-body text-center py-4">
             <p style="color:#6b6b6b; font-size:0.92rem; margin:0;">No reviews yet for this user.</p>
@@ -135,9 +116,17 @@
 <script>
     function setRating(v) {
         document.getElementById('ratingInput').value = v;
-        document.querySelectorAll('#starInput span').forEach(s => {
+        document.querySelectorAll('#starInput span').forEach(function(s) {
             s.classList.toggle('active', parseInt(s.dataset.v) <= v);
         });
+    }
+
+    function validateFeedbackForm() {
+        if (parseInt(document.getElementById('ratingInput').value) < 1) {
+            alert('Please select a star rating (1–5) before submitting.');
+            return false;
+        }
+        return true;
     }
 </script>
 

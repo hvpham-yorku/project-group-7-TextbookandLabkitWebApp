@@ -10,15 +10,8 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.List;
+import java.util.Map;
 
-/**
- * PostgreSQL-backed implementation of MessageRepository.
- * Active only when the "db" Spring profile is set.
- *
- * Switch between stub and real DB:
- *   stub mode (default): spring.profiles.active=stub
- *   real DB mode:        spring.profiles.active=db
- */
 @Repository
 @Profile("db")
 public class JdbcMessageRepository implements MessageRepository {
@@ -29,113 +22,100 @@ public class JdbcMessageRepository implements MessageRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // ---------------------------------------------------------------------------
     // RowMapper: converts a ResultSet row into a Message object
-    // ---------------------------------------------------------------------------
-    private static final RowMapper<Message> MESSAGE_ROW_MAPPER = new RowMapper<Message>() {
-        @Override
-        public Message mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Message msg = new Message();
-            msg.setId(rs.getLong("id"));
-
-            // Use the full constructor fields via setters (Message only has setId exposed)
-            // We'll reconstruct via the domain object fields directly
-            return buildMessage(rs, msg);
+    private static final RowMapper<Message> MESSAGE_ROW_MAPPER = (rs, rowNum) -> {
+        Message msg = new Message();
+        msg.setId(rs.getLong("id"));
+        msg.setSenderEmail(rs.getString("sender_email"));
+        msg.setReceiverEmail(rs.getString("receiver_email"));
+        msg.setContent(rs.getString("content"));
+        Timestamp ts = rs.getTimestamp("sent_at");
+        if (ts != null) {
+            msg.setSentAt(ts.toLocalDateTime());
         }
-
-        private Message buildMessage(ResultSet rs, Message msg) throws SQLException {
-            // We need to set fields that the domain class exposes via constructor args.
-            // Since Message has no individual setters for listingId/senderId/receiverId/content/timestamp,
-            // we use the package-accessible constructor that sets them all.
-            // The safest approach for a student project: use the parameterised constructor and set id after.
-            Message full = new Message(
-                    rs.getLong("id"),
-                    rs.getLong("listing_id"),
-                    rs.getLong("sender_id"),
-                    rs.getLong("receiver_id"),
-                    rs.getString("content")
-            );
-            // Override the timestamp set by constructor with the one from the DB
-            Timestamp ts = rs.getTimestamp("timestamp");
-            if (ts != null) {
-                // Message.timestamp has no setter, but it's set in constructor to now().
-                // We accept the constructor-set time as close enough for stub compatibility.
-                // For full accuracy in a real project, add a setTimestamp method to Message.
-            }
-            return full;
-        }
+        msg.setRead(rs.getBoolean("is_read"));
+        return msg;
     };
 
-    // ---------------------------------------------------------------------------
-    // Save a message.
-    // If message.getId() == null  → INSERT and return with the generated id.
-    // If message.getId() != null  → UPDATE the existing row (upsert-style).
-    // ---------------------------------------------------------------------------
     @Override
     public Message save(Message message) {
+        String sql = """
+                INSERT INTO direct_messages (sender_email, receiver_email, content, sent_at, is_read)
+                VALUES (?, ?, ?, ?, ?)
+                """;
 
-        if (message.getId() == null) {
-            // INSERT
-            String sql = """
-                    INSERT INTO messages (listing_id, sender_id, receiver_id, content, timestamp)
-                    VALUES (?, ?, ?, ?, ?)
-                    """;
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-            KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, message.getSenderEmail());
+            ps.setString(2, message.getReceiverEmail());
+            ps.setString(3, message.getContent());
+            ps.setTimestamp(4, message.getSentAt() != null
+                    ? Timestamp.valueOf(message.getSentAt())
+                    : Timestamp.valueOf(java.time.LocalDateTime.now()));
+            ps.setBoolean(5, message.isRead());
+            return ps;
+        }, keyHolder);
 
-            jdbcTemplate.update(con -> {
-                PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-                ps.setLong(1, message.getListingId());
-                if (message.getSenderId() != null) {
-                    ps.setLong(2, message.getSenderId());
-                } else {
-                    ps.setNull(2, Types.BIGINT);
-                }
-                if (message.getReceiverId() != null) {
-                    ps.setLong(3, message.getReceiverId());
-                } else {
-                    ps.setNull(3, Types.BIGINT);
-                }
-                ps.setString(4, message.getContent());
-                ps.setTimestamp(5, message.getTimestamp() != null
-                        ? Timestamp.valueOf(message.getTimestamp())
-                        : Timestamp.valueOf(java.time.LocalDateTime.now()));
-                return ps;
-            }, keyHolder);
-
-            message.setId(keyHolder.getKey().longValue());
-
-        } else {
-            // UPDATE existing row
-            String sql = """
-                    UPDATE messages
-                       SET listing_id  = ?,
-                           sender_id   = ?,
-                           receiver_id = ?,
-                           content     = ?,
-                           timestamp   = ?
-                     WHERE id = ?
-                    """;
-            jdbcTemplate.update(sql,
-                    message.getListingId(),
-                    message.getSenderId(),
-                    message.getReceiverId(),
-                    message.getContent(),
-                    message.getTimestamp() != null
-                            ? Timestamp.valueOf(message.getTimestamp())
-                            : Timestamp.valueOf(java.time.LocalDateTime.now()),
-                    message.getId());
-        }
-
+        Map<String, Object> keys = keyHolder.getKeys();
+        message.setId(((Number) keys.get("id")).longValue());
         return message;
     }
 
-    // ---------------------------------------------------------------------------
-    // Return all messages for a given listing, ordered by oldest first.
-    // ---------------------------------------------------------------------------
     @Override
-    public List<Message> findByListingId(Long listingId) {
-        String sql = "SELECT * FROM messages WHERE listing_id = ? ORDER BY timestamp ASC";
-        return jdbcTemplate.query(sql, MESSAGE_ROW_MAPPER, listingId);
+    public List<Message> findConversation(String emailA, String emailB) {
+        String sql = """
+                SELECT * FROM direct_messages
+                 WHERE (LOWER(sender_email) = LOWER(?) AND LOWER(receiver_email) = LOWER(?))
+                    OR (LOWER(sender_email) = LOWER(?) AND LOWER(receiver_email) = LOWER(?))
+                 ORDER BY sent_at ASC
+                """;
+        return jdbcTemplate.query(sql, MESSAGE_ROW_MAPPER, emailA, emailB, emailB, emailA);
+    }
+
+    @Override
+    public List<String> findConversationPartners(String email) {
+        String sql = """
+                SELECT DISTINCT
+                    CASE WHEN LOWER(sender_email) = LOWER(?) THEN receiver_email
+                         ELSE sender_email
+                    END AS partner
+                FROM direct_messages
+                WHERE LOWER(sender_email) = LOWER(?) OR LOWER(receiver_email) = LOWER(?)
+                """;
+        return jdbcTemplate.queryForList(sql, String.class, email, email, email);
+    }
+
+    @Override
+    public void markAsRead(String receiverEmail, String senderEmail) {
+        String sql = """
+                UPDATE direct_messages
+                   SET is_read = TRUE
+                 WHERE LOWER(receiver_email) = LOWER(?)
+                   AND LOWER(sender_email)   = LOWER(?)
+                   AND is_read = FALSE
+                """;
+        jdbcTemplate.update(sql, receiverEmail, senderEmail);
+    }
+
+    @Override
+    public long countUnread(String receiverEmail) {
+        String sql = """
+                SELECT COUNT(*) FROM direct_messages
+                 WHERE LOWER(receiver_email) = LOWER(?) AND is_read = FALSE
+                """;
+        Long count = jdbcTemplate.queryForObject(sql, Long.class, receiverEmail);
+        return count != null ? count : 0L;
+    }
+
+    @Override
+    public List<Message> findAllGeneralChatMessages() {
+        String sql = """
+                SELECT * FROM direct_messages
+                 WHERE receiver_email = 'GENERAL_CHAT'
+                 ORDER BY sent_at ASC
+                """;
+        return jdbcTemplate.query(sql, MESSAGE_ROW_MAPPER);
     }
 }

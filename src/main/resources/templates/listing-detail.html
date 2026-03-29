@@ -123,6 +123,12 @@
                     Contact Seller
                 </a>
 
+                <!-- Leave feedback for the seller -->
+                <a th:href="@{/feedback/{email}(email=${listing.sellerEmail})}"
+                   class="btn btn-outline-secondary btn-sm">
+                    Leave Feedback for Seller
+                </a>
+
             </div>
 
         </div>
