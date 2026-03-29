@@ -40,33 +40,49 @@ public class LoginController {
                            Model model,
                            RedirectAttributes redirectAttributes) {
 
-        // Basic field presence check
-        if (name.isBlank() || email.isBlank() || password.isBlank()) {
-            model.addAttribute("errorMessage", "All fields are required.");
+        boolean hasErrors = false;
+
+        // Full name
+        if (name.isBlank()) {
+            model.addAttribute("nameError", "Full name is required.");
+            hasErrors = true;
+        }
+
+        // Email — blank, then domain, then duplicate (in that order)
+        if (email.isBlank()) {
+            model.addAttribute("emailError", "Email is required.");
+            hasErrors = true;
+        } else if (!email.trim().endsWith("@my.yorku.ca")) {
+            model.addAttribute("emailError", "Email must be a York University address (@my.yorku.ca).");
+            hasErrors = true;
+        } else if (authService.emailExists(email.trim())) {
+            model.addAttribute("emailError", "An account with this email already exists.");
+            hasErrors = true;
+        }
+
+        // Password
+        if (password.isBlank()) {
+            model.addAttribute("passwordError", "Password is required.");
+            hasErrors = true;
+        }
+
+        // Confirm password — blank first, then mismatch
+        if (confirmPassword.isBlank()) {
+            model.addAttribute("confirmPasswordError", "Please confirm your password.");
+            hasErrors = true;
+        } else if (!password.isBlank() && !password.equals(confirmPassword)) {
+            model.addAttribute("confirmPasswordError", "Passwords do not match.");
+            hasErrors = true;
+        }
+
+        if (hasErrors) {
             model.addAttribute("name", name);
             model.addAttribute("email", email);
             return "signup";
         }
 
-        // Password confirmation
-        if (!password.equals(confirmPassword)) {
-            model.addAttribute("errorMessage", "Passwords do not match.");
-            model.addAttribute("name", name);
-            model.addAttribute("email", email);
-            return "signup";
-        }
-
-        try {
-            authService.register(name.trim(), email.trim(), password);
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            model.addAttribute("errorMessage", e.getMessage());
-            model.addAttribute("name", name);
-            model.addAttribute("email", email);
-            return "signup";
-        }
-
-        redirectAttributes.addFlashAttribute("successMessage",
-                "Account created! You can now log in.");
+        authService.register(name.trim(), email.trim(), password);
+        redirectAttributes.addFlashAttribute("successMessage", "Account created! You can now log in.");
         return "redirect:/login";
     }
 

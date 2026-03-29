@@ -16,6 +16,14 @@ public class AuthService {
     }
 
     /**
+     * Returns true if an account already exists for this email (case-insensitive).
+     * Used by the signup controller to place a per-field duplicate-email error.
+     */
+    public boolean emailExists(String email) {
+        return userRepository.findByEmail(email) != null;
+    }
+
+    /**
      * Registers a new user account.
      * Throws IllegalArgumentException for a non-York email.
      * Throws IllegalStateException if the email is already registered.
