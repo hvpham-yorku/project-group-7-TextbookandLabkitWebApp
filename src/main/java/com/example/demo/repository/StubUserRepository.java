@@ -40,6 +40,11 @@ public class StubUserRepository implements UserRepository {
     }
 
     @Override
+    public void save(User user) {
+        users.add(user);
+    }
+
+    @Override
     public User findByEmail(String email) {
         for (User u : users) {
             if (u.getEmail().equalsIgnoreCase(email)) {

@@ -60,6 +60,26 @@ public class JdbcUserRepository implements UserRepository {
     }
 
     // ---------------------------------------------------------------------------
+    // Insert a brand-new user row.
+    // ---------------------------------------------------------------------------
+    @Override
+    public void save(User user) {
+        String sql = """
+                INSERT INTO users (email, password, name, student_id, phone_number, about_me, program, campus)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """;
+        jdbcTemplate.update(sql,
+                user.getEmail(),
+                user.getPassword(),
+                user.getName(),
+                user.getStudentId(),
+                user.getPhoneNumber(),
+                user.getAboutMe(),
+                user.getProgram(),
+                user.getCampus());
+    }
+
+    // ---------------------------------------------------------------------------
     // Update an existing user.
     //
     // If the email has not changed: UPDATE the existing row.

@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class LoginController {
@@ -29,6 +30,44 @@ public class LoginController {
     @GetMapping("/signup")
     public String signupPage() {
         return "signup";
+    }
+
+    @PostMapping("/signup")
+    public String doSignup(@RequestParam("name") String name,
+                           @RequestParam("email") String email,
+                           @RequestParam("password") String password,
+                           @RequestParam("confirmPassword") String confirmPassword,
+                           Model model,
+                           RedirectAttributes redirectAttributes) {
+
+        // Basic field presence check
+        if (name.isBlank() || email.isBlank() || password.isBlank()) {
+            model.addAttribute("errorMessage", "All fields are required.");
+            model.addAttribute("name", name);
+            model.addAttribute("email", email);
+            return "signup";
+        }
+
+        // Password confirmation
+        if (!password.equals(confirmPassword)) {
+            model.addAttribute("errorMessage", "Passwords do not match.");
+            model.addAttribute("name", name);
+            model.addAttribute("email", email);
+            return "signup";
+        }
+
+        try {
+            authService.register(name.trim(), email.trim(), password);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("name", name);
+            model.addAttribute("email", email);
+            return "signup";
+        }
+
+        redirectAttributes.addFlashAttribute("successMessage",
+                "Account created! You can now log in.");
+        return "redirect:/login";
     }
 
     @PostMapping("/login")
