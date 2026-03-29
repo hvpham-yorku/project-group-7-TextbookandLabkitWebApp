@@ -127,11 +127,15 @@ public String contactSellerPlaceholder(@PathVariable("id") long id,
         return "redirect:/listings/" + id;
     }
 
-    // If the seller has blocked the buyer (or vice-versa), show error on the form
-    if (blockService.isBlocked(user.getEmail(), listing.getSellerEmail())) {
+    // If either party has blocked the other, show a direction-aware error
+    boolean sellerBlockedBuyer = blockService.hasBlocked(listing.getSellerEmail(), user.getEmail());
+    boolean buyerBlockedSeller = blockService.hasBlocked(user.getEmail(), listing.getSellerEmail());
+    if (sellerBlockedBuyer || buyerBlockedSeller) {
+        String msg = sellerBlockedBuyer
+                ? "You cannot contact this seller because they have blocked you."
+                : "You cannot contact this seller because you have blocked them. Visit your Blocked Users list to unblock.";
         model.addAttribute("listing", listing);
-        model.addAttribute("errorMessage",
-                "You cannot contact this seller because they have blocked you.");
+        model.addAttribute("errorMessage", msg);
         return "contact-seller";
     }
 
@@ -160,12 +164,16 @@ public String contactSellerSubmit(@PathVariable("id") long id,
     }
 
     // Block check — if either party has blocked the other, deny the send
-    if (blockService.isBlocked(user.getEmail(), listing.getSellerEmail())) {
+    boolean sellerBlockedBuyerPost = blockService.hasBlocked(listing.getSellerEmail(), user.getEmail());
+    boolean buyerBlockedSellerPost = blockService.hasBlocked(user.getEmail(), listing.getSellerEmail());
+    if (sellerBlockedBuyerPost || buyerBlockedSellerPost) {
+        String msg = sellerBlockedBuyerPost
+                ? "You cannot contact this seller because they have blocked you."
+                : "You cannot contact this seller because you have blocked them. Visit your Blocked Users list to unblock.";
         model.addAttribute("listing", listing);
         model.addAttribute("subject", subject);
         model.addAttribute("message", message);
-        model.addAttribute("errorMessage",
-                "You cannot contact this seller because they have blocked you.");
+        model.addAttribute("errorMessage", msg);
         return "contact-seller";
     }
 

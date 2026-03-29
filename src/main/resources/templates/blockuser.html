@@ -47,7 +47,10 @@
                     <td th:text="${#temporals.format(blocked.blockedAt, 'MMM d, yyyy')}">Mar 27, 2026</td>
                     <td style="text-align:right;">
                         <form th:action="@{/unblock/{email}(email=${blocked.blockedEmail})}" method="post">
-                            <button type="submit" class="btn btn-outline-secondary btn-sm">Unblock</button>
+                            <button type="submit" class="btn btn-outline-secondary btn-sm"
+                                    onclick="return confirm('Unblock this user? They will be able to contact you again.')">
+                                Unblock
+                            </button>
                         </form>
                     </td>
                 </tr>

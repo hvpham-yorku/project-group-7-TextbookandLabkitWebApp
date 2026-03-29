@@ -57,7 +57,7 @@
     <div class="yk-card" th:if="${not #strings.equals(currentUserEmail, targetEmail)}">
         <div class="yk-card-body">
             <p class="yk-card-section-title">Leave a review</p>
-            <form th:action="@{/feedback}" method="post">
+            <form th:action="@{/feedback}" method="post" onsubmit="return validateFeedbackForm()">
                 <input type="hidden" name="targetEmail" th:value="${targetEmail}"/>
 
                 <div class="mb-3">
@@ -119,6 +119,14 @@
         document.querySelectorAll('#starInput span').forEach(function(s) {
             s.classList.toggle('active', parseInt(s.dataset.v) <= v);
         });
+    }
+
+    function validateFeedbackForm() {
+        if (parseInt(document.getElementById('ratingInput').value) < 1) {
+            alert('Please select a star rating (1–5) before submitting.');
+            return false;
+        }
+        return true;
     }
 </script>
 
