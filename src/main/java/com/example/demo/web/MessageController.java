@@ -1,6 +1,5 @@
 package com.example.demo.web;
 
-import com.example.demo.domain.Conversation;
 import com.example.demo.domain.User;
 import com.example.demo.service.MessageService;
 import jakarta.servlet.http.HttpSession;
