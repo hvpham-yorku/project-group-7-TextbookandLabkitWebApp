@@ -387,12 +387,7 @@ public class ListingController {
 
         List<Listing> listings = listingService.filterListings(keyword, status, minPrice, maxPrice);
 
-        model.addAttribute("listings", listings);
-        model.addAttribute("keyword", keyword);
-        model.addAttribute("status", status);
-        model.addAttribute("minPrice", minPrice);
-        model.addAttribute("maxPrice", maxPrice);
-
+        populateListingsPage(model, listings, null, keyword, status, minPrice, maxPrice);
         return "listings";
     }
 
@@ -401,9 +396,7 @@ public class ListingController {
         User user = getSessionUser(session);
         if (user == null) return "redirect:/login";
 
-        model.addAttribute("listings", listingService.getAllListingsSortedByPrice(true));
-        model.addAttribute("sortBy", "price-asc");
-
+        populateListingsPage(model, listingService.getAllListingsSortedByPrice(true), "price-asc", null, null, null, null);
         return "listings";
     }
 
@@ -412,9 +405,7 @@ public class ListingController {
         User user = getSessionUser(session);
         if (user == null) return "redirect:/login";
 
-        model.addAttribute("listings", listingService.getAllListingsSortedByPrice(false));
-        model.addAttribute("sortBy", "price-desc");
-
+        populateListingsPage(model, listingService.getAllListingsSortedByPrice(false), "price-desc", null, null, null, null);
         return "listings";
     }
 
@@ -423,9 +414,7 @@ public class ListingController {
         User user = getSessionUser(session);
         if (user == null) return "redirect:/login";
 
-        model.addAttribute("listings", listingService.getAllListingsSortedByTitle(true));
-        model.addAttribute("sortBy", "title-asc");
-
+        populateListingsPage(model, listingService.getAllListingsSortedByTitle(true), "title-asc", null, null, null, null);
         return "listings";
     }
 
@@ -434,9 +423,7 @@ public class ListingController {
         User user = getSessionUser(session);
         if (user == null) return "redirect:/login";
 
-        model.addAttribute("listings", listingService.getAllListingsSortedByTitle(false));
-        model.addAttribute("sortBy", "title-desc");
-
+        populateListingsPage(model, listingService.getAllListingsSortedByTitle(false), "title-desc", null, null, null, null);
         return "listings";
     }
 
@@ -445,9 +432,23 @@ public class ListingController {
         User user = getSessionUser(session);
         if (user == null) return "redirect:/login";
 
-        model.addAttribute("listings", listingService.getAllListings());
-
+        populateListingsPage(model, listingService.getAllListings(), null, null, null, null, null);
         return "listings";
+    }
+
+    private void populateListingsPage(Model model,
+                                      List<Listing> listings,
+                                      String sortBy,
+                                      String keyword,
+                                      ListingStatus status,
+                                      BigDecimal minPrice,
+                                      BigDecimal maxPrice) {
+        model.addAttribute("listings", listings);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("status", status);
+        model.addAttribute("minPrice", minPrice);
+        model.addAttribute("maxPrice", maxPrice);
     }
 
     private User getSessionUser(HttpSession session) {
