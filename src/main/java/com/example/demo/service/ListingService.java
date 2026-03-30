@@ -251,35 +251,37 @@ public class ListingService {
     }
 
     // ===============================
+    // Sorting helpers
+    // ===============================
+
+    private static final Comparator<Listing> PRICE_ASC  = Comparator.comparing(Listing::getPrice);
+    private static final Comparator<Listing> PRICE_DESC = PRICE_ASC.reversed();
+    private static final Comparator<Listing> TITLE_ASC  = (a, b) -> a.getTitle().compareToIgnoreCase(b.getTitle());
+    private static final Comparator<Listing> TITLE_DESC = TITLE_ASC.reversed();
+
+    private List<Listing> sortedBy(List<Listing> listings, Comparator<Listing> comparator) {
+        listings.sort(comparator);
+        return listings;
+    }
+
+    // ===============================
     // KAN-17 Sort Listings
     // ===============================
 
     public List<Listing> sortListingsByPrice(String sellerEmail) {
-
-        List<Listing> listings = listingRepository.findBySellerEmail(sellerEmail);
-        listings.sort(Comparator.comparing(Listing::getPrice));
-        return listings;
+        return sortedBy(listingRepository.findBySellerEmail(sellerEmail), PRICE_ASC);
     }
 
     public List<Listing> sortListingsByPriceDesc(String sellerEmail) {
-
-        List<Listing> listings = listingRepository.findBySellerEmail(sellerEmail);
-        listings.sort(Comparator.comparing(Listing::getPrice).reversed());
-        return listings;
+        return sortedBy(listingRepository.findBySellerEmail(sellerEmail), PRICE_DESC);
     }
 
     public List<Listing> sortListingsByTitle(String sellerEmail) {
-
-        List<Listing> listings = listingRepository.findBySellerEmail(sellerEmail);
-        listings.sort((a, b) -> a.getTitle().compareToIgnoreCase(b.getTitle()));
-        return listings;
+        return sortedBy(listingRepository.findBySellerEmail(sellerEmail), TITLE_ASC);
     }
 
     public List<Listing> sortListingsByTitleDesc(String sellerEmail) {
-
-        List<Listing> listings = listingRepository.findBySellerEmail(sellerEmail);
-        listings.sort((a, b) -> b.getTitle().compareToIgnoreCase(a.getTitle()));
-        return listings;
+        return sortedBy(listingRepository.findBySellerEmail(sellerEmail), TITLE_DESC);
     }
 
     // ===============================
@@ -287,28 +289,10 @@ public class ListingService {
     // ===============================
 
     public List<Listing> getAllListingsSortedByPrice(boolean ascending) {
-
-        List<Listing> all = listingRepository.findAll();
-
-        if (ascending) {
-            all.sort(Comparator.comparing(Listing::getPrice));
-        } else {
-            all.sort(Comparator.comparing(Listing::getPrice).reversed());
-        }
-
-        return all;
+        return sortedBy(listingRepository.findAll(), ascending ? PRICE_ASC : PRICE_DESC);
     }
 
     public List<Listing> getAllListingsSortedByTitle(boolean ascending) {
-
-        List<Listing> all = listingRepository.findAll();
-
-        if (ascending) {
-            all.sort((a, b) -> a.getTitle().compareToIgnoreCase(b.getTitle()));
-        } else {
-            all.sort((a, b) -> b.getTitle().compareToIgnoreCase(a.getTitle()));
-        }
-
-        return all;
+        return sortedBy(listingRepository.findAll(), ascending ? TITLE_ASC : TITLE_DESC);
     }
 }
