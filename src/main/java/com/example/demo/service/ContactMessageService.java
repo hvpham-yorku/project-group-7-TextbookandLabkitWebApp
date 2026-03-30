@@ -26,10 +26,10 @@ public class ContactMessageService {
                                       String subject,
                                       String message) {
 
-        if (senderEmail == null || senderEmail.isBlank()) return null;
-        if (sellerEmail == null || sellerEmail.isBlank()) return null;
-        if (subject == null || subject.isBlank()) return null;
-        if (message == null || message.isBlank()) return null;
+        if (!isValidField(senderEmail)) return null;
+        if (!isValidField(sellerEmail)) return null;
+        if (!isValidField(subject)) return null;
+        if (!isValidField(message)) return null;
         if (senderEmail.equalsIgnoreCase(sellerEmail)) return null;
 
         ContactMessage cm = new ContactMessage();
@@ -48,7 +48,7 @@ public class ContactMessageService {
      * Used for the seller inbox (KAN-94).
      */
     public List<ContactMessage> getMessagesForSeller(String sellerEmail) {
-        if (sellerEmail == null || sellerEmail.isBlank()) return List.of();
+        if (!isValidField(sellerEmail)) return List.of();
         return contactMessageRepository.findBySellerEmail(sellerEmail);
     }
 
@@ -62,7 +62,15 @@ public class ContactMessageService {
      * Available for a sent-messages view if needed later.
      */
     public List<ContactMessage> getMessagesBySender(String senderEmail) {
-        if (senderEmail == null || senderEmail.isBlank()) return List.of();
+        if (!isValidField(senderEmail)) return List.of();
         return contactMessageRepository.findBySenderEmail(senderEmail);
+    }
+
+    /**
+     * Reusable validation helper to check if a string field is present and non-blank.
+     * Extracted to eliminate repeated null/blank checks across service methods.
+     */
+    private boolean isValidField(String value) {
+        return value != null && !value.isBlank();
     }
 }
