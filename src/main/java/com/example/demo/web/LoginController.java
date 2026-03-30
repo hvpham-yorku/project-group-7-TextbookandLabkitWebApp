@@ -52,8 +52,8 @@ public class LoginController {
         if (email.isBlank()) {
             model.addAttribute("emailError", "Email is required.");
             hasErrors = true;
-        } else if (!email.trim().endsWith("@my.yorku.ca")) {
-            model.addAttribute("emailError", "Email must be a York University address (@my.yorku.ca).");
+        } else if (!authService.isYorkEmail(email)) {
+            model.addAttribute("emailError", authService.getYorkEmailError());
             hasErrors = true;
         } else if (authService.emailExists(email.trim())) {
             model.addAttribute("emailError", "An account with this email already exists.");
@@ -95,7 +95,7 @@ public class LoginController {
         User user = authService.login(email, password);
 
         if (user == null) {
-            model.addAttribute("error", "Invalid email/password (must be @my.yorku.ca).");
+        	model.addAttribute("error", "Invalid email or password.");
             return "login";
         }
 

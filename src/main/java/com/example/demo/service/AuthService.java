@@ -6,6 +6,18 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
+	
+	private static final String YORK_EMAIL_DOMAIN = "@my.yorku.ca";
+	private static final String YORK_EMAIL_ERROR =
+	        "Email must be a York University address (@my.yorku.ca).";
+	
+	public boolean isYorkEmail(String email) {
+	    return email != null && email.trim().toLowerCase().endsWith(YORK_EMAIL_DOMAIN);
+	}
+
+	public String getYorkEmailError() {
+	    return YORK_EMAIL_ERROR;
+	}
 
     private final UserRepository userRepository;
     //for memory this would save what u did in the run and keep it save as long program is running
@@ -41,9 +53,9 @@ public class AuthService {
     public User login(String email, String password) {
 
         // 1. Validate York email
-        if (email == null || !email.endsWith("@my.yorku.ca")) {
-            return null;
-        }
+    	if (!isYorkEmail(email)) {
+    	    return null;
+    	}
 
         // 2. Find user in repository
         User user = userRepository.findByEmail(email);
@@ -76,7 +88,7 @@ public class AuthService {
     // Updates name and email. Preserves all other profile fields from currentUser.
     public User updateProfile(User currentUser, String newName, String newEmail) {
         if (currentUser == null) return null;
-        if (newEmail == null || !newEmail.endsWith("@my.yorku.ca")) return null;
+        if (!isYorkEmail(newEmail)) return null;
 
         User updated = new User(newEmail, currentUser.getPassword(), newName);
 
