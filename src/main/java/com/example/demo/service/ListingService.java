@@ -28,6 +28,23 @@ public class ListingService {
         return value != null && !value.isBlank();
     }
 
+    /**
+     * Looks up a listing and verifies the given seller owns it.
+     * Returns null if any check fails (invalid args, not found, wrong owner).
+     * Used by deleteListing, updateListing, and updateStatus to avoid duplication.
+     */
+    private Listing findOwnedListing(long listingId, String sellerEmail) {
+        if (!isValidField(sellerEmail)) return null;
+        if (listingId <= 0) return null;
+
+        Listing listing = listingRepository.findById(listingId);
+        if (listing == null) return null;
+
+        if (!listing.getSellerEmail().equalsIgnoreCase(sellerEmail)) return null;
+
+        return listing;
+    }
+
     public Listing addListing(String sellerEmail, String title, String description, BigDecimal price,
                               String courseCode, String semester, String materialType,
                               String condition, String exchangeType,
@@ -62,14 +79,8 @@ public class ListingService {
     }
 
     public boolean deleteListing(long listingId, String sellerEmail) {
-
-        if (!isValidField(sellerEmail)) return false;
-        if (listingId <= 0) return false;
-
-        Listing listing = listingRepository.findById(listingId);
+        Listing listing = findOwnedListing(listingId, sellerEmail);
         if (listing == null) return false;
-
-        if (!listing.getSellerEmail().equalsIgnoreCase(sellerEmail)) return false;
 
         return listingRepository.deleteById(listingId);
     }
@@ -83,18 +94,14 @@ public class ListingService {
                                  BigDecimal price, ListingStatus status,
                                  String isbn, BigDecimal bookstorePrice) {
 
-        if (!isValidField(sellerEmail)) return false;
-        if (listingId <= 0) return false;
         if (!isValidField(title)) return false;
         if (!isValidField(description)) return false;
         if (price == null || price.compareTo(BigDecimal.ZERO) < 0) return false;
         if (status == null) return false;
         if (bookstorePrice != null && bookstorePrice.compareTo(BigDecimal.ZERO) < 0) return false;
 
-        Listing listing = listingRepository.findById(listingId);
+        Listing listing = findOwnedListing(listingId, sellerEmail);
         if (listing == null) return false;
-
-        if (!listing.getSellerEmail().equalsIgnoreCase(sellerEmail)) return false;
 
         listing.setTitle(title.trim());
         listing.setDescription(description.trim());
@@ -104,7 +111,6 @@ public class ListingService {
         listing.setBookstorePrice(bookstorePrice);
 
         listingRepository.save(listing);
-
         return true;
     }
 
@@ -203,10 +209,8 @@ public class ListingService {
 
         if (newStatus == null) return false;
 
-        Listing listing = listingRepository.findById(listingId);
+        Listing listing = findOwnedListing(listingId, sellerEmail);
         if (listing == null) return false;
-
-        if (!listing.getSellerEmail().equalsIgnoreCase(sellerEmail)) return false;
 
         listing.setStatus(newStatus);
         listingRepository.save(listing);
