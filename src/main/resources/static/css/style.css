@@ -924,6 +924,14 @@ body.browse-page {
     background-color: #faf9f7;
 }
 
+/* Truncated table cell — used for Description column in My Listings */
+.td-truncate {
+    max-width:     200px;
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
+
 /* ── Listing detail image ────────────────────────────────── */
 .ld-img-wrap {
     max-width:     520px;
