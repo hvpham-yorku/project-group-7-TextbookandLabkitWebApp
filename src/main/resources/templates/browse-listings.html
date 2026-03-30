@@ -20,6 +20,8 @@
         <h2 class="bm-page-title">Browse Materials</h2>
         <p class="bm-page-subtitle">Search and browse course materials listed by YorkU students — textbooks, lab kits, notes, and more.</p>
     </div>
+	
+	<div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
     <!-- Search + sort panel -->
     <div class="bm-search-panel">

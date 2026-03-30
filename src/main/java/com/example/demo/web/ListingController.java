@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -27,432 +28,434 @@ import java.util.UUID;
 @Controller
 public class ListingController {
 
-private final ListingService listingService;
-private final ContactMessageService contactMessageService;
-private final TransactionService transactionService;
-private final BlockService blockService;
+    private final ListingService listingService;
+    private final ContactMessageService contactMessageService;
+    private final TransactionService transactionService;
+    private final BlockService blockService;
 
-public ListingController(ListingService listingService,
-                         ContactMessageService contactMessageService,
-                         TransactionService transactionService,
-                         BlockService blockService) {
-    this.listingService = listingService;
-    this.contactMessageService = contactMessageService;
-    this.transactionService = transactionService;
-    this.blockService = blockService;
-}
-
-@GetMapping("/my-listings")
-public String myListings(HttpSession session, Model model) {
-	User user = getSessionUser(session);
-	if (user == null) return "redirect:/login";
-    model.addAttribute("user", user);
-    model.addAttribute("listings", listingService.getListingsForSeller(user.getEmail()));
-    return "my-listings";
-}
-
-@GetMapping("/inbox")
-public String inbox(HttpSession session, Model model) {
-
-	User user = getSessionUser(session);
-	if (user == null) return "redirect:/login";
-
-    List<ContactMessage> messages = contactMessageService.getMessagesForSeller(user.getEmail());
-
-    // Build listingId → Listing map so the template can show listing context per message
-    Map<Long, Listing> listingMap = new HashMap<>();
-    Map<Long, com.example.demo.domain.Transaction> messageTransactionMap = new HashMap<>();
-    for (ContactMessage m : messages) {
-        if (!listingMap.containsKey(m.getListingId())) {
-            Listing l = listingService.findById(m.getListingId());
-            if (l != null) listingMap.put(m.getListingId(), l);
-        }
-        com.example.demo.domain.Transaction transaction = transactionService.findBySourceMessageId(m.getId());
-        if (transaction != null) {
-            messageTransactionMap.put(m.getId(), transaction);
-        }
+    public ListingController(ListingService listingService,
+                             ContactMessageService contactMessageService,
+                             TransactionService transactionService,
+                             BlockService blockService) {
+        this.listingService = listingService;
+        this.contactMessageService = contactMessageService;
+        this.transactionService = transactionService;
+        this.blockService = blockService;
     }
 
-    // Build senderEmail → blocked boolean map so the template can toggle the button
-    Map<String, Boolean> blockedSenders = new HashMap<>();
-    for (ContactMessage m : messages) {
-        blockedSenders.put(m.getSenderEmail(),
-                blockService.hasBlocked(user.getEmail(), m.getSenderEmail()));
-    }
+    @GetMapping("/my-listings")
+    public String myListings(HttpSession session, Model model) {
+        User user = getSessionUser(session);
+        if (user == null) return "redirect:/login";
 
-    model.addAttribute("user", user);
-    model.addAttribute("messages", messages);
-    model.addAttribute("listingMap", listingMap);
-    model.addAttribute("messageTransactionMap", messageTransactionMap);
-    model.addAttribute("blockedSenders", blockedSenders);
-    return "inbox";
-}
-
-@GetMapping("/listings/{id}")
-public String listingDetail(@PathVariable("id") long id,
-                            HttpSession session,
-                            Model model) {
-
-    Object u = session.getAttribute("user");
-    if (u == null) return "redirect:/login";
-
-    Listing listing = listingService.findById(id);
-    if (listing == null) return "redirect:/browse";
-
-    User user = (User) u;
-    boolean isSeller = user.getEmail().equalsIgnoreCase(listing.getSellerEmail());
-
-    model.addAttribute("listing", listing);
-    model.addAttribute("isSeller", isSeller);
-    return "listing-detail";
-}
-
-@GetMapping("/listings/{id}/contact")
-public String contactSellerPlaceholder(@PathVariable("id") long id,
-                                       HttpSession session,
-                                       Model model) {
-
-    Object u = session.getAttribute("user");
-    if (u == null) return "redirect:/login";
-
-    Listing listing = listingService.findById(id);
-    if (listing == null) return "redirect:/browse";
-
-    // Sellers cannot contact themselves
-    User user = (User) u;
-    if (user.getEmail().equalsIgnoreCase(listing.getSellerEmail())) {
-        return "redirect:/listings/" + id;
-    }
-
-    // If either party has blocked the other, show a direction-aware error
-    boolean sellerBlockedBuyer = blockService.hasBlocked(listing.getSellerEmail(), user.getEmail());
-    boolean buyerBlockedSeller = blockService.hasBlocked(user.getEmail(), listing.getSellerEmail());
-    if (sellerBlockedBuyer || buyerBlockedSeller) {
-        String msg = sellerBlockedBuyer
-                ? "You cannot contact this seller because they have blocked you."
-                : "You cannot contact this seller because you have blocked them. Visit your Blocked Users list to unblock.";
-        model.addAttribute("listing", listing);
-        model.addAttribute("errorMessage", msg);
-        return "contact-seller";
-    }
-
-    model.addAttribute("listing", listing);
-    return "contact-seller";
-}
-
-@PostMapping("/listings/{id}/contact")
-public String contactSellerSubmit(@PathVariable("id") long id,
-                                  @RequestParam(value = "subject", defaultValue = "") String subject,
-                                  @RequestParam(value = "message", defaultValue = "") String message,
-                                  HttpSession session,
-                                  Model model) {
-
-    Object u = session.getAttribute("user");
-    if (u == null) return "redirect:/login";
-
-    Listing listing = listingService.findById(id);
-    if (listing == null) return "redirect:/browse";
-
-    User user = (User) u;
-
-    // Sellers cannot message themselves
-    if (user.getEmail().equalsIgnoreCase(listing.getSellerEmail())) {
-        return "redirect:/listings/" + id;
-    }
-
-    // Block check — if either party has blocked the other, deny the send
-    boolean sellerBlockedBuyerPost = blockService.hasBlocked(listing.getSellerEmail(), user.getEmail());
-    boolean buyerBlockedSellerPost = blockService.hasBlocked(user.getEmail(), listing.getSellerEmail());
-    if (sellerBlockedBuyerPost || buyerBlockedSellerPost) {
-        String msg = sellerBlockedBuyerPost
-                ? "You cannot contact this seller because they have blocked you."
-                : "You cannot contact this seller because you have blocked them. Visit your Blocked Users list to unblock.";
-        model.addAttribute("listing", listing);
-        model.addAttribute("subject", subject);
-        model.addAttribute("message", message);
-        model.addAttribute("errorMessage", msg);
-        return "contact-seller";
-    }
-
-    // Validate required fields — return to form with errors and preserved values
-    boolean subjectBlank = subject.isBlank();
-    boolean messageBlank = message.isBlank();
-
-    if (subjectBlank || messageBlank) {
-        model.addAttribute("listing", listing);
-        model.addAttribute("subject", subject);
-        model.addAttribute("message", message);
-        if (subjectBlank) model.addAttribute("subjectError", "Subject is required.");
-        if (messageBlank) model.addAttribute("messageError", "Message is required.");
-        return "contact-seller";
-    }
-
-    contactMessageService.sendMessage(
-            id,
-            user.getEmail(),
-            listing.getSellerEmail(),
-            subject,
-            message
-    );
-
-    return "redirect:/listings/" + id + "?contacted=true";
-}
-
-@GetMapping("/browse")
-public String browseListings(@RequestParam(value = "q", required = false) String q,
-                             @RequestParam(value = "sortBy", required = false, defaultValue = "newest") String sortBy,
-                             HttpSession session,
-                             Model model) {
-
-    Object u = session.getAttribute("user");
-    if (u == null) return "redirect:/login";
-
-    model.addAttribute("q", q == null ? "" : q);
-    model.addAttribute("sortBy", sortBy);
-    model.addAttribute("listings", listingService.searchAndSort(q, sortBy));
-
-    return "browse-listings";
-}
-
-@PostMapping("/listings")
-public String createListing(@RequestParam("title") String title,
-                            @RequestParam("description") String description,
-                            @RequestParam("price") BigDecimal price,
-                            @RequestParam(value = "courseCode", defaultValue = "") String courseCode,
-                            @RequestParam(value = "semester", defaultValue = "") String semester,
-                            @RequestParam(value = "materialType", defaultValue = "") String materialType,
-                            @RequestParam(value = "condition", defaultValue = "") String condition,
-                            @RequestParam(value = "exchangeType", defaultValue = "") String exchangeType,
-                            @RequestParam(value = "isbn", defaultValue = "") String isbn,
-                            @RequestParam(value = "bookstorePrice", required = false) BigDecimal bookstorePrice,
-                            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
-                            HttpSession session,
-                            Model model) {
-
-	User user = getSessionUser(session);
-	if (user == null) return "redirect:/login";
-
-    Listing result = listingService.addListing(
-            user.getEmail(),
-            title,
-            description,
-            price,
-            courseCode,
-            semester,
-            materialType,
-            condition,
-            exchangeType,
-            isbn,
-            bookstorePrice
-    );
-
-    if (result == null) {
         model.addAttribute("user", user);
         model.addAttribute("listings", listingService.getListingsForSeller(user.getEmail()));
-        model.addAttribute("error", "Could not create listing. Please check your inputs.");
         return "my-listings";
     }
 
-    // Save uploaded image if provided
-    if (imageFile != null && !imageFile.isEmpty()) {
-        String savedPath = saveUploadedImage(imageFile);
-        if (savedPath != null) {
-            listingService.updateImagePath(result.getId(), savedPath);
+    @GetMapping("/inbox")
+    public String inbox(HttpSession session, Model model) {
+        User user = getSessionUser(session);
+        if (user == null) return "redirect:/login";
+
+        List<ContactMessage> messages = contactMessageService.getMessagesForSeller(user.getEmail());
+
+        Map<Long, Listing> listingMap = new HashMap<>();
+        Map<Long, com.example.demo.domain.Transaction> messageTransactionMap = new HashMap<>();
+
+        for (ContactMessage m : messages) {
+            if (!listingMap.containsKey(m.getListingId())) {
+                Listing l = findListing(m.getListingId());
+                if (l != null) listingMap.put(m.getListingId(), l);
+            }
+
+            com.example.demo.domain.Transaction transaction =
+                    transactionService.findBySourceMessageId(m.getId());
+            if (transaction != null) {
+                messageTransactionMap.put(m.getId(), transaction);
+            }
         }
+
+        Map<String, Boolean> blockedSenders = new HashMap<>();
+        for (ContactMessage m : messages) {
+            blockedSenders.put(
+                    m.getSenderEmail(),
+                    blockService.hasBlocked(user.getEmail(), m.getSenderEmail())
+            );
+        }
+
+        model.addAttribute("user", user);
+        model.addAttribute("messages", messages);
+        model.addAttribute("listingMap", listingMap);
+        model.addAttribute("messageTransactionMap", messageTransactionMap);
+        model.addAttribute("blockedSenders", blockedSenders);
+        return "inbox";
     }
 
-    return "redirect:/my-listings";
-}
+    @GetMapping("/listings/{id}")
+    public String listingDetail(@PathVariable("id") long id,
+                                HttpSession session,
+                                Model model,
+                                RedirectAttributes redirectAttributes) {
 
-/**
- * Saves the uploaded image to the local uploads/ directory.
- * Returns the web-accessible path (e.g. "/uploads/abc123.jpg"), or null on failure.
- */
-private String saveUploadedImage(MultipartFile file) {
-    String original = file.getOriginalFilename();
-    if (original == null || original.isBlank()) return null;
+        User user = getSessionUser(session);
+        if (user == null) return "redirect:/login";
 
-    String ext = "";
-    int dot = original.lastIndexOf('.');
-    if (dot >= 0) ext = original.substring(dot).toLowerCase();
+        Listing listing = findListing(id);
+        if (listing == null) {
+            redirectAttributes.addFlashAttribute("error", "Listing not found.");
+            return "redirect:/browse";
+        }
 
-    // Only allow common image types
-    if (!List.of(".jpg", ".jpeg", ".png", ".webp").contains(ext)) return null;
+        boolean isSeller = user.getEmail().equalsIgnoreCase(listing.getSellerEmail());
 
-    try {
-        Path uploadDir = Paths.get("uploads");
-        Files.createDirectories(uploadDir);
-
-        String filename = UUID.randomUUID() + ext;
-        Path dest = uploadDir.resolve(filename).toAbsolutePath();
-        file.transferTo(dest.toFile());
-
-        return "/uploads/" + filename;
-    } catch (IOException e) {
-        // Non-fatal: listing is created without image
-        return null;
+        model.addAttribute("listing", listing);
+        model.addAttribute("isSeller", isSeller);
+        return "listing-detail";
     }
-}
 
-@GetMapping("/listings/{id}/edit")
-public String editListingPage(@PathVariable("id") long id,
-                              HttpSession session,
-                              Model model) {
+    @GetMapping("/listings/{id}/contact")
+    public String contactSellerPlaceholder(@PathVariable("id") long id,
+                                           HttpSession session,
+                                           Model model,
+                                           RedirectAttributes redirectAttributes) {
 
-    Object u = session.getAttribute("user");
-    if (u == null) return "redirect:/login";
+        User user = getSessionUser(session);
+        if (user == null) return "redirect:/login";
 
-    User user = (User) u;
+        Listing listing = findListing(id);
+        if (listing == null) {
+            redirectAttributes.addFlashAttribute("error", "Listing not found.");
+            return "redirect:/browse";
+        }
 
-    Listing listing = listingService.findById(id);
+        if (user.getEmail().equalsIgnoreCase(listing.getSellerEmail())) {
+            return "redirect:/listings/" + id;
+        }
 
-    if (listing == null) return "redirect:/my-listings";
-    if (!listing.getSellerEmail().equalsIgnoreCase(user.getEmail())) return "redirect:/my-listings";
+        boolean sellerBlockedBuyer = blockService.hasBlocked(listing.getSellerEmail(), user.getEmail());
+        boolean buyerBlockedSeller = blockService.hasBlocked(user.getEmail(), listing.getSellerEmail());
 
-    model.addAttribute("listing", listing);
-    model.addAttribute("statuses", ListingStatus.values());
+        if (sellerBlockedBuyer || buyerBlockedSeller) {
+            String msg = sellerBlockedBuyer
+                    ? "You cannot contact this seller because they have blocked you."
+                    : "You cannot contact this seller because you have blocked them. Visit your Blocked Users list to unblock.";
+            model.addAttribute("listing", listing);
+            model.addAttribute("errorMessage", msg);
+            return "contact-seller";
+        }
 
-    return "edit-listing";
-}
+        model.addAttribute("listing", listing);
+        return "contact-seller";
+    }
 
-@PostMapping("/listings/{id}/edit")
-public String editListingSubmit(@PathVariable("id") long id,
-                                @RequestParam("title") String title,
+    @PostMapping("/listings/{id}/contact")
+    public String contactSellerSubmit(@PathVariable("id") long id,
+                                      @RequestParam(value = "subject", defaultValue = "") String subject,
+                                      @RequestParam(value = "message", defaultValue = "") String message,
+                                      HttpSession session,
+                                      Model model,
+                                      RedirectAttributes redirectAttributes) {
+
+        User user = getSessionUser(session);
+        if (user == null) return "redirect:/login";
+
+        Listing listing = findListing(id);
+        if (listing == null) {
+            redirectAttributes.addFlashAttribute("error", "Listing not found.");
+            return "redirect:/browse";
+        }
+
+        if (user.getEmail().equalsIgnoreCase(listing.getSellerEmail())) {
+            return "redirect:/listings/" + id;
+        }
+
+        boolean sellerBlockedBuyerPost = blockService.hasBlocked(listing.getSellerEmail(), user.getEmail());
+        boolean buyerBlockedSellerPost = blockService.hasBlocked(user.getEmail(), listing.getSellerEmail());
+
+        if (sellerBlockedBuyerPost || buyerBlockedSellerPost) {
+            String msg = sellerBlockedBuyerPost
+                    ? "You cannot contact this seller because they have blocked you."
+                    : "You cannot contact this seller because you have blocked them. Visit your Blocked Users list to unblock.";
+            model.addAttribute("listing", listing);
+            model.addAttribute("subject", subject);
+            model.addAttribute("message", message);
+            model.addAttribute("errorMessage", msg);
+            return "contact-seller";
+        }
+
+        boolean subjectBlank = subject.isBlank();
+        boolean messageBlank = message.isBlank();
+
+        if (subjectBlank || messageBlank) {
+            model.addAttribute("listing", listing);
+            model.addAttribute("subject", subject);
+            model.addAttribute("message", message);
+            if (subjectBlank) model.addAttribute("subjectError", "Subject is required.");
+            if (messageBlank) model.addAttribute("messageError", "Message is required.");
+            return "contact-seller";
+        }
+
+        contactMessageService.sendMessage(
+                id,
+                user.getEmail(),
+                listing.getSellerEmail(),
+                subject,
+                message
+        );
+
+        return "redirect:/listings/" + id + "?contacted=true";
+    }
+
+    @GetMapping("/browse")
+    public String browseListings(@RequestParam(value = "q", required = false) String q,
+                                 @RequestParam(value = "sortBy", required = false, defaultValue = "newest") String sortBy,
+                                 HttpSession session,
+                                 Model model) {
+
+        User user = getSessionUser(session);
+        if (user == null) return "redirect:/login";
+
+        model.addAttribute("q", q == null ? "" : q);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("listings", listingService.searchAndSort(q, sortBy));
+
+        return "browse-listings";
+    }
+
+    @PostMapping("/listings")
+    public String createListing(@RequestParam("title") String title,
                                 @RequestParam("description") String description,
                                 @RequestParam("price") BigDecimal price,
-                                @RequestParam("status") ListingStatus status,
+                                @RequestParam(value = "courseCode", defaultValue = "") String courseCode,
+                                @RequestParam(value = "semester", defaultValue = "") String semester,
+                                @RequestParam(value = "materialType", defaultValue = "") String materialType,
+                                @RequestParam(value = "condition", defaultValue = "") String condition,
+                                @RequestParam(value = "exchangeType", defaultValue = "") String exchangeType,
                                 @RequestParam(value = "isbn", defaultValue = "") String isbn,
                                 @RequestParam(value = "bookstorePrice", required = false) BigDecimal bookstorePrice,
+                                @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
                                 HttpSession session,
                                 Model model) {
 
-	User user = getSessionUser(session);
-	if (user == null) return "redirect:/login";
+        User user = getSessionUser(session);
+        if (user == null) return "redirect:/login";
 
-    boolean ok = listingService.updateListing(
-            id,
-            user.getEmail(),
-            title,
-            description,
-            price,
-            status,
-            isbn,
-            bookstorePrice
-    );
+        Listing result = listingService.addListing(
+                user.getEmail(),
+                title,
+                description,
+                price,
+                courseCode,
+                semester,
+                materialType,
+                condition,
+                exchangeType,
+                isbn,
+                bookstorePrice
+        );
 
-    if (!ok) {
+        if (result == null) {
+            model.addAttribute("user", user);
+            model.addAttribute("listings", listingService.getListingsForSeller(user.getEmail()));
+            model.addAttribute("error", "Could not create listing. Please check your inputs.");
+            return "my-listings";
+        }
 
-        Listing listing = listingService.findById(id);
+        if (imageFile != null && !imageFile.isEmpty()) {
+            String savedPath = saveUploadedImage(imageFile);
+            if (savedPath != null) {
+                listingService.updateImagePath(result.getId(), savedPath);
+            }
+        }
+
+        return "redirect:/my-listings";
+    }
+
+    private String saveUploadedImage(MultipartFile file) {
+        String original = file.getOriginalFilename();
+        if (original == null || original.isBlank()) return null;
+
+        String ext = "";
+        int dot = original.lastIndexOf('.');
+        if (dot >= 0) ext = original.substring(dot).toLowerCase();
+
+        if (!List.of(".jpg", ".jpeg", ".png", ".webp").contains(ext)) return null;
+
+        try {
+            Path uploadDir = Paths.get("uploads");
+            Files.createDirectories(uploadDir);
+
+            String filename = UUID.randomUUID() + ext;
+            Path dest = uploadDir.resolve(filename).toAbsolutePath();
+            file.transferTo(dest.toFile());
+
+            return "/uploads/" + filename;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    @GetMapping("/listings/{id}/edit")
+    public String editListingPage(@PathVariable("id") long id,
+                                  HttpSession session,
+                                  Model model) {
+
+        User user = getSessionUser(session);
+        if (user == null) return "redirect:/login";
+
+        Listing listing = findListing(id);
+
+        if (listing == null) return "redirect:/my-listings";
+        if (!listing.getSellerEmail().equalsIgnoreCase(user.getEmail())) return "redirect:/my-listings";
 
         model.addAttribute("listing", listing);
         model.addAttribute("statuses", ListingStatus.values());
-        model.addAttribute("error", "Could not save changes. Please check your inputs.");
 
         return "edit-listing";
     }
 
-    return "redirect:/my-listings";
-}
+    @PostMapping("/listings/{id}/edit")
+    public String editListingSubmit(@PathVariable("id") long id,
+                                    @RequestParam("title") String title,
+                                    @RequestParam("description") String description,
+                                    @RequestParam("price") BigDecimal price,
+                                    @RequestParam("status") ListingStatus status,
+                                    @RequestParam(value = "isbn", defaultValue = "") String isbn,
+                                    @RequestParam(value = "bookstorePrice", required = false) BigDecimal bookstorePrice,
+                                    HttpSession session,
+                                    Model model) {
 
-@PostMapping("/listings/{id}/delete")
-public String deleteListing(@PathVariable("id") long id,
-                            HttpSession session,
-                            Model model) {
+        User user = getSessionUser(session);
+        if (user == null) return "redirect:/login";
 
-	User user = getSessionUser(session);
-	if (user == null) return "redirect:/login";
+        boolean ok = listingService.updateListing(
+                id,
+                user.getEmail(),
+                title,
+                description,
+                price,
+                status,
+                isbn,
+                bookstorePrice
+        );
 
-    boolean ok = listingService.deleteListing(id, user.getEmail());
+        if (!ok) {
+            Listing listing = findListing(id);
 
-    if (!ok) {
+            model.addAttribute("listing", listing);
+            model.addAttribute("statuses", ListingStatus.values());
+            model.addAttribute("error", "Could not save changes. Please check your inputs.");
 
-        model.addAttribute("user", user);
-        model.addAttribute("listings", listingService.getListingsForSeller(user.getEmail()));
-        model.addAttribute("error", "Could not delete listing.");
+            return "edit-listing";
+        }
 
-        return "my-listings";
+        return "redirect:/my-listings";
     }
 
-    return "redirect:/my-listings";
-}
+    @PostMapping("/listings/{id}/delete")
+    public String deleteListing(@PathVariable("id") long id,
+                                HttpSession session,
+                                Model model) {
 
-@GetMapping("/listings/filter")
-public String filterListings(@RequestParam(value = "keyword", required = false) String keyword,
-                             @RequestParam(value = "status", required = false) ListingStatus status,
-                             @RequestParam(value = "minPrice", required = false) BigDecimal minPrice,
-                             @RequestParam(value = "maxPrice", required = false) BigDecimal maxPrice,
-                             HttpSession session,
-                             Model model) {
+        User user = getSessionUser(session);
+        if (user == null) return "redirect:/login";
 
-    if (session.getAttribute("user") == null) return "redirect:/login";
+        boolean ok = listingService.deleteListing(id, user.getEmail());
 
-    List<Listing> listings = listingService.filterListings(keyword, status, minPrice, maxPrice);
+        if (!ok) {
+            model.addAttribute("user", user);
+            model.addAttribute("listings", listingService.getListingsForSeller(user.getEmail()));
+            model.addAttribute("error", "Could not delete listing.");
 
-    model.addAttribute("listings", listings);
-    model.addAttribute("keyword", keyword);
-    model.addAttribute("status", status);
-    model.addAttribute("minPrice", minPrice);
-    model.addAttribute("maxPrice", maxPrice);
+            return "my-listings";
+        }
 
-    return "listings";
-}
+        return "redirect:/my-listings";
+    }
 
-@GetMapping("/listings/sort/price")
-public String sortByPriceAsc(HttpSession session, Model model) {
+    @GetMapping("/listings/filter")
+    public String filterListings(@RequestParam(value = "keyword", required = false) String keyword,
+                                 @RequestParam(value = "status", required = false) ListingStatus status,
+                                 @RequestParam(value = "minPrice", required = false) BigDecimal minPrice,
+                                 @RequestParam(value = "maxPrice", required = false) BigDecimal maxPrice,
+                                 HttpSession session,
+                                 Model model) {
 
-    if (session.getAttribute("user") == null) return "redirect:/login";
+        User user = getSessionUser(session);
+        if (user == null) return "redirect:/login";
 
-    model.addAttribute("listings", listingService.getAllListingsSortedByPrice(true));
-    model.addAttribute("sortBy", "price-asc");
+        List<Listing> listings = listingService.filterListings(keyword, status, minPrice, maxPrice);
 
-    return "listings";
-}
+        model.addAttribute("listings", listings);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("status", status);
+        model.addAttribute("minPrice", minPrice);
+        model.addAttribute("maxPrice", maxPrice);
 
-@GetMapping("/listings/sort/price-desc")
-public String sortByPriceDesc(HttpSession session, Model model) {
+        return "listings";
+    }
 
-    if (session.getAttribute("user") == null) return "redirect:/login";
+    @GetMapping("/listings/sort/price")
+    public String sortByPriceAsc(HttpSession session, Model model) {
+        User user = getSessionUser(session);
+        if (user == null) return "redirect:/login";
 
-    model.addAttribute("listings", listingService.getAllListingsSortedByPrice(false));
-    model.addAttribute("sortBy", "price-desc");
+        model.addAttribute("listings", listingService.getAllListingsSortedByPrice(true));
+        model.addAttribute("sortBy", "price-asc");
 
-    return "listings";
-}
+        return "listings";
+    }
 
-@GetMapping("/listings/sort/title")
-public String sortByTitleAsc(HttpSession session, Model model) {
+    @GetMapping("/listings/sort/price-desc")
+    public String sortByPriceDesc(HttpSession session, Model model) {
+        User user = getSessionUser(session);
+        if (user == null) return "redirect:/login";
 
-    if (session.getAttribute("user") == null) return "redirect:/login";
+        model.addAttribute("listings", listingService.getAllListingsSortedByPrice(false));
+        model.addAttribute("sortBy", "price-desc");
 
-    model.addAttribute("listings", listingService.getAllListingsSortedByTitle(true));
-    model.addAttribute("sortBy", "title-asc");
+        return "listings";
+    }
 
-    return "listings";
-}
+    @GetMapping("/listings/sort/title")
+    public String sortByTitleAsc(HttpSession session, Model model) {
+        User user = getSessionUser(session);
+        if (user == null) return "redirect:/login";
 
-@GetMapping("/listings/sort/title-desc")
-public String sortByTitleDesc(HttpSession session, Model model) {
+        model.addAttribute("listings", listingService.getAllListingsSortedByTitle(true));
+        model.addAttribute("sortBy", "title-asc");
 
-    if (session.getAttribute("user") == null) return "redirect:/login";
+        return "listings";
+    }
 
-    model.addAttribute("listings", listingService.getAllListingsSortedByTitle(false));
-    model.addAttribute("sortBy", "title-desc");
+    @GetMapping("/listings/sort/title-desc")
+    public String sortByTitleDesc(HttpSession session, Model model) {
+        User user = getSessionUser(session);
+        if (user == null) return "redirect:/login";
 
-    return "listings";
-}
+        model.addAttribute("listings", listingService.getAllListingsSortedByTitle(false));
+        model.addAttribute("sortBy", "title-desc");
 
-@GetMapping("/listings")
-public String allListings(HttpSession session, Model model) {
+        return "listings";
+    }
 
-    if (session.getAttribute("user") == null) return "redirect:/login";
+    @GetMapping("/listings")
+    public String allListings(HttpSession session, Model model) {
+        User user = getSessionUser(session);
+        if (user == null) return "redirect:/login";
 
-    model.addAttribute("listings", listingService.getAllListings());
+        model.addAttribute("listings", listingService.getAllListings());
 
-    return "listings";
-}
-private User getSessionUser(HttpSession session) {
-    Object u = session.getAttribute("user");
-    return (u instanceof User) ? (User) u : null;
-}
+        return "listings";
+    }
 
+    private User getSessionUser(HttpSession session) {
+        Object u = session.getAttribute("user");
+        return (u instanceof User) ? (User) u : null;
+    }
+
+    private Listing findListing(long id) {
+        return listingService.findById(id);
+    }
 }
