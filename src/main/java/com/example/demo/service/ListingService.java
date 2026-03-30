@@ -238,10 +238,16 @@ public class ListingService {
                 .filter(l -> status == null || l.getStatus() == status)
                 .filter(l -> minPrice == null || l.getPrice().compareTo(minPrice) >= 0)
                 .filter(l -> maxPrice == null || l.getPrice().compareTo(maxPrice) <= 0)
-                .filter(l -> keyword == null || keyword.isBlank()
-                        || l.getTitle().toLowerCase().contains(keyword.toLowerCase())
-                        || l.getDescription().toLowerCase().contains(keyword.toLowerCase()))
+                .filter(l -> matchesKeyword(l, keyword))
                 .collect(Collectors.toList());
+    }
+
+    private boolean matchesKeyword(Listing listing, String keyword) {
+        if (keyword == null || keyword.isBlank()) return true;
+
+        String needle = keyword.trim().toLowerCase(Locale.ROOT);
+        return safe(listing.getTitle()).contains(needle)
+                || safe(listing.getDescription()).contains(needle);
     }
 
     // ===============================
