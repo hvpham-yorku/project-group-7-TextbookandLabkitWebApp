@@ -44,9 +44,8 @@ public ListingController(ListingService listingService,
 
 @GetMapping("/my-listings")
 public String myListings(HttpSession session, Model model) {
-    Object u = session.getAttribute("user");
-    if (u == null) return "redirect:/login";
-    User user = (User) u;
+	User user = getSessionUser(session);
+	if (user == null) return "redirect:/login";
     model.addAttribute("user", user);
     model.addAttribute("listings", listingService.getListingsForSeller(user.getEmail()));
     return "my-listings";
@@ -55,10 +54,8 @@ public String myListings(HttpSession session, Model model) {
 @GetMapping("/inbox")
 public String inbox(HttpSession session, Model model) {
 
-    Object u = session.getAttribute("user");
-    if (u == null) return "redirect:/login";
-
-    User user = (User) u;
+	User user = getSessionUser(session);
+	if (user == null) return "redirect:/login";
 
     List<ContactMessage> messages = contactMessageService.getMessagesForSeller(user.getEmail());
 
@@ -232,10 +229,8 @@ public String createListing(@RequestParam("title") String title,
                             HttpSession session,
                             Model model) {
 
-    Object u = session.getAttribute("user");
-    if (u == null) return "redirect:/login";
-
-    User user = (User) u;
+	User user = getSessionUser(session);
+	if (user == null) return "redirect:/login";
 
     Listing result = listingService.addListing(
             user.getEmail(),
@@ -331,10 +326,8 @@ public String editListingSubmit(@PathVariable("id") long id,
                                 HttpSession session,
                                 Model model) {
 
-    Object u = session.getAttribute("user");
-    if (u == null) return "redirect:/login";
-
-    User user = (User) u;
+	User user = getSessionUser(session);
+	if (user == null) return "redirect:/login";
 
     boolean ok = listingService.updateListing(
             id,
@@ -366,10 +359,8 @@ public String deleteListing(@PathVariable("id") long id,
                             HttpSession session,
                             Model model) {
 
-    Object u = session.getAttribute("user");
-    if (u == null) return "redirect:/login";
-
-    User user = (User) u;
+	User user = getSessionUser(session);
+	if (user == null) return "redirect:/login";
 
     boolean ok = listingService.deleteListing(id, user.getEmail());
 
@@ -459,6 +450,9 @@ public String allListings(HttpSession session, Model model) {
 
     return "listings";
 }
-
+private User getSessionUser(HttpSession session) {
+    Object u = session.getAttribute("user");
+    return (u instanceof User) ? (User) u : null;
+}
 
 }
